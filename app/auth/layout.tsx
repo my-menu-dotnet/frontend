@@ -14,7 +14,14 @@ export default function Layout({ children }: AuthLayoutProps) {
       <aside className="bg-white rounded-2xl lg:max-w-[600px] w-full flex justify-end border-2 shadow p-4">
         {children}
       </aside>
-      <Image alt="Home" className="-z-10 absolute h-full object-cover" src={Background} />
+      <Image
+        alt="Home"
+        height={0}
+        width={0}
+        className="-z-10 absolute h-full w-auto object-cover"
+        src={Background}
+        priority
+      />
     </div>
   );
 }

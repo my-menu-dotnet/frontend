@@ -1,0 +1,4 @@
+
+.ps-active {
+  @apply text-primary;
+}

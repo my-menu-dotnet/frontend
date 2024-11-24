@@ -14,6 +14,7 @@ type InputPasswordProps = NextInputProps & {
 
 export default function InputPassword({
   errorMessage,
+  value = "",
   ...rest
 }: InputPasswordProps) {
   const [isVisible, setIsVisible] = useState(false);
@@ -23,12 +24,18 @@ export default function InputPassword({
 
   return (
     <NextInput
+      value={value}
       errorMessage={errorMessage}
       isInvalid={isInvalid}
       variant="bordered"
       type={!isVisible ? "password" : "text"}
       endContent={
-        <button className="focus:outline-none" type="button" onClick={toggleVisibility} aria-label="toggle password visibility">
+        <button
+          className="focus:outline-none"
+          type="button"
+          onClick={toggleVisibility}
+          aria-label="toggle password visibility"
+        >
           {isVisible ? (
             <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
           ) : (

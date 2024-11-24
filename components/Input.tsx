@@ -5,10 +5,11 @@ import {
 
 type InputProps = NextInputProps & {};
 
-export default function Input({ errorMessage, ...rest }: InputProps) {
+export default function Input({ errorMessage, value = "", ...rest }: InputProps) {
   const isInvalid = Boolean(errorMessage);
   return (
     <NextInput
+      value={value}
       errorMessage={errorMessage}
       isInvalid={isInvalid}
       variant="bordered"

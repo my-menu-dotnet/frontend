@@ -1,16 +1,25 @@
 "use client";
 
-import { createContext, ReactNode, useContext, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+} from "react";
+import { usePathname, useRouter } from "next/navigation";
 import api, { setupApi } from "@/services/api";
-import { useUser } from "./useUser";
+import { useQueryClient } from "@tanstack/react-query";
+import useUser from "./queries/useUser";
 
 type AuthContextProps = {
   login: () => void;
+  logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextProps>({
   login: () => null,
+  logout: () => null,
 });
 
 export function useAuth() {
@@ -26,30 +35,42 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { user, refetch } = useUser();
+  const { data: user, isFetching, refetch } = useUser();
   const router = useRouter();
+  const pathName = usePathname();
+  const queryClient = useQueryClient();
 
   const login = () => {
-    router.push("/dashboard");
     refetch();
+    router.push("/dashboard");
   };
 
-  const logout = () => {
-    api.post("/auth/logout").then(() => {
-      router.push("/auth/login");
-    });
-  };
-
-  useEffect(() => {
-    setupApi(logout);
-
-    if (user) {
-      router.push("/dashboard");
-      return;
+  const logout = useCallback(async () => {
+    try {
+      await api.post("/auth/logout");
+      queryClient.clear();
+      router.replace("/auth/login");
+    } catch (logoutError) {
+      console.error(logoutError);
     }
   }, []);
 
+  useEffect(() => {
+    if (isFetching) return;
+
+    if (!user && !pathName.startsWith("/auth")) {
+      router.replace("/auth/login");
+    }
+    if (user && pathName.startsWith("/auth")) {
+      router.replace("/dashboard");
+    }
+  }, [pathName, user, isFetching]);
+
+  setupApi(logout);
+
   return (
-    <AuthContext.Provider value={{ login }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ login, logout }}>
+      {user && children}
+    </AuthContext.Provider>
   );
 }

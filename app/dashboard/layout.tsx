@@ -1,4 +1,5 @@
-import Sidebar from "@/components/SideBar";
+import Sidebar from "@/components/Sidebar";
+import { AuthProvider } from "@/hooks/useAuth";
 
 type LayoutDashboardProps = {
   children: React.ReactNode;
@@ -6,9 +7,11 @@ type LayoutDashboardProps = {
 
 export default function LayoutDashboard({ children }: LayoutDashboardProps) {
   return (
-    <div className="h-full flex flex-row">
-      <Sidebar />
-      {children}
-    </div>
+    <AuthProvider>
+      <div className="h-full flex flex-row">
+        <Sidebar />
+        {children}
+      </div>
+    </AuthProvider>
   );
 }

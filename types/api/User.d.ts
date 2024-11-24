@@ -1,10 +1,16 @@
+import { Address } from "./Address";
+import { Company } from "./Company";
+
 type User = {
   id: string;
   name: string;
   email: string;
   cpf: string;
   phone: string;
-  address: any;
+  address: Address;
+  companies: Company[];
+  created_at: string;
+  updated_at: string;
 }
 
 export type { User };

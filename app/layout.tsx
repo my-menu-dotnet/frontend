@@ -5,7 +5,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { NextUIProvider } from "@nextui-org/react";
 import { AuthProvider } from "@/hooks/useAuth";
-import { UserProvider } from "@/hooks/useUser";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -21,14 +20,10 @@ export default function RootLayout({
     <html lang="pt-br" className="light w-full h-full">
       <body className={`antialiased w-full h-full`}>
         <ReactQueryProvider>
-          <UserProvider>
-            <AuthProvider>
-              <NextUIProvider className="w-full h-full">
-                {children}
-                <ToastContainer />
-              </NextUIProvider>
-            </AuthProvider>
-          </UserProvider>
+          <NextUIProvider className="w-full h-full">
+            {children}
+            <ToastContainer />
+          </NextUIProvider>
         </ReactQueryProvider>
       </body>
     </html>

@@ -5,16 +5,9 @@ import {
 
 type ButtonProps = NextButtonProps & {
   text: string;
-  label?: string;
-  errorMessage?: string;
 };
 
-export default function Button({
-  text,
-  label,
-  errorMessage,
-  ...rest
-}: ButtonProps) {
+export default function Button({ text, ...rest }: ButtonProps) {
   return (
     <NextButton
       color="primary"

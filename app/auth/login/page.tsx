@@ -13,6 +13,7 @@ import Logo from "@/assets/logo.svg";
 import Image from "next/image";
 import Checkbox from "@/components/Checkbox";
 import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 type LoginProps = {
   email: string;
@@ -25,7 +26,7 @@ const schema = Yup.object().shape({
 });
 
 export default function Page() {
-  const { login } = useAuth();
+  const router = useRouter();
 
   const { control, handleSubmit, setError } = useForm<LoginProps>({
     resolver: yupResolver(schema),
@@ -37,7 +38,7 @@ export default function Page() {
       return await api.post("/auth/login", data);
     },
     onError: (error: AxiosError) => {
-      if (error.response?.status === 401) {
+      if (error.response?.status === 403) {
         setError("email", { message: "Credenciais inválidas" });
         setError("password", { message: "Credenciais inválidas" });
         toast("Erro ao fazer login", { type: "error", icon: () => "😓" });
@@ -45,8 +46,8 @@ export default function Page() {
       }
     },
     onSuccess: () => {
-      login();
-    }
+      router.push("/dashboard");
+    },
   });
 
   const handleLogin = async (data: LoginProps) => {
@@ -62,7 +63,10 @@ export default function Page() {
       </div>
       <form
         className="flex flex-col flex-[2] w-[80%] gap-4"
-        onSubmit={(e) => e.preventDefault()}
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit(handleLogin)();
+        }}
       >
         <Controller
           name="email"
@@ -97,7 +101,7 @@ export default function Page() {
             Esqueceu sua senha?
           </a>
         </div>
-        <Button text="Entrar" isLoading={isPending} onClick={handleSubmit(handleLogin)} />
+        <Button text="Entrar" isLoading={isPending} type="submit" />
       </form>
 
       <div className="absolute bottom-12">
