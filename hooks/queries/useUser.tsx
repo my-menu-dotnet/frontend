@@ -1,8 +1,9 @@
 import api from "@/services/api";
+import { User } from "@/types/api/User";
 import { useQuery } from "@tanstack/react-query";
 
 const useUser = () =>
-  useQuery({
+  useQuery<User | null>({
     queryKey: ["user"],
     queryFn: async () => {
       return await fetchUser();

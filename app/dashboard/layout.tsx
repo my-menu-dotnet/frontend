@@ -8,9 +8,11 @@ type LayoutDashboardProps = {
 export default function LayoutDashboard({ children }: LayoutDashboardProps) {
   return (
     <AuthProvider>
-      <div className="h-full flex flex-row">
+      <div className="min-h-full flex flex-row bg-gray-100">
         <Sidebar />
-        {children}
+        <div className="p-2 md:p-6 flex-1 flex-wrap w-full md:w-auto">
+          {children}
+        </div>
       </div>
     </AuthProvider>
   );

@@ -12,7 +12,7 @@ import { GoGear } from "react-icons/go";
 import { HiChevronDoubleLeft, HiChevronDoubleRight } from "react-icons/hi";
 import { FiLogOut } from "react-icons/fi";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useCompany from "@/hooks/queries/useCompany";
 import HeaderSkeleton from "./HeaderSkeleton";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,6 +25,12 @@ export default function Sidebar() {
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
+
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setCollapsed(true);
+    }
+  }, []);
 
   return (
     <ProSideBar collapsed={collapsed}>
