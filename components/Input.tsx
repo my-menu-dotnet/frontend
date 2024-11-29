@@ -13,6 +13,9 @@ export default function Input({ errorMessage, value = "", ...rest }: InputProps)
       errorMessage={errorMessage}
       isInvalid={isInvalid}
       variant="bordered"
+      classNames={{
+        inputWrapper: "border-1 rounded-lg"
+      }}
       {...rest}
     />
   );

@@ -1,6 +1,6 @@
-import { GrowthRate } from "@/components/Dashboard/GrowhtRate";
-import LineAccessChart from "@/components/Dashboard/LineAccessChart";
-import { Welcome } from "@/components/Dashboard/Welcome";
+import { GrowthRate } from "@/components/Dashboard/Home/GrowhtRate";
+import LineAccessChart from "@/components/Dashboard/Home/LineAccessChart";
+import { Welcome } from "@/components/Dashboard/Home/Welcome";
 
 export default function Page() {
   return (

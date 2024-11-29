@@ -12,7 +12,6 @@ import { toast } from "react-toastify";
 import Logo from "@/assets/logo.svg";
 import Image from "next/image";
 import Checkbox from "@/components/Checkbox";
-import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
 type LoginProps = {

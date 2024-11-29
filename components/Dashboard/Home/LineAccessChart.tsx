@@ -4,7 +4,7 @@ import useCompanyAccess from "@/hooks/queries/analytics/useCompanyAccess";
 import { Line } from "react-chartjs-2";
 
 import { Chart, registerables } from "chart.js";
-import Block from "../Block";
+import Block from "../../Block";
 import { months } from "@/utils/lists";
 Chart.register(...registerables);
 

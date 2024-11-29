@@ -4,7 +4,7 @@ import useCompanyAccess from "@/hooks/queries/analytics/useCompanyAccess";
 import { BsCalendar2Week } from "react-icons/bs";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { PiLightning } from "react-icons/pi";
-import Block from "../Block";
+import Block from "../../Block";
 
 export function GrowthRate() {
   const { data: companyAccess } = useCompanyAccess();

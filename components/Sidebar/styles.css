@@ -1,4 +1,19 @@
 
-.ps-active {
-  @apply text-primary;
+.ps-menuitem-root.ps-active {
+  @apply bg-primary/10 text-primary;
+}
+
+.ps-menuitem-root.ps-active::after {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 5px;
+  height: 80%;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  transform: translateY(-50%);
+
+  @apply bg-primary;
 }
