@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Input as NextInput,
   InputProps as NextInputProps,
@@ -28,20 +30,21 @@ export default function InputPassword({
       errorMessage={errorMessage}
       isInvalid={isInvalid}
       variant="bordered"
+      classNames={{
+        inputWrapper: "border-1 rounded-lg",
+      }}
       type={!isVisible ? "password" : "text"}
       endContent={
-        <button
-          className="focus:outline-none"
-          type="button"
+        <div
           onClick={toggleVisibility}
-          aria-label="toggle password visibility"
+          className="cursor-pointer"
         >
           {isVisible ? (
             <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
           ) : (
             <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
           )}
-        </button>
+        </div>
       }
       {...rest}
     />

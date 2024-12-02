@@ -20,10 +20,12 @@ export default function RootLayout({
     <html lang="pt-br" className="light w-full h-full">
       <body className={`antialiased w-full h-full`}>
         <ReactQueryProvider>
-          <NextUIProvider className="w-full h-full">
-            {children}
-            <ToastContainer />
-          </NextUIProvider>
+          <AuthProvider>
+            <NextUIProvider className="w-full h-full">
+              {children}
+              <ToastContainer />
+            </NextUIProvider>
+          </AuthProvider>
         </ReactQueryProvider>
       </body>
     </html>

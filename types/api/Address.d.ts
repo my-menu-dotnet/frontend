@@ -13,7 +13,7 @@ type Address = {
   updated_at: string;
 };
 
-type AddressForm = {
+type AddressRequest = {
   street: string;
   number: string;
   complement?: string;
@@ -23,4 +23,4 @@ type AddressForm = {
   zip_code: string;
 };
 
-export type { Address, AddressForm };
+export type { Address, AddressRequest };

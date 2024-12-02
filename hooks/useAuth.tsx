@@ -60,9 +60,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!user && !pathName.startsWith("/auth")) {
       router.replace("/auth/login");
+      return;
+    }
+    if (user && user.companies.length === 0) {
+      router.replace("/auth/company");
+      return;
     }
     if (user && pathName.startsWith("/auth")) {
       router.replace("/dashboard");
+      return;
     }
   }, [pathName, user, isFetching]);
 
@@ -70,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ login, logout }}>
-      {user && children}
+      {children}
     </AuthContext.Provider>
   );
 }

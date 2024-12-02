@@ -13,8 +13,8 @@ const useCompany = () =>
 
 const fetchCompany = async () => {
   try {
-    const { data } = await api.get("/company");
-    return data[0] as Company;
+    const { data } = await api.get("/company/user");
+    return (data[0] || {}) as Company;
   } catch (error) {
     console.error(error);
     throw new Error("Company not found");

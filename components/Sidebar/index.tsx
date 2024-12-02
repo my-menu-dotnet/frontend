@@ -7,6 +7,7 @@ import "./styles.css";
 import { FiHome } from "react-icons/fi";
 import { MdStorefront } from "react-icons/md";
 import { BiFoodMenu } from "react-icons/bi";
+import { GoPerson } from "react-icons/go";
 import { GoGear } from "react-icons/go";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,6 +34,7 @@ export default function Sidebar() {
         <Item icon={<FiHome />} title="Dashboard" to="/dashboard" />
         <Item icon={<MdStorefront />} title="Empresa" to="/dashboard/company" />
         <Item icon={<BiFoodMenu />} title="Cardápio" to="/dashboard/menu" />
+        <Item icon={<GoPerson />} title="Perfil" to="/dashboard/profile" />
         <Item icon={<GoGear />} title="Configurações" to="/dashboard/config" />
         {/* <MenuItem
           className="text-danger"

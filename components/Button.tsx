@@ -11,7 +11,7 @@ export default function Button({ text, ...rest }: ButtonProps) {
   return (
     <NextButton
       color="primary"
-      className="text-white font-semibold shadow-sm"
+      className="text-white font-semibold shadow-sm h-12"
       {...rest}
     >
       {text}

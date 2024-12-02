@@ -16,7 +16,7 @@ export default function ImagePicker({
   fileStorage,
   onFileChange,
 }: ImagePickerProps) {
-  const [file, setFile] = useState<FileStorage | null>(fileStorage || null);
+  const [file, setFile] = useState<FileStorage | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { mutate } = useMutation({
@@ -44,10 +44,16 @@ export default function ImagePicker({
   }
 
   useEffect(() => {
-    if (file && onFileChange) {
+    if (file && onFileChange && file !== fileStorage) {
       onFileChange(file);
     }
   }, [file]);
+
+  useEffect(() => {
+    if (fileStorage) {
+      setFile(fileStorage);
+    }
+  }, [fileStorage]);
 
   return (
     <div className="relative">
@@ -71,6 +77,7 @@ export default function ImagePicker({
           className="hidden"
           ref={fileInputRef}
           onChange={handleFileChange}
+          value={""}
         />
       </div>
     </div>

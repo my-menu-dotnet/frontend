@@ -1,4 +1,5 @@
 "use client";
+
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import InputPassword from "@/components/InputPassword";
@@ -13,6 +14,7 @@ import Logo from "@/assets/logo.svg";
 import Image from "next/image";
 import Checkbox from "@/components/Checkbox";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type LoginProps = {
   email: string;
@@ -89,7 +91,6 @@ export default function Page() {
               label="Password"
               placeholder="Digite sua senha"
               errorMessage={fieldState.error?.message}
-              type="password"
               {...field}
             />
           )}
@@ -103,12 +104,12 @@ export default function Page() {
         <Button text="Entrar" isLoading={isPending} type="submit" />
       </form>
 
-      <div className="absolute bottom-12">
-        <a>
-          Ainda não tem uma conta?{" "}
+      <p className="mb-8">
+        Ainda não tem uma conta?{" "}
+        <Link href={"/auth/register"}>
           <span className="text-primary font-semibold">Cadastre-se</span>
-        </a>
-      </div>
+        </Link>
+      </p>
     </div>
   );
 }
