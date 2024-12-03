@@ -12,7 +12,7 @@ const useUser = () =>
   });
 
 const fetchUser = async () => {
-  const response = await api.get("/user");
+  const response = await api.get("/user/me");
   return response.data;
 };
 

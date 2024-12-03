@@ -9,3 +9,7 @@
 html {
   @apply antialiased;
 }
+
+.text-primary-foreground {
+  @apply text-white;
+}

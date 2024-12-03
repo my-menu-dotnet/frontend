@@ -10,11 +10,10 @@ import { BiFoodMenu } from "react-icons/bi";
 import { GoPerson } from "react-icons/go";
 import { GoGear } from "react-icons/go";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
 import Header from "./Header";
+import Singout from "./Singout";
 
 export default function Sidebar() {
-  const { logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
 
   const toggleCollapsed = () => {
@@ -36,13 +35,7 @@ export default function Sidebar() {
         <Item icon={<BiFoodMenu />} title="Cardápio" to="/dashboard/menu" />
         <Item icon={<GoPerson />} title="Perfil" to="/dashboard/profile" />
         <Item icon={<GoGear />} title="Configurações" to="/dashboard/config" />
-        {/* <MenuItem
-          className="text-danger"
-          icon={<FiLogOut />}
-          component={<div onClick={logout} />}
-        >
-          Sair
-        </MenuItem> */}
+        <Singout />
       </Menu>
     </ProSideBar>
   );

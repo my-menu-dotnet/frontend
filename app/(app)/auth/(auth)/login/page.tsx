@@ -15,6 +15,7 @@ import Image from "next/image";
 import Checkbox from "@/components/Checkbox";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 
 type LoginProps = {
   email: string;
@@ -27,7 +28,7 @@ const schema = Yup.object().shape({
 });
 
 export default function Page() {
-  const router = useRouter();
+  const { login } = useAuth();
 
   const { control, handleSubmit, setError } = useForm<LoginProps>({
     resolver: yupResolver(schema),
@@ -47,7 +48,7 @@ export default function Page() {
       }
     },
     onSuccess: () => {
-      router.push("/dashboard");
+      login();
     },
   });
 

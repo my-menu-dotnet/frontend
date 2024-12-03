@@ -35,7 +35,7 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { data: user, isFetching, refetch } = useUser();
+  const { data: user, isLoading, refetch } = useUser();
   const router = useRouter();
   const pathName = usePathname();
   const queryClient = useQueryClient();
@@ -56,10 +56,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (isFetching) return;
+    if (isLoading) return;
 
     if (!user && !pathName.startsWith("/auth")) {
       router.replace("/auth/login");
+      return;
+    }
+    if (user && !user.verified_email) {
+      router.replace("/auth/verify-email");
       return;
     }
     if (user && user.companies.length === 0) {
@@ -70,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.replace("/dashboard");
       return;
     }
-  }, [pathName, user, isFetching]);
+  }, [pathName, user]);
 
   setupApi(logout);
 

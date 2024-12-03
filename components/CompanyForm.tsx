@@ -80,8 +80,6 @@ export default function CompanyForm() {
     mutate(data);
   };
 
-  console.log(getValues());
-
   useEffect(() => {
     if (company) {
       setValue("name", company.name || "");
@@ -89,7 +87,13 @@ export default function CompanyForm() {
       setValue("email", company.email || "");
       setValue("phone", company.phone || "");
       setValue("image_id", company.image?.id || "");
-      setValue("address", company.address || {});
+      setValue("address.city", company.address?.city || "");
+      setValue("address.complement", company.address?.complement || "");
+      setValue("address.neighborhood", company.address?.neighborhood || "");
+      setValue("address.number", company.address?.number || "");
+      setValue("address.state", company.address?.state || "");
+      setValue("address.street", company.address?.street || "");
+      setValue("address.zip_code", company.address?.zip_code || "");
     }
   }, [company]);
 

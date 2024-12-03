@@ -11,6 +11,7 @@ type User = {
   companies: Company[];
   created_at: string;
   updated_at: string;
+  verified_email: boolean;
 }
 
 export type { User };

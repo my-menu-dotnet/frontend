@@ -13,7 +13,7 @@ export function Welcome() {
 
   return (
     <div className="mt-4 flex-1">
-      {!isLoading && company  ? (
+      {!isLoading && company ? (
         <div className="flex flex-row justify-around bg-white border border-gray-200 p-4 rounded-xl ">
           <div>
             <h1 className="text-xl font-semibold">Bem vindo, {user?.name}</h1>
@@ -29,13 +29,15 @@ export function Welcome() {
                 <MdOutlineAlternateEmail />
                 {company?.email}
               </ContactComponent>
-              <p className="flex flex-row gap-1 mt-2 line-clamp-1 whitespace-break-spaces">
-                {company?.address.state}, {company?.address.city} -{" "}
-                {company?.address.street}, {company?.address.number}
-                {company?.address.complement && (
-                  <>, {company?.address.complement}</>
-                )}
-              </p>
+              {company?.address && (
+                <p className="flex flex-row gap-1 mt-2 line-clamp-1 whitespace-break-spaces">
+                  {company.address.state}, {company.address.city} -{" "}
+                  {company.address.street}, {company.address.number}
+                  {company.address.complement && (
+                    <>, {company.address.complement}</>
+                  )}
+                </p>
+              )}
             </div>
           </div>
           <div className="max-w-[400px]">

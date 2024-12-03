@@ -1,7 +1,6 @@
-import { Control, Controller } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { CiCircleInfo } from "react-icons/ci";
 import Input from "./Input";
-import { AddressRequest } from "@/types/api/Address";
 
 type AddressFormProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
