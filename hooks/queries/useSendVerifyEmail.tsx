@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 const useSendVerifyEmail = () =>
-  useQuery({
+  useQuery<null, AxiosError>({
     queryKey: ["verify-email-send"],
     queryFn: async () => {
       return await fetchSendEmail();
@@ -15,7 +15,8 @@ const useSendVerifyEmail = () =>
   });
 
 const fetchSendEmail = async () => {
-  return await api.post("/auth/verify-email/send");
+  await api.post<void>("/auth/verify-email/send");
+  return null;
 };
 
 export default useSendVerifyEmail;
