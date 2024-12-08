@@ -55,10 +55,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  useEffect(() => {
+  const handleRedirect = () => {
     if (isLoading) return;
 
-    if (!user && !pathName.startsWith("/auth")) {
+    if (!user && !(pathName == "/auth/login" || pathName == "/auth/register")) {
       router.replace("/auth/login");
       return;
     }
@@ -70,11 +70,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.replace("/auth/company");
       return;
     }
+    if (
+      user &&
+      user.companies.length > 0 &&
+      !user.companies[0].verified_email
+    ) {
+      router.replace("/auth/company/verify-email");
+      return;
+    }
     if (user && pathName.startsWith("/auth")) {
       router.replace("/dashboard");
       return;
     }
-  }, [pathName, user]);
+  };
+
+  useEffect(() => {
+    handleRedirect();
+  }, [pathName, user, isLoading]);
 
   setupApi(logout);
 

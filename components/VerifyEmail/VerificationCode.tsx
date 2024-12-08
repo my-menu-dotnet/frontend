@@ -8,9 +8,12 @@ import useSendVerifyEmail from "@/hooks/queries/useSendVerifyEmail";
 import Button from "@/components/Button";
 import Counter from "@/components/Counter";
 import RandomEmoji from "@/utils/randomEmoji";
+import { VerifyEmailType } from "@/types/api/auth/VerifyEmail";
+import useUser from "@/hooks/queries/useUser";
 
 type VerificationEmailProps = {
   code: string;
+  type: VerifyEmailType;
 };
 
 const errors = {
@@ -20,10 +23,15 @@ const errors = {
   410: "Código expirado",
 } as { [key: number | string]: string };
 
-export default function VerificationCode() {
+type VerificationCodeProps = {
+  type: VerifyEmailType;
+};
+
+export default function VerificationCode({ type }: VerificationCodeProps) {
   const inputsRef = useRef<HTMLInputElement[]>([]);
   const router = useRouter();
-  const { error, refetch } = useSendVerifyEmail();
+  const { error, refetch } = useSendVerifyEmail(type);
+  const { refetch: refetchUser } = useUser();
   const [allowResend, setAllowResend] = useState(false);
 
   const { mutate, isPending } = useMutation({
@@ -41,7 +49,7 @@ export default function VerificationCode() {
       });
     },
     onSuccess: () => {
-      router.push("/auth/company");
+      refetchUser();
     },
   });
 
@@ -59,9 +67,7 @@ export default function VerificationCode() {
 
   const handleSubmit = () => {
     const code = inputsRef.current.map((input) => input.value).join("");
-    mutate({
-      code,
-    });
+    mutate({ code, type });
   };
 
   const handlePaste = (e: ClipboardEvent) => {

@@ -71,7 +71,7 @@ export default function CompanyForm() {
     },
     onSuccess: () => {
       if (!company?.id) {
-        router.push("/dashboard");
+        router.push("/auth/company/verify-email");
       }
     },
   });

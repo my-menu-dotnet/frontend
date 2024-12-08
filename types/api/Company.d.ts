@@ -8,6 +8,7 @@ type Company = {
   cnpj: string;
   phone: string;
   email: string;
+  verified_email: boolean;
   categories: Category[];
   image: FileStorage;
   delivery: boolean;
