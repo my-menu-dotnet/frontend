@@ -4,17 +4,19 @@ import {
 } from "@nextui-org/button";
 
 type ButtonProps = NextButtonProps & {
-  text: string;
+  text?: string;
+  children?: React.ReactNode;
 };
 
-export default function Button({ text, ...rest }: ButtonProps) {
+export default function Button({ text, children, ...rest }: ButtonProps) {
   return (
     <NextButton
       color="primary"
-      className="font-semibold shadow-sm h-12"
+      className="font-semibold shadow-sm h-10"
       {...rest}
     >
       {text}
+      {children}
     </NextButton>
   );
 }

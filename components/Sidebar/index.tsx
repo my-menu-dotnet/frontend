@@ -1,17 +1,13 @@
 "use client";
 
-import { Sidebar as ProSideBar, Menu, MenuItem } from "react-pro-sidebar";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { Sidebar as ProSideBar, Menu } from "react-pro-sidebar";
 import "./styles.css";
-import { FiHome } from "react-icons/fi";
-import { MdStorefront } from "react-icons/md";
-import { BiFoodMenu } from "react-icons/bi";
-import { GoPerson } from "react-icons/go";
-import { GoGear } from "react-icons/go";
 import { useEffect, useState } from "react";
 import Header from "./Header";
 import Singout from "./Singout";
+import Item from "./Item";
+import SubItem from "./SubItem";
+import menus from "@/utils/menus";
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
@@ -30,35 +26,38 @@ export default function Sidebar() {
     <ProSideBar collapsed={collapsed} backgroundColor="white">
       <Header collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
       <Menu>
-        <Item icon={<FiHome />} title="Dashboard" to="/dashboard" />
-        <Item icon={<MdStorefront />} title="Empresa" to="/dashboard/company" />
-        <Item icon={<BiFoodMenu />} title="Cardápio" to="/dashboard/menu" />
-        <Item icon={<GoPerson />} title="Perfil" to="/dashboard/profile" />
-        <Item icon={<GoGear />} title="Configurações" to="/dashboard/config" />
+        {menus.map((item, index) => {
+          if (item.children) {
+            return (
+              <SubItem
+                key={index}
+                title={item.title}
+                icon={item.icon}
+                url={item.url!}
+              >
+                {item.children.map((child, index) => (
+                  <Item
+                    key={index}
+                    title={child.title}
+                    to={child.to!}
+                    icon={child.icon}
+                  />
+                ))}
+              </SubItem>
+            );
+          }
+
+          return (
+            <Item
+              key={index}
+              title={item.title}
+              to={item.to!}
+              icon={item.icon}
+            />
+          );
+        })}
         <Singout />
       </Menu>
     </ProSideBar>
   );
 }
-
-type ItemProps = {
-  title: string;
-  to: string;
-  icon?: React.ReactNode;
-};
-
-const Item = ({ title, to, icon }: ItemProps) => {
-  const pathName = usePathname();
-  const active = pathName === to;
-
-  return (
-    <MenuItem
-      active={active}
-      className="text-gray-500"
-      icon={icon}
-      component={<Link href={to} />}
-    >
-      {title}
-    </MenuItem>
-  );
-};

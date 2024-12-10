@@ -1,6 +1,5 @@
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
-import { AuthProvider } from "@/hooks/useAuth";
 
 type LayoutDashboardProps = {
   children: React.ReactNode;

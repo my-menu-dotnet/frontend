@@ -5,8 +5,8 @@ import {
   InputProps as NextInputProps,
 } from "@nextui-org/react";
 import { useState } from "react";
-import EyeSlashFilledIcon from "./icons/EyeSlashFilledIcon";
-import EyeFilledIcon from "./icons/EyeFilledIcon";
+import { FaRegEye } from "react-icons/fa6";
+import { FaRegEyeSlash } from "react-icons/fa6";
 
 type InputPasswordProps = NextInputProps & {
   label?: string;
@@ -35,15 +35,8 @@ export default function InputPassword({
       }}
       type={!isVisible ? "password" : "text"}
       endContent={
-        <div
-          onClick={toggleVisibility}
-          className="cursor-pointer"
-        >
-          {isVisible ? (
-            <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-          ) : (
-            <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-          )}
+        <div onClick={toggleVisibility} className="cursor-pointer">
+          {isVisible ? <FaRegEye /> : <FaRegEyeSlash />}
         </div>
       }
       {...rest}
