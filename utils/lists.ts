@@ -12,3 +12,8 @@ export const months = [
   "Novembro",
   "Dezembro",
 ];
+
+export const status = [
+  { key: "ACTIVE", label: "Ativo" },
+  { key: "INACTIVE", label: "Inativo" },
+];

@@ -2,10 +2,12 @@
 
 import api from "@/services/api";
 import { FileStorage } from "@/types/api/FileStorage";
+import { validateImageFileType } from "@/validators/file";
 import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { IoCloudUploadOutline } from "react-icons/io5";
+import { toast } from "react-toastify";
 
 type ImagePickerProps = {
   fileStorage: FileStorage | undefined;
@@ -38,6 +40,12 @@ export default function ImagePicker({
 
   function handleFileChange() {
     const blobFile = fileInputRef.current?.files?.[0];
+    
+    if (!validateImageFileType(blobFile)) {
+      toast.error("Tipo de arquivo não suportado");
+      return;
+    }
+    
     if (blobFile) {
       mutate(blobFile);
     }

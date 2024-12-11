@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Button from "@/components/Button";
 import { GoPlus } from "react-icons/go";
-import CategoryItem from "@/components/Menu/Categories/CategoryItem";
-import CategoryModal from "@/components/Menu/Categories/CategoryModal";
+import CategoryItem from "@/components/Dashboard/Menu/Categories/CategoryItem";
+import CategoryModal from "@/components/Dashboard/Menu/Categories/CategoryModal";
 import useCategory from "@/hooks/queries/useCategory";
 import { Category } from "@/types/api/Category";
 import {
@@ -15,7 +15,7 @@ import {
 } from "@hello-pangea/dnd";
 import { useMutation } from "@tanstack/react-query";
 import api from "@/services/api";
-import CategoryDelete from "@/components/Menu/Categories/CategoryDelete";
+import CategoryDelete from "@/components/Dashboard/Menu/Categories/CategoryDelete";
 import { Skeleton } from "@nextui-org/react";
 
 export default function Page() {

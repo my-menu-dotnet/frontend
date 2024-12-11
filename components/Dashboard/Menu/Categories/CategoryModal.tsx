@@ -3,6 +3,7 @@ import Input from "@/components/Input";
 import useCategory from "@/hooks/queries/useCategory";
 import api from "@/services/api";
 import { Category, CategoryStatus } from "@/types/api/Category";
+import { status } from "@/utils/lists";
 import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -34,11 +35,6 @@ const schema = Yup.object().shape({
   name: Yup.string().required(),
   status: Yup.string().required(),
 });
-
-export const status = [
-  { key: "ACTIVE", label: "Ativo" },
-  { key: "INACTIVE", label: "Inativo" },
-] as { key: CategoryStatus; label: string }[];
 
 const CategoryModal = ({ open, setOpen, newCategory }: CategoryModalProps) => {
   const { refetch } = useCategory();
