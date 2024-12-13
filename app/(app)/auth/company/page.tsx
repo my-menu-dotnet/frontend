@@ -12,7 +12,7 @@ export default function Page() {
             Cadastre sua empresa
           </h1>
           <p className="text-center text-gray-400">
-            Olá! É muito tê-lo por aqui 😊 Para começar a usar nossa plataforma
+            Olá! É muito bom tê-lo por aqui 😊 Para começar a usar nossa plataforma
             e aproveitar todos os benefícios, precisamos de algumas informações
             sobre sua empresa. Preencha o formulário abaixo para continuar.
           </p>

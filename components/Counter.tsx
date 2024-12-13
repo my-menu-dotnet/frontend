@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
 type CounterProps = {
   initialCount: number;
   onEnd: () => void;
 };
 
-export default function Counter({ initialCount, onEnd }: CounterProps) {
+export type CounterRef = {
+  reinit: () => void;
+};
+
+const Counter = forwardRef(({ initialCount, onEnd }: CounterProps, ref) => {
   const [count, setCount] = useState(initialCount);
 
   useEffect(() => {
@@ -23,5 +27,14 @@ export default function Counter({ initialCount, onEnd }: CounterProps) {
     return () => clearInterval(interval);
   }, [count, onEnd]);
 
+  useImperativeHandle(ref, () => ({
+    reinit: () => {
+      setCount(initialCount);
+    },
+  }));
+
   return <>{count}</>;
-}
+});
+
+Counter.displayName = "Counter";
+export default Counter;

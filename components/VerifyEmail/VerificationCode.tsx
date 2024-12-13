@@ -6,7 +6,7 @@ import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import useSendVerifyEmail from "@/hooks/queries/useSendVerifyEmail";
 import Button from "@/components/Button";
-import Counter from "@/components/Counter";
+import Counter, { CounterRef } from "@/components/Counter";
 import RandomEmoji from "@/utils/randomEmoji";
 import { VerifyEmailType } from "@/types/api/auth/VerifyEmail";
 import useUser from "@/hooks/queries/useUser";
@@ -28,6 +28,7 @@ type VerificationCodeProps = {
 };
 
 export default function VerificationCode({ type }: VerificationCodeProps) {
+  const counterRef = useRef<CounterRef>(null);
   const inputsRef = useRef<HTMLInputElement[]>([]);
   const router = useRouter();
   const { error, refetch } = useSendVerifyEmail(type);
@@ -68,6 +69,14 @@ export default function VerificationCode({ type }: VerificationCodeProps) {
   const handleSubmit = () => {
     const code = inputsRef.current.map((input) => input.value).join("");
     mutate({ code, type });
+  };
+
+  const handleResend = async () => {
+    refetch().then(() => {
+      toast("Código reenviado", { type: "success", icon: () => "📧" });
+      counterRef.current?.reinit();
+      setAllowResend(false);
+    });
   };
 
   const handlePaste = (e: ClipboardEvent) => {
@@ -132,17 +141,12 @@ export default function VerificationCode({ type }: VerificationCodeProps) {
       <div>
         <div className="relative">
           Não recebeu o email?{" "}
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              toast("Código reenviado", { type: "success", icon: () => "📧" });
-              refetch();
-            }}
-            className="text-primary"
+          <span
+            onClick={() => handleResend()}
+            className="text-primary cursor-pointer"
           >
             Reenviar código
-          </a>
+          </span>
           <div
             className={
               !allowResend
@@ -153,6 +157,7 @@ export default function VerificationCode({ type }: VerificationCodeProps) {
         </div>
         <div className="flex justify-center">
           <Counter
+            ref={counterRef}
             initialCount={60}
             onEnd={() => {
               setAllowResend(true);

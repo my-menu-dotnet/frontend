@@ -8,7 +8,7 @@ import useUser from "@/hooks/queries/useUser";
 export default function Page() {
   const { data: user, isLoading } = useUser();
 
-  if (isLoading || !user) return null;
+  if (isLoading || !user || !(user.companies.length > 0)) return null;
 
   return (
     <main className="absolute bg-gray-50 top-0 bottom-0 right-0 left-0 flex flex-col justify-center items-center">
