@@ -1,10 +1,11 @@
+import { masks } from "@/utils/mask";
 import {
   Input as NextInput,
   InputProps as NextInputProps,
 } from "@nextui-org/react";
 
 type InputProps = NextInputProps & {
-  mask?: "cpf";
+  mask?: "cpf" | "cep" | "phone";
 };
 
 export default function Input({
@@ -17,11 +18,8 @@ export default function Input({
   const isInvalid = Boolean(errorMessage);
 
   const hanldeMask = (value: string) => {
-    if (mask === "cpf") {
-      return value
-        .slice(0, 14)
-        .replace(/\D/g, "")
-        .replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    if (mask) {
+      return masks[mask](value);
     }
     return value;
   };

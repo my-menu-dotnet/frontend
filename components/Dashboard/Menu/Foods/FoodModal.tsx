@@ -5,7 +5,6 @@ import Textarea from "@/components/Textarea";
 import useCategory from "@/hooks/queries/useCategory";
 import useCategorySelect from "@/hooks/queries/useCategorySelect";
 import api from "@/services/api";
-import { FileStorage } from "@/types/api/FileStorage";
 import { Food, FoodStatus } from "@/types/api/Food";
 import { status } from "@/utils/lists";
 import Yup from "@/validators/Yup";
@@ -58,7 +57,7 @@ export default function FoodModal({
   const { refetch: refetchCategory } = useCategory();
   const { data: categories } = useCategorySelect();
 
-  const { control, handleSubmit, setValue } = useForm<FoodModalForm>({
+  const { control, handleSubmit, setValue, reset } = useForm<FoodModalForm>({
     resolver: yupResolver(schema),
   });
 
@@ -73,7 +72,7 @@ export default function FoodModal({
     onSuccess: async () => {
       await refetchCategory();
       onClose();
-      toast.success("Produto salvo com sucesso");
+      reset();
     },
   });
 

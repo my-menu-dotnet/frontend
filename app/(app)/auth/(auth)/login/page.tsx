@@ -3,7 +3,6 @@
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import InputPassword from "@/components/InputPassword";
-import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
@@ -13,9 +12,9 @@ import { toast } from "react-toastify";
 import Logo from "@/assets/logo.svg";
 import Image from "next/image";
 import Checkbox from "@/components/Checkbox";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import Yup from "@/validators/Yup";
 
 type LoginProps = {
   email: string;

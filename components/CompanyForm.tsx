@@ -1,7 +1,6 @@
 "use client";
 
 import useCompany from "@/hooks/queries/useCompany";
-import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -15,6 +14,7 @@ import { useRouter } from "next/navigation";
 import AddressForm from "./AddressForm";
 import { AddressRequest } from "@/types/api/Address";
 import { toast } from "react-toastify";
+import Yup from "@/validators/Yup";
 
 type CompanyForm = {
   name: string;
@@ -77,7 +77,16 @@ export default function CompanyForm() {
   });
 
   const handleSubmitForm = async (data: CompanyForm) => {
-    mutate(data);
+    const newData = {
+      ...data,
+      cnpj: data.cnpj?.replace(/\D/g, ""),
+      phone: data.phone.replace(/\D/g, ""),
+      address: {
+        ...data.address,
+        zip_code: data.address.zip_code.replace(/\D/g, ""),
+      },
+    };
+    mutate(newData);
   };
 
   useEffect(() => {
@@ -169,6 +178,7 @@ export default function CompanyForm() {
               isRequired
               label="Telefone"
               errorMessage={fieldState.error?.message}
+              mask="phone"
               {...field}
             />
           )}

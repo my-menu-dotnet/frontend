@@ -1,16 +1,16 @@
 import {
-  Select as NextSelect,
-  SelectProps as NextSelectProps,
+  extendVariants,
+  Select,
 } from "@nextui-org/react";
 
-type SelectProps = NextSelectProps & {};
-
-export function Select({ children, ...rest }: SelectProps) {
-  return (
-    <NextSelect {...rest}>
-      {children}
-    </NextSelect>
-  );
-}
-
-export default Select;
+export default extendVariants(Select, {
+  defaultVariants: {
+    variant: "bordered",
+    classNames: {
+      // @ts-expect-error - Property 'trigger' does not exist on type 'SelectProps'
+      trigger: "border-1 rounded-lg",
+      listboxWrapper: "border-1 rounded-lg",
+    },
+    className: "w-full",
+  }
+});

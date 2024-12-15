@@ -38,6 +38,7 @@ const setupApi = (logout: () => void) => {
       api
         .post("/auth/refresh-token")
         .then(() => {
+          console.log("Token refreshed");
           failedRequestQueue.forEach((request) => request.onSuccess());
           failedRequestQueue = [];
         })
