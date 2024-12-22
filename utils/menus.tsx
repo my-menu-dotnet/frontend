@@ -4,6 +4,7 @@ import { BiFoodMenu } from "react-icons/bi";
 import { GoPerson } from "react-icons/go";
 import { GoGear } from "react-icons/go";
 import { TbCategoryPlus } from "react-icons/tb";
+import { LuBadgePercent } from "react-icons/lu";
 
 type Menu = {
   title: string;
@@ -38,6 +39,11 @@ const menus: Menu[] = [
         title: "Produtos",
         icon: <MdOutlineFastfood />,
         to: "/dashboard/menu/products",
+      },
+      {
+        title: "Promoções",
+        icon: <LuBadgePercent />,
+        to: "/dashboard/menu/discounts",
       },
     ],
   },

@@ -1,12 +1,13 @@
 import Button from "@/components/Button";
+import Checkbox from "@/components/Checkbox";
 import ImagePicker from "@/components/ImagePicker";
 import Input from "@/components/Input";
+import Switch from "@/components/Switch";
 import Textarea from "@/components/Textarea";
 import useCategory from "@/hooks/queries/useCategory";
 import useCategorySelect from "@/hooks/queries/useCategorySelect";
 import api from "@/services/api";
 import { Food, FoodStatus } from "@/types/api/Food";
-import { status } from "@/utils/lists";
 import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -22,14 +23,20 @@ import { useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import FoodCategories from "./FoodCategories";
 
-type FoodModalForm = {
+export type FoodModalForm = {
   name: string;
   description: string;
   price?: number;
   image_id?: string;
   category_id: string;
   status: FoodStatus;
+  lactose_free?: boolean;
+  gluten_free?: boolean;
+  vegan?: boolean;
+  vegetarian?: boolean;
+  halal?: boolean;
 };
 
 const schema = Yup.object().shape({
@@ -39,6 +46,11 @@ const schema = Yup.object().shape({
   image_id: Yup.string().optional(),
   category_id: Yup.string().required(),
   status: Yup.string().required(),
+  lactose_free: Yup.boolean().optional(),
+  gluten_free: Yup.boolean().optional(),
+  vegan: Yup.boolean().optional(),
+  vegetarian: Yup.boolean().optional(),
+  halal: Yup.boolean().optional(),
 });
 
 type FoodModalProps = {
@@ -59,6 +71,9 @@ export default function FoodModal({
 
   const { control, handleSubmit, setValue, reset } = useForm<FoodModalForm>({
     resolver: yupResolver(schema),
+    defaultValues: {
+      status: "ACTIVE",
+    },
   });
 
   const { mutateAsync } = useMutation({
@@ -71,8 +86,7 @@ export default function FoodModal({
     },
     onSuccess: async () => {
       await refetchCategory();
-      onClose();
-      reset();
+      handleClose();
     },
   });
 
@@ -86,20 +100,41 @@ export default function FoodModal({
     });
   };
 
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
+
   useEffect(() => {
     if (food?.id) {
-      const { name, description, price, status, image } = food;
+      const {
+        name,
+        description,
+        price,
+        status,
+        image,
+        lactose_free,
+        gluten_free,
+        vegan,
+        vegetarian,
+        halal,
+      } = food;
       setValue("name", name);
       setValue("description", description);
       setValue("price", price);
-      setValue("status", status);
+      setValue("status", status || "ACTIVE");
       setValue("category_id", category_id || "");
       setValue("image_id", image.id);
+      setValue("lactose_free", lactose_free);
+      setValue("gluten_free", gluten_free);
+      setValue("vegan", vegan);
+      setValue("vegetarian", vegetarian);
+      setValue("halal", halal);
     }
   }, [food]);
 
   return (
-    <Modal isOpen={open} onClose={onClose} size="4xl">
+    <Modal isOpen={open} onClose={handleClose} size="4xl">
       <ModalContent>
         <ModalHeader>Produto</ModalHeader>
         <form
@@ -156,30 +191,6 @@ export default function FoodModal({
             />
             <Controller
               control={control}
-              name="status"
-              render={({ field, fieldState }) => (
-                <Select
-                  className="w-full"
-                  label="Status"
-                  placeholder="Selecione um status"
-                  variant="bordered"
-                  classNames={{
-                    trigger: "border-1 rounded-lg",
-                    listboxWrapper: "border-1 rounded-lg",
-                  }}
-                  selectedKeys={[field.value]}
-                  isInvalid={Boolean(fieldState.error)}
-                  errorMessage={fieldState.error?.message}
-                  {...field}
-                >
-                  {status.map((s) => (
-                    <SelectItem key={s.key}>{s.label}</SelectItem>
-                  ))}
-                </Select>
-              )}
-            />
-            <Controller
-              control={control}
               name="category_id"
               render={({ field, fieldState }) => (
                 <Select
@@ -216,16 +227,36 @@ export default function FoodModal({
                 />
               )}
             />
+            <FoodCategories control={control} />
           </ModalBody>
           <ModalFooter>
-            <Button
-              color="default"
-              variant="light"
-              onClick={onClose}
-              text="Cancelar"
-              type="button"
-            />
-            <Button text="Enviar" type="submit" />
+            <div className="w-full flex justify-between">
+              <Controller
+                control={control}
+                name="status"
+                render={({ field }) => (
+                  <Switch
+                    isSelected={field.value === "ACTIVE"}
+                    onValueChange={(value) => {
+                      field.onChange(value ? "ACTIVE" : "INACTIVE");
+                    }}
+                  >
+                    {field.value === "ACTIVE" ? "Ativo" : "Inativo"}
+                  </Switch>
+                )}
+              />
+
+              <div>
+                <Button
+                  color="default"
+                  variant="light"
+                  onPress={handleClose}
+                  text="Cancelar"
+                  type="button"
+                />
+                <Button text="Enviar" type="submit" />
+              </div>
+            </div>
           </ModalFooter>
         </form>
       </ModalContent>

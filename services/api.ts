@@ -41,10 +41,13 @@ const setupApi = (logout: () => void) => {
           console.log("Token refreshed");
           failedRequestQueue.forEach((request) => request.onSuccess());
           failedRequestQueue = [];
+          return api(originalRequest!);
         })
         .catch(() => {
           failedRequestQueue.forEach((request) => request.onFailure(error));
+          failedRequestQueue = [];
           logout();
+          return Promise.reject(error);
         })
         .finally(() => {
           isRefreshing = false;

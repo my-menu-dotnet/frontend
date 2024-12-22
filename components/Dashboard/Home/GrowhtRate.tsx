@@ -30,10 +30,10 @@ export function GrowthRate() {
   };
 
   return (
-    <div className="flex flex-row gap-4 mt-4">
+    <div className="flex flex-row gap-4">
       {!isLoading && companyAccess ? (
         Object.entries(companyAccess).map(([key, value]) => (
-          <Block key={key} className="max-w-44 md:w-44">
+          <Block key={key} className="h-72 max-w-44 md:w-44">
             <div
               className={`flex justify-center items-center w-16 h-16 rounded-lg ${masks[key].color} text-white mb-6`}
             >
@@ -57,8 +57,8 @@ export function GrowthRate() {
         ))
       ) : (
         <>
-          <Skeleton className="w-full h-[300px] max-w-44 md:w-44 rounded-xl" />
-          <Skeleton className="w-full h-[300px] max-w-44 md:w-44 rounded-xl" />
+          <Skeleton className="w-full h-72 max-w-44 md:w-44 rounded-xl" />
+          <Skeleton className="w-full h-72 max-w-44 md:w-44 rounded-xl" />
         </>
       )}
     </div>

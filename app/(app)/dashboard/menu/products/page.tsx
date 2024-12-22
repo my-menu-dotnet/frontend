@@ -2,8 +2,13 @@
 
 import Button from "@/components/Button";
 import FoodModal from "@/components/Dashboard/Menu/Foods/FoodModal";
+import GlutenFree from "@/components/icons/GlutenFree";
+import LactoseFree from "@/components/icons/LactoseFree";
+import Vegan from "@/components/icons/Vegan";
+import Vegetarian from "@/components/icons/Vegetarian";
 import useCategory from "@/hooks/queries/useCategory";
 import { Food } from "@/types/api/Food";
+import { serrialize } from "@/utils/text";
 import { Tooltip } from "@nextui-org/react";
 import Image from "next/image";
 import { useState } from "react";
@@ -17,6 +22,13 @@ type OpenEdit = {
 export default function Page() {
   const { data: foodByCategory } = useCategory();
   const [openEdit, setOpenEdit] = useState<OpenEdit | null>(null);
+
+  const categories = {
+    lactose_free: <LactoseFree width={20} height={20} />,
+    gluten_free: <GlutenFree width={20} height={20} />,
+    vegan: <Vegan width={20} height={20} />,
+    vegetarian: <Vegetarian width={20} height={20} />,
+  };
 
   return (
     <div>
@@ -51,16 +63,28 @@ export default function Page() {
                           height={200}
                           className="rounded-md object-cover h-full w-2/5"
                         />
-                        <div className="relative flex-1">
-                          <div className="font-bold">{food.name}</div>
-                          <p
-                            className="line-clamp-3 text-gray-400 text-sm"
-                            dangerouslySetInnerHTML={{
-                              __html: serrialize(food.description),
-                            }}
-                          ></p>
-                          <div className="absolute bottom-0 right-0 bg-primary text-white py-1 px-2 rounded-md">
-                            <p className="font-bold text-sm">R$ {food.price}</p>
+                        <div className="relative flex flex-col flex-1">
+                          <div className="flex-1">
+                            <div className="font-bold">{food.name}</div>
+                            <p
+                              className="line-clamp-3 text-gray-400 text-sm"
+                              dangerouslySetInnerHTML={{
+                                __html: serrialize(food.description),
+                              }}
+                            ></p>
+                          </div>
+                          <div className="flex flex-row justify-between items-center">
+                            <div className="flex flex-gap flex-row gap-2">
+                              {Object.entries(categories).map(
+                                ([key, value]) =>
+                                  (food as any)[key] && <div key={key}>{value}</div>
+                              )}
+                            </div>
+                            <div className="bg-primary text-white py-1 px-2 rounded-md">
+                              <p className="font-bold text-sm">
+                                R$ {food.price}
+                              </p>
+                            </div>
                           </div>
                           <div className="absolute top-0 right-0">
                             <Tooltip
@@ -96,7 +120,3 @@ export default function Page() {
     </div>
   );
 }
-
-const serrialize = (data: string) => {
-  return data.replace(/\n/g, " <br /> ");
-};

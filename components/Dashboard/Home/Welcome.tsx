@@ -12,9 +12,9 @@ export function Welcome() {
   const { data: company, isLoading } = useCompany();
 
   return (
-    <div className="mt-4 flex-1">
+    <div className="flex-1">
       {!isLoading && company ? (
-        <div className="flex flex-row justify-around bg-white border border-gray-200 p-4 rounded-xl ">
+        <div className="h-72 flex flex-row justify-around bg-white border border-gray-200 p-4 rounded-xl ">
           <div>
             <h1 className="text-xl font-semibold">Bem vindo, {user?.name}</h1>
             <h2 className="text-gray-400">

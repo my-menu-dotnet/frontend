@@ -67,10 +67,10 @@ export default function ImagePicker({
     <div className="relative">
       <div
         onClick={handleOpenFile}
-        className="flex flex-col justify-center items-center w-full h-64 border rounded-xl cursor-pointer border-dashed border-gray-300"
+        className="flex flex-col justify-center items-center w-full h-64 border rounded-xl cursor-pointer border-dashed border-gray-300 py-4"
       >
         {file?.url ? (
-          <Image src={file.url} width={100} height={100} alt="" />
+          <Image src={file.url} width={400} height={400} alt="" className="h-full object-contain" />
         ) : (
           <>
             <IoCloudUploadOutline size={30} />

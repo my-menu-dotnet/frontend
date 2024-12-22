@@ -4,6 +4,7 @@ import { ReactQueryProvider } from "@/hooks/query";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { NextUIProvider } from "@nextui-org/react";
+import { Roboto } from "next/font/google";
 
 export const metadata: Metadata = {
   title: "My Menu",
@@ -17,13 +18,15 @@ export const metadata: Metadata = {
   bookmarks: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
 };
 
+const roboto = Roboto({ subsets: ["latin"], weight: "400" });
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-br" className="light w-full h-full">
+    <html lang="pt-br" className={`light w-full h-full ${roboto.className}`}>
       <body className={`antialiased w-full h-full`}>
         <ReactQueryProvider>
           <NextUIProvider className="w-full h-full">
