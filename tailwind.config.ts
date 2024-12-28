@@ -25,6 +25,7 @@ export default {
             background: "#f9f9f9",
             foreground: "#171717",
             primary: "#FFC303",
+            "primary-foreground": "white",
           },
         },
         dark: {
@@ -32,6 +33,7 @@ export default {
             background: "#0a0a0a",
             foreground: "#ededed",
             primary: "#FFC303",
+            "primary-foreground": "white",
           },
         },
       },

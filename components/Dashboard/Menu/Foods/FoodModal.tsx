@@ -234,16 +234,7 @@ export default function FoodModal({
               <Controller
                 control={control}
                 name="status"
-                render={({ field }) => (
-                  <Switch
-                    isSelected={field.value === "ACTIVE"}
-                    onValueChange={(value) => {
-                      field.onChange(value ? "ACTIVE" : "INACTIVE");
-                    }}
-                  >
-                    {field.value === "ACTIVE" ? "Ativo" : "Inativo"}
-                  </Switch>
-                )}
+                render={({ field }) => <Switch.Status {...field} />}
               />
 
               <div>

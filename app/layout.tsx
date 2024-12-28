@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { NextUIProvider } from "@nextui-org/react";
 import { Roboto } from "next/font/google";
+import { I18nProvider } from "@react-aria/i18n";
 
 export const metadata: Metadata = {
   title: "My Menu",

@@ -59,7 +59,7 @@ export default function Page() {
     <div>
       <div className="w-full flex justify-end mb-4">
         <Button
-          onClick={() => {
+          onPress={() => {
             setOpenEdit({} as Category);
           }}
         >

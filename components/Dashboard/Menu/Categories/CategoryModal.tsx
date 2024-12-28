@@ -128,7 +128,7 @@ const CategoryModal = ({ open, setOpen, newCategory }: CategoryModalProps) => {
               <Button
                 color="default"
                 variant="light"
-                onClick={onClose}
+                onPress={onClose}
                 text="Cancelar"
               />
               <Button text="Enviar" type="submit" />
