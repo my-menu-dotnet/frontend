@@ -10,21 +10,19 @@ import SubItem from "./SubItem";
 import menus from "@/utils/menus";
 
 export default function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState<boolean>(false);
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
 
   useEffect(() => {
-    if (window.innerWidth < 1024) {
-      setCollapsed(true);
-    }
+    setCollapsed(window.innerWidth < 768);
   }, []);
 
   return (
     <ProSideBar collapsed={collapsed} backgroundColor="white">
-      <Header collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
+      <Header />
       <Menu>
         {menus.map((item, index) => {
           if (item.children) {

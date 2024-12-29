@@ -1,10 +1,12 @@
 import { Category } from "./Category";
+import { Discounts } from "./Discounts";
 import { FileStorage } from "./FileStorage";
 
 type Food = {
   id: string;
   name: string;
   description: string;
+  discounts: Discounts[];
   price: number;
   image: FileStorage;
   status: FoodStatus;

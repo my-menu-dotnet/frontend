@@ -5,12 +5,14 @@ import Select from "@/components/Select";
 import SelectItem from "@/components/SelectItem";
 import Switch from "@/components/Switch";
 import useCategory from "@/hooks/queries/useCategory";
+import useDiscount from "@/hooks/queries/useDiscount";
 import useDiscounts from "@/hooks/queries/useDiscounts";
 import api from "@/services/api";
 import { DiscountsStatus, DiscountsType } from "@/types/api/Discounts";
+import { discountsStatusMasks } from "@/utils/lists";
 import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { getLocalTimeZone, today } from "@internationalized/date";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import {
   Modal,
   ModalBody,
@@ -21,9 +23,8 @@ import {
 } from "@nextui-org/react";
 import { I18nProvider } from "@react-aria/i18n";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { GoPlus } from "react-icons/go";
 import { toast } from "react-toastify";
 
 type DiscountsFormForm = {
@@ -37,63 +38,115 @@ type DiscountsFormForm = {
 
 const schema = Yup.object().shape({
   food_id: Yup.string().required(),
-  discount: Yup.number().required(),
-  start_at: Yup.string().optional(),
-  end_at: Yup.string().optional(),
   type: Yup.string().required(),
+  discount: Yup.number()
+    .required()
+    .positive()
+    .test("max", "O desconto deve ser menor que 100%", function (value) {
+      if (this.parent.type === "PERCENTAGE") {
+        return value <= 100;
+      }
+      return true;
+    }),
+  start_at: Yup.string().optional().nullable(),
+  end_at: Yup.string().optional().nullable(),
   status: Yup.string().required(),
 });
 
 type DiscountsFormProps = {
-  formId?: string;
+  discountId: string | null;
+  open: boolean;
+  onClose: () => void;
 };
 
-export default function DiscountsForm({ formId }: DiscountsFormProps) {
-  const [open, setOpen] = useState(false);
+export default function DiscountsForm({
+  discountId,
+  open,
+  onClose,
+}: DiscountsFormProps) {
+  const { data: discount } = useDiscount(discountId);
   const { data: categories } = useCategory();
   const { refetch: refecthDiscounts } = useDiscounts();
 
-  const { control, setValue, handleSubmit } = useForm<DiscountsFormForm>({
-    defaultValues: {
-      status: "ACTIVE",
-    },
-    resolver: yupResolver(schema),
-  });
+  const { control, setValue, watch, setError, handleSubmit, reset } =
+    useForm<DiscountsFormForm>({
+      defaultValues: {
+        status: "ACTIVE",
+      },
+      resolver: yupResolver(schema),
+    });
 
   const { mutateAsync } = useMutation({
     mutationKey: ["create-update-discounts"],
     mutationFn: async (data: DiscountsFormForm) => {
-      if (formId) {
-        // update
+      if (discountId) {
+        return await api.put(`/discount/${discountId}`, data);
       }
       return await api.post("/discount", data);
     },
     onSuccess: () => {
-      setOpen(false);
+      handleClose();
       refecthDiscounts();
     },
   });
 
   const handleSave = (data: DiscountsFormForm) => {
-    const res = mutateAsync(data);
+    const selectedFood = categories!
+      .flatMap((category) => category.foods)
+      .find((food) => food.id === data.food_id);
+
+    if (!selectedFood) {
+      throw new Error("Produto não encontrado");
+    }
+
+    if (data.type === "AMOUNT" && data.discount >= selectedFood.price) {
+      setError("discount", {
+        type: "max",
+        message:
+          "O desconto não pode ser maior que o preço do produto selecionado",
+      });
+      return;
+    }
+
+    const newData: DiscountsFormForm = {
+      ...data,
+      status:
+        data.status === "PENDING"
+          ? "ACTIVE"
+          : data.status === "EXPIRED"
+          ? "INACTIVE"
+          : data.status,
+    };
+
+    const res = mutateAsync(newData);
     toast.promise(res, {
       pending: "Salvando desconto...",
       success: "Desconto salvo com sucesso",
-      error: "Erro ao salvar desconto",
     });
   };
 
+  const handleClose = () => {
+    onClose();
+    reset();
+  };
+
+  useEffect(() => {
+    if (discount?.id === discountId && open) {
+      setValue("food_id", discount.food.id);
+      setValue("discount", discount.discount);
+      setValue("type", discount.type);
+      setValue("status", discount.status);
+      setValue("start_at", discount.start_at);
+      setValue("end_at", discount.end_at);
+    }
+  }, [discount, open]);
+
+  const end = watch("end_at");
+  const start = watch("start_at");
+
   return (
     <>
-      <div className="flex justify-end mb-6">
-        <Button
-          onPress={() => setOpen(true)}
-          startContent={<GoPlus size={24} />}
-        >
-          Adicionar
-        </Button>
-      </div>
-      <Modal isOpen={open} onClose={() => setOpen(false)}>
+      <Modal isOpen={!!open} onClose={handleClose}>
         <ModalContent>
           <ModalHeader>Adicionar desconto</ModalHeader>
           <ModalBody>
@@ -108,6 +161,7 @@ export default function DiscountsForm({ formId }: DiscountsFormProps) {
                     isRequired
                     isInvalid={fieldState.invalid}
                     errorMessage={fieldState.error?.message}
+                    selectedKeys={[field.value]}
                     {...field}
                   >
                     {categories?.map((category) => (
@@ -149,6 +203,7 @@ export default function DiscountsForm({ formId }: DiscountsFormProps) {
                     isRequired
                     errorMessage={fieldState.error?.message}
                     isInvalid={fieldState.invalid}
+                    selectedKeys={[field.value]}
                     {...field}
                   >
                     <SelectItem isDisabled value="">
@@ -157,12 +212,13 @@ export default function DiscountsForm({ formId }: DiscountsFormProps) {
                     <SelectItem key={"PERCENTAGE"} value="PERCENTAGE">
                       Porcentagem
                     </SelectItem>
-                    <SelectItem key={"VALUE"} value="VALUE">
+                    <SelectItem key={"AMOUNT"} value="AMOUNT">
                       Valor
                     </SelectItem>
                   </Select>
                 )}
               />
+
               <I18nProvider locale="pt-BR">
                 <DateRangePicker
                   label="Validade"
@@ -170,6 +226,14 @@ export default function DiscountsForm({ formId }: DiscountsFormProps) {
                     setValue("start_at", range?.start.toString());
                     setValue("end_at", range?.end.toString());
                   }}
+                  value={
+                    end && start
+                      ? {
+                          end: parseDate(end || ""),
+                          start: parseDate(start || ""),
+                        }
+                      : undefined
+                  }
                   minValue={today(getLocalTimeZone())}
                   visibleMonths={2}
                 />
@@ -180,16 +244,22 @@ export default function DiscountsForm({ formId }: DiscountsFormProps) {
             <Controller
               control={control}
               name="status"
-              render={({ field }) => <Switch.Status {...field} />}
+              render={({ field }) => (
+                <Switch
+                  isSelected={
+                    field.value === "ACTIVE" || field.value === "PENDING"
+                  }
+                  isDisabled={field.value === "EXPIRED"}
+                  onValueChange={(value) => {
+                    field.onChange(value ? "ACTIVE" : "INACTIVE");
+                  }}
+                >
+                  {discountsStatusMasks[field.value]}
+                </Switch>
+              )}
             />
             <div>
-              <Button
-                color="default"
-                variant="light"
-                onPress={() => {
-                  setOpen(false);
-                }}
-              >
+              <Button color="default" variant="light" onPress={handleClose}>
                 Cancelar
               </Button>
               <Button onPress={() => handleSubmit(handleSave)()}>Salvar</Button>

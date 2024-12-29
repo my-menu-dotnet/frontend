@@ -40,9 +40,7 @@ export default function Page() {
     },
     onError: (error: AxiosError) => {
       if (error.response?.status === 403) {
-        setError("email", { message: "Credenciais inválidas" });
-        setError("password", { message: "Credenciais inválidas" });
-        toast("Erro ao fazer login", { type: "error", icon: () => "😓" });
+        toast("Email ou senha inválidos", { type: "error" });
         return;
       }
     },

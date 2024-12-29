@@ -1,11 +1,18 @@
 import axios, { AxiosError } from "axios";
+import { ToastContent, ToastOptions } from "react-toastify";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
 });
 
-const setupApi = (logout: () => void) => {
+const setupApi = (
+  logout: () => void,
+  toast: (
+    content: ToastContent<unknown>,
+    options?: ToastOptions<unknown>
+  ) => void
+) => {
   let isRefreshing = false;
   let failedRequestQueue = [] as {
     onSuccess: () => void;
@@ -16,6 +23,13 @@ const setupApi = (logout: () => void) => {
     (response) => response,
     (error: AxiosError) => {
       if (error.response?.status !== 401) {
+        if (error.response?.status !== 403) {
+          // @ts-ignore
+          const errorMessage = error.response?.data?.message;
+          if (errorMessage) {
+            toast(errorMessage, { type: "error" });
+          }
+        }
         return Promise.reject(error);
       }
 

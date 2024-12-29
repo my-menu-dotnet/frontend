@@ -24,11 +24,9 @@ export default function Header() {
 
   return (
     <header className="px-4 h-12 border-b-1 mb-4">
-      <div className="">
-        <h1 className="text-xl font-semibold">
-          {current[pathName as keyof typeof current]}
-        </h1>
-      </div>
+      <h1 className="text-xl font-semibold">
+        {current[pathName as keyof typeof current]}
+      </h1>
     </header>
   );
 }

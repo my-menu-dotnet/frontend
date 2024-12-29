@@ -1,3 +1,4 @@
+import { DiscountsStatus } from "@/types/api/Discounts";
 import { StatesProps } from "@/types/lists";
 
 export const months = [
@@ -49,3 +50,26 @@ export const status = [
   { key: "ACTIVE", label: "Ativo" },
   { key: "INACTIVE", label: "Inativo" },
 ];
+
+export const discountsStatusColors = {
+  ACTIVE: "success",
+  INACTIVE: "default",
+  EXPIRED: "danger",
+  PENDING: "warning",
+} as {
+  [key in DiscountsStatus]:
+    | "success"
+    | "default"
+    | "danger"
+    | "warning"
+    | "foreground"
+    | "primary"
+    | "secondary";
+};
+
+export const discountsStatusMasks = {
+  ACTIVE: "Ativo",
+  INACTIVE: "Inativo",
+  EXPIRED: "Expirado",
+  PENDING: "Pendente",
+} as { [key in DiscountsStatus]: string };

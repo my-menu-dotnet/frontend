@@ -11,6 +11,7 @@ import { usePathname, useRouter } from "next/navigation";
 import api, { setupApi } from "@/services/api";
 import { useQueryClient } from "@tanstack/react-query";
 import useUser from "./queries/useUser";
+import { toast } from "react-toastify";
 
 type AuthContextProps = {
   login: () => void;
@@ -88,7 +89,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     handleRedirect();
   }, [pathName, user, isLoading]);
 
-  setupApi(logout);
+  useEffect(() => {
+    setupApi(logout, toast);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ login, logout }}>
