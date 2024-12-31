@@ -6,46 +6,45 @@ import { GoGear } from "react-icons/go";
 import { TbCategoryPlus } from "react-icons/tb";
 import { LuBadgePercent } from "react-icons/lu";
 
-type Menu = {
+export type PageMenus = {
   title: string;
+  description?: string;
   icon: React.ReactNode;
   to?: string;
   url?: string;
-  children?: Menu[];
+  children?: PageMenus[];
 };
 
-const menus: Menu[] = [
+const menus: PageMenus[] = [
   {
-    title: "Dashboard",
+    title: "Home",
+    description: "Bem-vindo de volta! Veja as novidades da sua empresa!",
     icon: <FiHome />,
     to: "/dashboard",
   },
   {
-    title: "Empresa",
+    title: "Altere dados da sua empresa",
+    description: "Mantenha as informações da sua empresa sempre atualizadas!",
     icon: <MdStorefront />,
     to: "/dashboard/company",
   },
   {
-    title: "Cardapio",
-    icon: <BiFoodMenu />,
-    url: "/menu",
-    children: [
-      {
-        title: "Categorias",
-        icon: <TbCategoryPlus />,
-        to: "/dashboard/menu/categories",
-      },
-      {
-        title: "Produtos",
-        icon: <MdOutlineFastfood />,
-        to: "/dashboard/menu/products",
-      },
-      {
-        title: "Promoções",
-        icon: <LuBadgePercent />,
-        to: "/dashboard/menu/discounts",
-      },
-    ],
+    title: "Categorias",
+    description: "Adicione, edite ou remova categorias de produtos!",
+    icon: <TbCategoryPlus />,
+    to: "/dashboard/menu/categories",
+  },
+  {
+    title: "Produtos",
+    description: "Adicione, edite ou remova produtos do seu cardápio!",
+    icon: <MdOutlineFastfood />,
+    to: "/dashboard/menu/products",
+  },
+  {
+    title: "Promoções",
+    description: "Adicione, edite ou remova promoções do seu cardápio!",
+    icon: <LuBadgePercent />,
+    to: "/dashboard/menu/discounts",
   },
   {
     title: "Perfil",

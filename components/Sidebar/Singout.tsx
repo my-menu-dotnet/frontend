@@ -9,7 +9,6 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@nextui-org/react";
-import { useState } from "react";
 import { FiLogOut } from "react-icons/fi";
 import { MenuItem } from "react-pro-sidebar";
 import Button from "../Button";
@@ -21,7 +20,7 @@ export default function Singout() {
   return (
     <>
       <MenuItem
-        className="text-gray-500"
+        className="text-gray-400"
         icon={<FiLogOut />}
         component={<div onClick={onOpen} />}
       >

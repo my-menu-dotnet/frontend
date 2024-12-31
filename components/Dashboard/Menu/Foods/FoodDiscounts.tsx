@@ -1,33 +1,24 @@
+import Table from "@/components/Table";
 import { Discounts } from "@/types/api/Discounts";
+import { Food } from "@/types/api/Food";
+import { calculateDiscount } from "@/utils/discount";
+import { discountsStatusColors, discountsStatusMasks } from "@/utils/lists";
+import { currency } from "@/utils/text";
 import { Chip, Tooltip, User } from "@nextui-org/react";
 import { ColumnDef } from "@tanstack/react-table";
-import { MdAttachMoney } from "react-icons/md";
-import { FiPercent } from "react-icons/fi";
-import { CiEdit } from "react-icons/ci";
-import { MdOutlineDelete } from "react-icons/md";
-import { discountsStatusColors, discountsStatusMasks } from "@/utils/lists";
 import { format } from "date-fns";
 import { useMemo } from "react";
-import useDiscounts from "@/hooks/queries/useDiscounts";
-import { currency } from "@/utils/text";
-import { calculateDiscount } from "@/utils/discount";
-import Table from "@/components/Table";
-
-type DiscountsTableProps = {
-  setOpen: (open: string) => void;
+import { FiPercent } from "react-icons/fi";
+import { MdAttachMoney } from "react-icons/md";
+type FoodDiscountsProps = {
+  food: Food | null;
 };
 
-export default function DiscountsTable({ setOpen }: DiscountsTableProps) {
-  const { data: discounts } = useDiscounts();
+export default function FoodDiscounts({ food }: FoodDiscountsProps) {
   const columns = useMemo<ColumnDef<Discounts, unknown>[]>(
     () => [
       {
         id: "status",
-        accessorKey: "status",
-        sortingFn: (rowA, rowB) => {
-          const order = { ACTIVE: 1, PENDING: 2, INACTIVE: 3, EXPIRED: 4 };
-          return order[rowA.original.status] - order[rowB.original.status];
-        },
         maxSize: 35,
         cell: ({ row }) => {
           return (
@@ -48,33 +39,34 @@ export default function DiscountsTable({ setOpen }: DiscountsTableProps) {
       },
       {
         header: "Produto",
-        cell: ({ row }) => (
+        cell: () => (
           <div className="flex items-center gap-4">
             <User
               avatarProps={{
                 radius: "full",
-                src: row.original.food.image.url,
+                src: food?.image.url,
               }}
-              name={row.original.food.name}
-              description={row.original.food.description}
+              name={food?.name}
+              description={food?.description}
               classNames={{
                 description: "line-clamp-1",
               }}
             >
-              {row.original.food.description}
+              {food?.description}
             </User>
           </div>
         ),
       },
       {
         header: "Valor total",
-        cell: ({ row }) => (
-          <Tooltip content="Valor total do produto sem desconto">
-            <Chip size="sm" variant="flat">
-              <p className="ml-1">{currency(row.original.food.price)}</p>
-            </Chip>
-          </Tooltip>
-        ),
+        cell: () =>
+          food?.price && (
+            <Tooltip content="Valor total do produto sem desconto">
+              <Chip size="sm" variant="flat">
+                <p className="ml-1">{currency(food?.price)}</p>
+              </Chip>
+            </Tooltip>
+          ),
       },
       {
         header: "Desconto",
@@ -93,15 +85,16 @@ export default function DiscountsTable({ setOpen }: DiscountsTableProps) {
       },
       {
         header: "Valor final",
-        cell: ({ row }) => (
-          <Tooltip content="Valor final do produto com desconto">
-            <Chip size="sm" variant="flat" color="warning">
-              <p className="ml-1">
-                {currency(calculateDiscount(row.original.food, row.original))}
-              </p>
-            </Chip>
-          </Tooltip>
-        ),
+        cell: ({ row }) =>
+          food && (
+            <Tooltip content="Valor final do produto com desconto">
+              <Chip size="sm" variant="flat" color="warning">
+                <p className="ml-1">
+                  {currency(calculateDiscount(food, row.original))}
+                </p>
+              </Chip>
+            </Tooltip>
+          ),
       },
       {
         header: "Tipo",
@@ -136,47 +129,26 @@ export default function DiscountsTable({ setOpen }: DiscountsTableProps) {
         accessorFn: (row) =>
           row.end_at ? format(new Date(row.end_at), "dd/MM/yyyy") : "-",
       },
-      {
-        id: "actions",
-        maxSize: 50,
-        cell: ({ row }) => (
-          <div className="relative flex items-center justify-end gap-4">
-            <Tooltip content="Alterar desconto">
-              <span
-                className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                onClick={() => setOpen(row.original.id)}
-              >
-                <CiEdit size={22} />
-              </span>
-            </Tooltip>
-            <Tooltip color="danger" content="Excluir desconto">
-              <span className="text-lg text-danger cursor-pointer active:opacity-50">
-                <MdOutlineDelete size={22} />
-              </span>
-            </Tooltip>
-          </div>
-        ),
-      },
     ],
-    [discounts]
+    [food?.discounts]
   );
 
   return (
-    <Table
-      aria-label="Discounts"
-      columns={columns}
-      data={discounts || []}
-      bodyProps={{
-        emptyContent: "Nenhum desconto encontrado",
-      }}
-      initialState={{
-        sorting: [
-          {
-            id: "status",
-            desc: false,
-          },
-        ],
-      }}
-    />
+    food?.discounts &&
+    food?.discounts.length > 0 && (
+      <>
+        <p className="mt-2 font-semibold text-gray-400">
+          Histórico de Descontos
+        </p>
+        <Table
+          aria-label="Discounts"
+          data={food.discounts}
+          columns={columns}
+          classNames={{
+            base: "max-h-[200px] overflow-scroll",
+          }}
+        />
+      </>
+    )
   );
 }

@@ -1,8 +1,9 @@
 "use client";
 
-import menus from "@/utils/menus";
+import menus, { PageMenus } from "@/utils/menus";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
+import { FaLongArrowAltLeft } from "react-icons/fa";
 
 export default function Header() {
   const pathName = usePathname();
@@ -11,22 +12,29 @@ export default function Header() {
     const list = menus.reduce((acc, item) => {
       if (item.children) {
         item.children.forEach((child) => {
-          acc[child.to!] = child.title;
+          acc[child.to!] = child;
         });
       }
 
-      acc[item.to!] = item.title;
+      acc[item.to!] = item;
 
       return acc;
-    }, {} as Record<string, string>);
+    }, {} as Record<string, PageMenus>);
     return list;
   }, []);
 
   return (
-    <header className="px-4 h-12 border-b-1 mb-4">
-      <h1 className="text-xl font-semibold">
-        {current[pathName as keyof typeof current]}
-      </h1>
+    <header className="mb-4 bg-white p-6">
+      <div className="ml-[80px]">
+        {/* <p className="text-sm text-gray-500 flex gap-2 items-center mb-4">
+          <FaLongArrowAltLeft />
+          Voltar
+        </p> */}
+        <h1 className="text-lg">
+          {current[pathName as keyof typeof current].title}
+        </h1>
+        <h2 className="text-gray-400 text-sm">{current[pathName as keyof typeof current].description}</h2>
+      </div>
     </header>
   );
 }

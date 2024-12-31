@@ -3,20 +3,15 @@ import { Menu } from "@/types/api/Menu";
 import { Metadata } from "next";
 import Image from "next/image";
 import { MdOutlineAlternateEmail } from "react-icons/md";
-import GlutenFree from "@/components/icons/GlutenFree";
-import LactoseFree from "@/components/icons/LactoseFree";
-import Vegan from "@/components/icons/Vegan";
-import Vegetarian from "@/components/icons/Vegetarian";
-import { Tooltip } from "@nextui-org/react";
-import { serrialize } from "@/utils/text";
 import Phone from "@/components/Menu/Phone";
 import { CiLocationArrow1 } from "react-icons/ci";
 import { redirect } from "next/navigation";
-import Categories from "@/components/Menu/Categories";
+import FoodCard from "@/components/FoodCard";
+import { Food } from "@/types/api/Food";
+import { Category } from "@/types/api/Category";
 
 type Props = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ category?: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -45,19 +40,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function Page({ params, searchParams }: Props) {
+export default async function Page({ params }: Props) {
   try {
     const { id } = await params;
     const menu = await getMenu(id);
+
+    const color = menu.company.primary_color || "#000";
 
     return (
       menu && (
         <>
           <header className="w-full flex justify-center px-4">
-            <section
-              className="flex flex-row items-center justify-between max-w-[1200px] w-full py-2"
-              style={{ backgroundColor: menu.company.primary_color }}
-            >
+            <section className="flex flex-row items-center justify-between max-w-[1200px] w-full py-2">
               <Image
                 src={menu.company.image.url}
                 alt={menu.company.name}
@@ -78,7 +72,8 @@ export default async function Page({ params, searchParams }: Props) {
                     href={`https://www.google.com/maps/search/?api=1&query=${menu.company.address.latitude},${menu.company.address.longitude}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="bg-primary flex flex-row gap-2 rounded-md px-2 py-1 text-white"
+                    className="flex flex-row gap-2 rounded-md px-2 py-1 text-white"
+                    style={{ backgroundColor: color }}
                   >
                     <CiLocationArrow1 size={22} />
                     {menu.company.address.state} - {menu.company.address.city}
@@ -89,66 +84,24 @@ export default async function Page({ params, searchParams }: Props) {
           </header>
           <main className="flex flex-col w-full items-center px-4">
             <div className="max-w-[1200px] w-full">
-              <div className="w-full h-80 bg-primary rounded-md"></div>
+              <div
+                className="w-full h-80 rounded-md"
+                style={{ backgroundColor: color }}
+              ></div>
               <div className="w-full">
-                {menu.categories.map((category) => (
+                {menu.categories.map((category: Category) => (
                   <section
                     key={category.id}
                     className="flex flex-col gap-4 mt-4"
                   >
                     <h2 className="font-bold">{category.name}</h2>
                     <ul className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {category.foods.map((product) => (
-                        <li
+                      {category.foods.map((product: Food) => (
+                        <FoodCard
                           key={product.id}
-                          className="flex flex-col bg-white shadow rounded-md overflow-hidden"
-                        >
-                          <Image
-                            src={product.image.url}
-                            alt={product.name}
-                            width={400}
-                            height={300}
-                            className="object-cover h-44 w-full"
-                          />
-                          <div className="w-full flex flex-col mt-2 px-4 py-2">
-                            <div className="flex-1">
-                              <h3 className="font-semibold">{product.name}</h3>
-                              <p
-                                className="line-clamp-3 text-gray-400 text-sm"
-                                dangerouslySetInnerHTML={{
-                                  __html: serrialize(product.description),
-                                }}
-                              ></p>
-                            </div>
-                            <div className="flex flex-row justify-between items-center mt-4">
-                              <div className="flex flex-row gap-2 text-gray-400">
-                                {product.gluten_free && (
-                                  <Tooltip content="Sem glúten">
-                                    <GlutenFree width={24} height={24} />
-                                  </Tooltip>
-                                )}
-                                {product.lactose_free && (
-                                  <Tooltip content="Sem lactose">
-                                    <LactoseFree width={24} height={24} />
-                                  </Tooltip>
-                                )}
-                                {product.vegan && (
-                                  <Tooltip content="Vegano">
-                                    <Vegan width={24} height={24} />
-                                  </Tooltip>
-                                )}
-                                {product.vegetarian && (
-                                  <Tooltip content="Vegetariano">
-                                    <Vegetarian width={24} height={24} />
-                                  </Tooltip>
-                                )}
-                              </div>
-                              <p className="mr-4">
-                                R$ {product.price.toFixed(2)}
-                              </p>
-                            </div>
-                          </div>
-                        </li>
+                          food={product}
+                          discountColor={color}
+                        />
                       ))}
                     </ul>
                   </section>
@@ -175,7 +128,7 @@ export default async function Page({ params, searchParams }: Props) {
       )
     );
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return redirect("/404");
   }
 }

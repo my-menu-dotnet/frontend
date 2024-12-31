@@ -15,7 +15,7 @@ const SubItem = ({ title, icon, url, children }: SubItemProps) => {
     <SubMenu
       label={title}
       icon={icon}
-      className="text-gray-500"
+      className="text-gray-400"
       defaultOpen={pathName.startsWith("/dashboard" + url)}
     >
       {children}

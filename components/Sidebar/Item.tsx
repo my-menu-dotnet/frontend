@@ -17,7 +17,7 @@ const Item = ({ title, to, icon }: ItemProps) => {
   return (
     <MenuItem
       active={active}
-      className="text-gray-500"
+      className="text-gray-400"
       icon={icon}
       component={<Link href={to} />}
     >

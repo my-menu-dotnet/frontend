@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "./public/css/price.css";
 
 * {
   @apply box-border;
@@ -12,4 +13,8 @@ html {
 
 .text-primary-foreground {
   @apply text-white;
+}
+
+.ps-sidebar-container {
+  background-color: unset !important;
 }

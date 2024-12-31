@@ -7,13 +7,11 @@ type LayoutDashboardProps = {
 
 export default function LayoutDashboard({ children }: LayoutDashboardProps) {
   return (
-    <div className="min-h-full flex flex-row flex-nowrap bg-white">
-      <div className="w-[80px] md:w-[250px]">
-        <Sidebar />
-      </div>
-      <div className="px-2 py-6 md:p-6 w-[calc(100%-80px)] md:w-[calc(100%-250px)]">
+    <div className="min-h-full flex flex-row flex-nowrap bg-[#F1F1F1]">
+      <Sidebar />
+      <div className="w-full">
         <Header />
-        {children}
+        <section className="px-1 md:px-4 ml-[80px]">{children}</section>
       </div>
     </div>
   );

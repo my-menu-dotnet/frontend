@@ -15,6 +15,7 @@ import AddressForm from "./AddressForm";
 import { AddressRequest } from "@/types/api/Address";
 import { toast } from "react-toastify";
 import Yup from "@/validators/Yup";
+import FormItem from "./FormItem";
 
 type CompanyForm = {
   name: string;
@@ -113,89 +114,95 @@ export default function CompanyForm() {
         handleSubmit(handleSubmitForm)();
       }}
     >
-      <h2 className="mb-2">Dados</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Controller
-          name="name"
-          control={control}
-          render={({ field, fieldState }) => (
-            <Input
-              className="w-full"
-              placeholder="Digite o nome da sua empresa"
-              isRequired
-              label="Nome"
-              errorMessage={fieldState.error?.message}
-              {...field}
-            />
-          )}
-        />
-        <Controller
-          name="cnpj"
-          control={control}
-          render={({ field, fieldState }) => (
-            <Input
-              className="w-full"
-              placeholder="Digite o CNPJ da sua empresa"
-              label="CNPJ"
-              errorMessage={fieldState.error?.message}
-              {...field}
-            />
-          )}
-        />
-      </div>
+      <FormItem
+        title="Informações gerais"
+        subtitle="Informações gerais sobre a sua empresa"
+        first
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Controller
+            name="name"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Input
+                className="w-full"
+                placeholder="Digite o nome da sua empresa"
+                isRequired
+                label="Nome"
+                errorMessage={fieldState.error?.message}
+                {...field}
+              />
+            )}
+          />
+          <Controller
+            name="cnpj"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Input
+                className="w-full"
+                placeholder="Digite o CNPJ da sua empresa"
+                label="CNPJ"
+                errorMessage={fieldState.error?.message}
+                {...field}
+              />
+            )}
+          />
+        </div>
+      </FormItem>
 
-      <hr className="my-4" />
-
-      <h2>Contato</h2>
-      <h3 className="mb-2 text-xs text-gray-400">
-        <CiCircleInfo className="inline-block" /> Seus dados de contato não são
-        visiveis para usuários do tipo &quot;convidado&quot; dentro do
-        aplicativo MyMenu. Porém, para usuarios autenticados e em seu link
-        personalizado, esses dados são públicos.
-      </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Controller
-          name="email"
-          control={control}
-          render={({ field, fieldState }) => (
-            <Input
-              className="w-full"
-              placeholder="Digite o melhor email de contato"
-              isRequired
-              label="Email"
-              errorMessage={fieldState.error?.message}
-              {...field}
-            />
-          )}
-        />
-        <Controller
-          name="phone"
-          control={control}
-          render={({ field, fieldState }) => (
-            <Input
-              className="w-full"
-              placeholder="Digite o melhor telefone de contato"
-              isRequired
-              label="Telefone"
-              errorMessage={fieldState.error?.message}
-              mask="phone"
-              {...field}
-            />
-          )}
-        />
-      </div>
-
-      <hr className="my-4" />
+      <FormItem
+        title="Contato"
+        subtitle='Seus dados de contato não são visiveis para usuários do tipo
+            "convidado" dentro do aplicativo MyMenu. Porém, para
+            usuarios autenticados e em seu link personalizado, esses dados são
+            públicos.'
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <Controller
+            name="email"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Input
+                className="w-full"
+                placeholder="Digite o melhor email de contato"
+                isRequired
+                label="Email"
+                errorMessage={fieldState.error?.message}
+                {...field}
+              />
+            )}
+          />
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Input
+                className="w-full"
+                placeholder="Digite o melhor telefone de contato"
+                isRequired
+                label="Telefone"
+                errorMessage={fieldState.error?.message}
+                mask="phone"
+                {...field}
+              />
+            )}
+          />
+        </div>
+      </FormItem>
 
       <AddressForm control={control} />
 
-      <hr className="my-4" />
-
-      <h2 className="mb-2">Logo</h2>
-      <ImagePicker
-        fileStorage={company?.image}
-        onFileChange={(file) => setValue("image_id", file.id)}
-      />
+      <FormItem
+        title="Logo"
+        subtitle="A logo da sua empresa é visível para todos os usuários do aplicativo
+            MyMenu e será utilizada em diversos locais do aplicativo, favicon e
+            icones tanto do menu quanto do app."
+      >
+        <ImagePicker
+          fileStorage={company?.image}
+          onFileChange={(file) => setValue("image_id", file.id)}
+        />
+      </FormItem>
 
       {/* <h2 className="mb-2 mt-4">Header</h2>
       <ImagePicker

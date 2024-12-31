@@ -8,10 +8,14 @@ type BlockProps = DetailedHTMLProps<
   className?: HTMLAttributes<HTMLDivElement>["className"];
 };
 
-export default function Block({ children, className = "", ...rest }: BlockProps) {
+export default function Block({
+  children,
+  className = "",
+  ...rest
+}: BlockProps) {
   return (
     <div
-      className={`bg-white border border-gray-200 p-4 rounded-xl w-full ${className}`}
+      className={`bg-white border border-gray-200 p-6 rounded-xl w-full ${className}`}
       {...rest}
     >
       {children}

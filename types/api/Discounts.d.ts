@@ -3,7 +3,7 @@ import { Food } from "./Food";
 
 type Discounts = {
   id: string;
-  food: Food;
+  food: Omit<Food, "discounts">;
   discount: number;
   start_at?: string;
   end_at?: string;

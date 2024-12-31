@@ -17,6 +17,7 @@ import { useMutation } from "@tanstack/react-query";
 import api from "@/services/api";
 import CategoryDelete from "@/components/Dashboard/Menu/Categories/CategoryDelete";
 import { Skeleton } from "@nextui-org/react";
+import Block from "@/components/Block";
 
 export default function Page() {
   const { data: categories, isLoading } = useCategory();
@@ -56,7 +57,7 @@ export default function Page() {
   }, [categories]);
 
   return (
-    <div>
+    <Block>
       <div className="w-full flex justify-end mb-4">
         <Button
           onPress={() => {
@@ -121,6 +122,6 @@ export default function Page() {
           setOpenDelete(null);
         }}
       />
-    </div>
+    </Block>
   );
 }

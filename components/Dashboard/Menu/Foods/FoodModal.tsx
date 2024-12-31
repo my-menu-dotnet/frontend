@@ -24,6 +24,7 @@ import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import FoodCategories from "./FoodCategories";
+import FoodDiscounts from "./FoodDiscounts";
 
 export type FoodModalForm = {
   name: string;
@@ -228,6 +229,7 @@ export default function FoodModal({
               )}
             />
             <FoodCategories control={control} />
+            <FoodDiscounts food={food} />
           </ModalBody>
           <ModalFooter>
             <div className="w-full flex justify-between">

@@ -27,7 +27,7 @@ export default {
               DEFAULT: "#171717",
               400: "#4a4a4a",
             },
-            primary: "#FFC303",
+            primary: "#ffcf00",
             "primary-foreground": {
               DEFAULT: "white",
             },

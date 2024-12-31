@@ -1,0 +1,32 @@
+.discount-icon {
+  position: relative;
+  @apply w-[52px] h-[52px] overflow-hidden;
+}
+
+.discount-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 35px;
+  height: 35px;
+  border-radius: 6px;
+  transform: translate(-50%, -50%);
+  background-color: var(--discount-color) !important;
+
+  @apply bg-primary;
+}
+
+.discount-icon::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 35px;
+  height: 35px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  border-radius: 5px;
+  background-color: var(--discount-color) !important; 
+
+  @apply shadow-lg bg-primary;
+}
