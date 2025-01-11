@@ -1,0 +1,14 @@
+{
+  "name": "My Menu",
+  "short_name": "",
+  "description": "My Menu is a simple application that allows you to create your own menu with your favorite dishes and drinks. You can also share your menu with your customers and friends. Enjoy it!",
+  "start_url": "/",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

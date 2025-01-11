@@ -14,6 +14,7 @@ import api from "@/services/api";
 import { useMutation } from "@tanstack/react-query";
 import RandomEmoji from "@/utils/randomEmoji";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type RegisterProps = {
   name: string;
@@ -186,11 +187,11 @@ export default function Page() {
         <Button text="Registrar" isLoading={isPending} type="submit" />
       </form>
 
-      <div className="absolute bottom-12">
-        <a>
-          Já tem uma conta?{" "}
+      <div className="mb-8">
+        Já tem uma conta?{" "}
+        <Link href="/auth/login">
           <span className="text-primary font-semibold">Entrar</span>
-        </a>
+        </Link>
       </div>
     </main>
   );

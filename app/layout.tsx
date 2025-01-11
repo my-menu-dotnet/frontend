@@ -16,6 +16,14 @@ export const metadata: Metadata = {
   category: "Food & Drink",
   creator: "My Menu Team",
   bookmarks: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
+  keywords: ["menu", "food", "drink", "restaurant", "bar", "cafe"],
+  assets: ["https://my-menu.net/assets"],
+  authors: [
+    {
+      name: "Thiago Crepequer",
+      url: "https://www.linkedin.com/in/thiago-crepequer/",
+    },
+  ],
 };
 
 const roboto = Roboto({ subsets: ["latin"], weight: "400" });
@@ -26,7 +34,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-br" className={`light w-full h-full bg-white ${roboto.className}`}>
+    <html
+      lang="pt-br"
+      className={`light w-full h-full bg-white ${roboto.className}`}
+    >
       <body className={`antialiased w-full h-full`}>
         <ReactQueryProvider>
           <NextUIProvider className="w-full h-full">
