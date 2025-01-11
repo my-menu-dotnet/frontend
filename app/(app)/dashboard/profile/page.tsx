@@ -6,6 +6,7 @@ import useUser from "@/hooks/queries/useUser";
 import { Address } from "@/types/api/Address";
 import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -26,97 +27,103 @@ const schema = Yup.object().shape({
 });
 
 export default function Page() {
-  const { data: user } = useUser();
+  // const { data: user } = useUser();
 
-  const { control, handleSubmit, setValue, getValues } = useForm<UserForm>({
-    resolver: yupResolver(schema),
-    defaultValues: {
-      name: "",
-      email: "",
-      cpf: "",
-      phone: "",
-      address: {
-        street: "",
-        number: "",
-        complement: "",
-        neighborhood: "",
-        city: "",
-        state: "",
-        zip_code: "",
-      },
-    },
-  });
+  // const router = useRouter();
 
-  useEffect(() => {
-    if (user) {
-      setValue("name", user.name);
-      setValue("email", user.email);
-      setValue("cpf", user.cpf);
-      setValue("phone", user.phone);
-      setValue("address", user.address);
-    }
-  }, [user]);
+  // const { control, setValue } = useForm<UserForm>({
+  //   resolver: yupResolver(schema),
+  //   defaultValues: {
+  //     name: "",
+  //     email: "",
+  //     cpf: "",
+  //     phone: "",
+  //     address: {
+  //       street: "",
+  //       number: "",
+  //       complement: "",
+  //       neighborhood: "",
+  //       city: "",
+  //       state: "",
+  //       zip_code: "",
+  //     },
+  //   },
+  // });
 
-  return (
-    <main>
-      <h2>Seus dados</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Controller
-          name="name"
-          control={control}
-          render={({ field }) => (
-            <Input
-              className="w-full"
-              label="Nome"
-              placeholder="Digite seu nome"
-              isRequired
-              {...field}
-            />
-          )}
-        />
-        <Controller
-          name="email"
-          control={control}
-          render={({ field }) => (
-            <Input
-              className="w-full"
-              label="Email"
-              placeholder="Digite seu email"
-              isRequired
-              {...field}
-            />
-          )}
-        />
-        <Controller
-          name="cpf"
-          control={control}
-          render={({ field }) => (
-            <Input
-              className="w-full"
-              label="CPF"
-              placeholder="Digite seu CPF"
-              isRequired
-              {...field}
-            />
-          )}
-        />
-        <Controller
-          name="phone"
-          control={control}
-          render={({ field }) => (
-            <Input
-              className="w-full"
-              label="Telefone"
-              placeholder="Digite seu telefone"
-              {...field}
-            />
-          )}
-        />
-      </div>
+  // useEffect(() => {
+  //   if (user) {
+  //     setValue("name", user.name);
+  //     setValue("email", user.email);
+  //     setValue("cpf", user.cpf);
+  //     setValue("phone", user.phone);
+  //     setValue("address", user.address);
+  //   }
+  // }, [user]);
 
-      <hr className="my-4" />
+  // if (router.isFallback) {
+  //   return <div>Loading...</div>;
+  // }
 
-      <AddressForm control={control} />
-    </main>
-  );
+  // return (
+  //   <main>
+  //     <h2>Seus dados</h2>
+  //     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  //       <Controller
+  //         name="name"
+  //         control={control}
+  //         render={({ field }) => (
+  //           <Input
+  //             className="w-full"
+  //             label="Nome"
+  //             placeholder="Digite seu nome"
+  //             isRequired
+  //             {...field}
+  //           />
+  //         )}
+  //       />
+  //       <Controller
+  //         name="email"
+  //         control={control}
+  //         render={({ field }) => (
+  //           <Input
+  //             className="w-full"
+  //             label="Email"
+  //             placeholder="Digite seu email"
+  //             isRequired
+  //             {...field}
+  //           />
+  //         )}
+  //       />
+  //       <Controller
+  //         name="cpf"
+  //         control={control}
+  //         render={({ field }) => (
+  //           <Input
+  //             className="w-full"
+  //             label="CPF"
+  //             placeholder="Digite seu CPF"
+  //             isRequired
+  //             {...field}
+  //           />
+  //         )}
+  //       />
+  //       <Controller
+  //         name="phone"
+  //         control={control}
+  //         render={({ field }) => (
+  //           <Input
+  //             className="w-full"
+  //             label="Telefone"
+  //             placeholder="Digite seu telefone"
+  //             {...field}
+  //           />
+  //         )}
+  //       />
+  //     </div>
+
+  //     <hr className="my-4" />
+
+  //     <AddressForm control={control} />
+  //   </main>
+  // );
 }

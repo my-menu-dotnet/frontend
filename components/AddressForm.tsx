@@ -1,5 +1,4 @@
 import { Controller } from "react-hook-form";
-import { CiCircleInfo } from "react-icons/ci";
 import Input from "./Input";
 import Select from "./Select";
 import SelectItem from "./SelectItem";

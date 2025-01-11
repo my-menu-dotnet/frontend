@@ -24,6 +24,10 @@ export default function Sidebar() {
       </div>
       <Menu>
         {menus.map((item, index) => {
+          if (!item.enabled) {
+            return null;
+          }
+          
           if (item.children) {
             return (
               <SubItem
