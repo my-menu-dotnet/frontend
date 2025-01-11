@@ -89,23 +89,26 @@ export default async function Page({ params }: Props) {
                 style={{ backgroundColor: color }}
               ></div>
               <div className="w-full">
-                {menu.categories.map((category: Category) => (
-                  <section
-                    key={category.id}
-                    className="flex flex-col gap-4 mt-4"
-                  >
-                    <h2 className="font-bold">{category.name}</h2>
-                    <ul className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {category.foods.map((product: Food) => (
-                        <FoodCard
-                          key={product.id}
-                          food={product}
-                          discountColor={color}
-                        />
-                      ))}
-                    </ul>
-                  </section>
-                ))}
+                {menu.categories.map(
+                  (category: Category) =>
+                    category.foods.length > 0 && (
+                      <section
+                        key={category.id}
+                        className="flex flex-col gap-4 mt-4"
+                      >
+                        <h2 className="font-bold">{category.name}</h2>
+                        <ul className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {category.foods.map((product: Food) => (
+                            <FoodCard
+                              key={product.id}
+                              food={product}
+                              discountColor={color}
+                            />
+                          ))}
+                        </ul>
+                      </section>
+                    )
+                )}
               </div>
             </div>
           </main>

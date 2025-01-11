@@ -13,6 +13,7 @@ export default function Input({
   value = "",
   mask,
   onChange,
+  classNames,
   ...rest
 }: InputProps) {
   const isInvalid = Boolean(errorMessage);
@@ -42,7 +43,8 @@ export default function Input({
       isInvalid={isInvalid}
       variant="bordered"
       classNames={{
-        inputWrapper: "border-1 rounded-lg",
+        ...classNames,
+        inputWrapper: `border-1 rounded-lg ${classNames?.inputWrapper}`,
       }}
       onChange={handleChange}
       {...rest}

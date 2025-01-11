@@ -22,7 +22,7 @@ export default function FoodCard({
 }: FoodCardProps) {
   return (
     <li
-      className={`flex flex-col bg-white shadow rounded-md relative ${className}`}
+      className={`flex flex-col h-[330px] bg-white shadow rounded-md relative ${className}`}
       {...props}
     >
       <Image
@@ -32,8 +32,8 @@ export default function FoodCard({
         height={300}
         className="object-cover h-44 w-full"
       />
-      <div className="w-full flex flex-col mt-2 px-4 py-2">
-        <div className="flex-1">
+      <div className="w-full h-full flex flex-col justify-between mt-2 px-4 py-2">
+        <div className="">
           <h3 className="font-semibold">{food.name}</h3>
           <p
             className="line-clamp-3 text-gray-400 text-sm"

@@ -46,16 +46,16 @@ const menus: PageMenus[] = [
     icon: <LuBadgePercent />,
     to: "/dashboard/menu/discounts",
   },
-  {
-    title: "Perfil",
-    icon: <GoPerson />,
-    to: "/dashboard/profile",
-  },
-  {
-    title: "Configurações",
-    icon: <GoGear />,
-    to: "/dashboard/config",
-  },
+  // {
+  //   title: "Perfil",
+  //   icon: <GoPerson />,
+  //   to: "/dashboard/profile",
+  // },
+  // {
+  //   title: "Configurações",
+  //   icon: <GoGear />,
+  //   to: "/dashboard/config",
+  // },
 ];
 
 export default menus;

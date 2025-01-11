@@ -15,7 +15,7 @@ export default function LineAccessChart() {
   return (
     <>
       {!isLoading && companyAccess ? (
-        <Block className="h-[300px]">
+        <Block className="h-80">
           <Line
             style={{ width: "100%", height: "100%" }}
             data={{

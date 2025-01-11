@@ -30,16 +30,16 @@ export function GrowthRate() {
   };
 
   return (
-    <div className="flex flex-row gap-4">
+    <div className="flex flex-row lg:flex-col flex-wrap gap-4 h-80">
       {!isLoading && companyAccess ? (
         Object.entries(companyAccess).map(([key, value]) => (
-          <Block key={key} className="h-72 max-w-44 md:w-44">
+          <Block key={key} className="flex-1 flex justify-around items-center gap-4">
             <div
-              className={`flex justify-center items-center w-16 h-16 rounded-lg ${masks[key].color} text-white mb-6`}
+              className={`flex justify-center items-center w-16 h-16 rounded-lg ${masks[key].color} text-white`}
             >
               {masks[key].icon}
             </div>
-            <div className="flex flex-col justify-end gap-2">
+            <div className="flex flex-col gap-2">
               <p className="text-sm text-gray-400">{masks[key].title}</p>
               <div className="text-xl flex flex-row items-center gap-2">
                 {value.total_access}
@@ -57,8 +57,8 @@ export function GrowthRate() {
         ))
       ) : (
         <>
-          <Skeleton className="w-full h-72 max-w-44 md:w-44 rounded-xl" />
-          <Skeleton className="w-full h-72 max-w-44 md:w-44 rounded-xl" />
+          <Skeleton className="w-full h-full rounded-xl" />
+          <Skeleton className="w-full h-full rounded-xl" />
         </>
       )}
     </div>

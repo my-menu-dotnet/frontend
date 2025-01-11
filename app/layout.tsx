@@ -5,7 +5,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { NextUIProvider } from "@nextui-org/react";
 import { Roboto } from "next/font/google";
-import { I18nProvider } from "@react-aria/i18n";
 
 export const metadata: Metadata = {
   title: "My Menu",
@@ -27,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-br" className={`light w-full h-full ${roboto.className}`}>
+    <html lang="pt-br" className={`light w-full h-full bg-white ${roboto.className}`}>
       <body className={`antialiased w-full h-full`}>
         <ReactQueryProvider>
           <NextUIProvider className="w-full h-full">

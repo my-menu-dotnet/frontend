@@ -46,6 +46,7 @@ export default function AddressForm({ control }: AddressFormProps) {
                 label="Estado"
                 errorMessage={fieldState.error?.message}
                 isInvalid={Boolean(fieldState.error)}
+                selectedKeys={[field.value]}
                 {...field}
               >
                 <>

@@ -5,7 +5,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Input from "./Input";
-import { CiCircleInfo } from "react-icons/ci";
 import ImagePicker from "./ImagePicker";
 import Button from "./Button";
 import { useMutation } from "@tanstack/react-query";
@@ -16,10 +15,12 @@ import { AddressRequest } from "@/types/api/Address";
 import { toast } from "react-toastify";
 import Yup from "@/validators/Yup";
 import FormItem from "./FormItem";
+import ColorPicker from "./ColorPicker";
 
 type CompanyForm = {
   name: string;
   cnpj?: string;
+  primary_color: string;
   email: string;
   phone: string;
   image_id: string;
@@ -29,6 +30,11 @@ type CompanyForm = {
 const schema = Yup.object().shape({
   name: Yup.string().required(),
   cnpj: Yup.string(),
+  primary_color: Yup.string()
+    .required()
+    .test("is-hex", "Cor primária inválida", (value) =>
+      /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(value)
+    ),
   email: Yup.string().email().required(),
   phone: Yup.string().required(),
   image_id: Yup.string().required(),
@@ -39,11 +45,12 @@ export default function CompanyForm() {
   const router = useRouter();
   const { data: company } = useCompany();
 
-  const { control, handleSubmit, setValue, getValues } = useForm<CompanyForm>({
+  const { control, handleSubmit, setValue } = useForm<CompanyForm>({
     resolver: yupResolver(schema),
     defaultValues: {
       name: "",
       cnpj: "",
+      primary_color: "",
       email: "",
       phone: "",
       image_id: "",
@@ -59,7 +66,7 @@ export default function CompanyForm() {
     },
   });
 
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationKey: ["update-create-company"],
     mutationFn: async (data: CompanyForm) => {
       if (company?.id) {
@@ -68,12 +75,14 @@ export default function CompanyForm() {
       return await api.post("/company", data);
     },
     onError: (error) => {
-      toast("Erro ao salvar empresa", { type: "error", icon: () => "😓" });
+      toast.error("Erro ao salvar empresa");
+      console.error(error);
     },
     onSuccess: () => {
       if (!company?.id) {
         router.push("/auth/company/verify-email");
       }
+      toast.success("Empresa salva com sucesso");
     },
   });
 
@@ -95,6 +104,7 @@ export default function CompanyForm() {
       setValue("name", company.name || "");
       setValue("cnpj", company.cnpj || "");
       setValue("email", company.email || "");
+      setValue("primary_color", company.primary_color || "");
       setValue("phone", company.phone || "");
       setValue("image_id", company.image?.id || "");
       setValue("address.city", company.address?.city || "");
@@ -142,6 +152,19 @@ export default function CompanyForm() {
                 className="w-full"
                 placeholder="Digite o CNPJ da sua empresa"
                 label="CNPJ"
+                errorMessage={fieldState.error?.message}
+                {...field}
+              />
+            )}
+          />
+          <Controller
+            name="primary_color"
+            control={control}
+            render={({ field, fieldState }) => (
+              <ColorPicker
+                label="Cor Primária"
+                placeholder="Selecione a cor primária da sua empresa"
+                description="O MyMenu funciona melhor com cores escuras, evite cores muito claras ;)"
                 errorMessage={fieldState.error?.message}
                 {...field}
               />
@@ -204,14 +227,8 @@ export default function CompanyForm() {
         />
       </FormItem>
 
-      {/* <h2 className="mb-2 mt-4">Header</h2>
-      <ImagePicker
-          fileStorage={company?.header}
-          onFileChange={(file) => setValue("header_id", file.id)}
-        /> */}
-
       <div className="flex justify-end mt-4">
-        <Button type="submit" text="Enviar" />
+        <Button isLoading={isPending} type="submit" text="Enviar" />
       </div>
     </form>
   );

@@ -39,12 +39,12 @@ export default function Singout() {
                 <Button
                   color="default"
                   variant="light"
-                  onClick={onClose}
+                  onPress={onClose}
                   text="Cancelar"
                 />
                 <Button
                   color="danger"
-                  onClick={() => {
+                  onPress={() => {
                     logout();
                     onClose();
                   }}

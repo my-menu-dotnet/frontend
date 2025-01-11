@@ -25,8 +25,8 @@ export default function QRCode() {
   };
 
   return !isLoading && company ? (
-    <div className="w-68">
-      <Block className="h-72 flex flex-col items-center">
+    <div className="">
+      <Block className="h-80 flex flex-col items-center">
         <div
           className="border-[2px] border-gray-100 rounded-md bg-gray-50 px-2 py-1 flex flex-row items-center gap-2 cursor-pointer"
           onClick={handleCopy}
@@ -49,6 +49,6 @@ export default function QRCode() {
       </Block>
     </div>
   ) : (
-    <Skeleton className="h-72 w-68" />
+    <Skeleton className="h-80 w-68 rounded-xl" />
   );
 }
