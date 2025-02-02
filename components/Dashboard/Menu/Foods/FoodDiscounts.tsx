@@ -44,7 +44,7 @@ export default function FoodDiscounts({ food }: FoodDiscountsProps) {
             <User
               avatarProps={{
                 radius: "full",
-                src: food?.image.url,
+                src: food?.image?.url,
               }}
               name={food?.name}
               description={food?.description}

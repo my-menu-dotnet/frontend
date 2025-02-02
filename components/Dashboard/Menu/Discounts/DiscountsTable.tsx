@@ -50,19 +50,21 @@ export default function DiscountsTable({ setOpen }: DiscountsTableProps) {
         header: "Produto",
         cell: ({ row }) => (
           <div className="flex items-center gap-4">
-            <User
-              avatarProps={{
-                radius: "full",
-                src: row.original.food.image.url,
-              }}
-              name={row.original.food.name}
-              description={row.original.food.description}
-              classNames={{
-                description: "line-clamp-1",
-              }}
-            >
-              {row.original.food.description}
-            </User>
+            {row.original.food.image && (
+              <User
+                avatarProps={{
+                  radius: "full",
+                  src: row.original.food.image.url,
+                }}
+                name={row.original.food.name}
+                description={row.original.food.description}
+                classNames={{
+                  description: "line-clamp-1",
+                }}
+              >
+                {row.original.food.description}
+              </User>
+            )}
           </div>
         ),
       },
