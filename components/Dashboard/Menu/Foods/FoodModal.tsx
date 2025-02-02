@@ -19,12 +19,17 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import { useMutation } from "@tanstack/react-query";
+import {
+  useIsMutating,
+  useMutation,
+  useMutationState,
+} from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import FoodCategories from "./FoodCategories";
 import FoodDiscounts from "./FoodDiscounts";
+import QUERY_KEY from "@/constants/queryKey";
 
 export type FoodModalForm = {
   name: string;
@@ -69,6 +74,9 @@ export default function FoodModal({
 }: FoodModalProps) {
   const { refetch: refetchCategory } = useCategory();
   const { data: categories } = useCategorySelect();
+  const isLoadingFile = useIsMutating({
+    mutationKey: [QUERY_KEY.UPLOAD_FILE],
+  });
 
   const { control, handleSubmit, setValue, reset } = useForm<FoodModalForm>({
     resolver: yupResolver(schema),
@@ -77,8 +85,8 @@ export default function FoodModal({
     },
   });
 
-  const { mutateAsync } = useMutation({
-    mutationKey: ["update-create-product"],
+  const { mutateAsync, isPending: isLoadingFood } = useMutation({
+    mutationKey: [QUERY_KEY.UPDATE_CREATE_FOOD],
     mutationFn: async (data: FoodModalForm) => {
       if (food?.id) {
         return api.put(`/food/${food.id}`, data);
@@ -125,7 +133,7 @@ export default function FoodModal({
       setValue("price", price);
       setValue("status", status || "ACTIVE");
       setValue("category_id", category_id || "");
-      setValue("image_id", image.id);
+      setValue("image_id", image?.id);
       setValue("lactose_free", lactose_free);
       setValue("gluten_free", gluten_free);
       setValue("vegan", vegan);
@@ -136,7 +144,7 @@ export default function FoodModal({
 
   return (
     <Modal isOpen={open} onClose={handleClose} size="4xl">
-      <ModalContent>
+      <ModalContent data-test="food-modal">
         <ModalHeader>Produto</ModalHeader>
         <form
           onSubmit={(e) => {
@@ -151,6 +159,7 @@ export default function FoodModal({
               render={({ field, fieldState }) => (
                 <Input
                   label="Nome"
+                  data-test="input-name"
                   placeholder="Nome do produto"
                   errorMessage={fieldState.error?.message}
                   {...field}
@@ -163,6 +172,7 @@ export default function FoodModal({
               render={({ field, fieldState }) => (
                 <Textarea
                   label="Descrição"
+                  data-test="input-description"
                   placeholder="Descrição do produto"
                   errorMessage={fieldState.error?.message}
                   {...field}
@@ -175,6 +185,7 @@ export default function FoodModal({
               render={({ field, fieldState }) => (
                 <Input
                   label="Preço"
+                  data-test="input-price"
                   placeholder="Preço do produto"
                   errorMessage={fieldState.error?.message}
                   type="number"
@@ -195,6 +206,7 @@ export default function FoodModal({
               name="category_id"
               render={({ field, fieldState }) => (
                 <Select
+                  data-test="select-category"
                   className="w-full"
                   label="Categoria"
                   placeholder="Selecione uma categoria"
@@ -211,7 +223,12 @@ export default function FoodModal({
                 >
                   {categories! &&
                     Object.keys(categories).map((key) => (
-                      <SelectItem key={key}>{categories[key]}</SelectItem>
+                      <SelectItem
+                        data-test={`select-item-${categories[key]}`}
+                        key={key}
+                      >
+                        {categories[key]}
+                      </SelectItem>
                     ))}
                 </Select>
               )}
@@ -247,7 +264,12 @@ export default function FoodModal({
                   text="Cancelar"
                   type="button"
                 />
-                <Button text="Enviar" type="submit" />
+                <Button
+                  data-test="input-submit"
+                  text="Enviar"
+                  type="submit"
+                  isLoading={!!isLoadingFile || isLoadingFood}
+                />
               </div>
             </div>
           </ModalFooter>

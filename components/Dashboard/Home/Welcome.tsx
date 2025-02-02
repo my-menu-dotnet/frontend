@@ -1,7 +1,6 @@
 "use client";
 
 import Block from "@/components/Block";
-import useCompany from "@/hooks/queries/useCompany";
 import useUser from "@/hooks/queries/useUser";
 import { Skeleton } from "@nextui-org/react";
 import Image from "next/image";
@@ -9,8 +8,7 @@ import { MdOutlineAlternateEmail } from "react-icons/md";
 import { SlScreenSmartphone } from "react-icons/sl";
 
 export function Welcome() {
-  const { data: user } = useUser();
-  const { data: company, isLoading } = useCompany();
+  const { data: user, company, isLoading } = useUser();
 
   return (
     <>

@@ -60,6 +60,7 @@ export default function Page() {
     <Block>
       <div className="w-full flex justify-end mb-4">
         <Button
+          data-test="add-category"
           onPress={() => {
             setOpenEdit({} as Category);
           }}
@@ -69,43 +70,49 @@ export default function Page() {
         </Button>
       </div>
 
-      {itemsCategories && itemsCategories.length > 0 ? (
+      {itemsCategories && !isLoading ? (
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="vertical">
             {(provided) => (
-              <div {...provided.droppableProps} ref={provided.innerRef}>
-                {itemsCategories?.map((category, index) => (
-                  <Draggable
-                    key={category.id}
-                    draggableId={category.id}
-                    index={index}
-                  >
-                    {(provided) => (
-                      <CategoryItem
-                        key={category.id}
-                        category={category}
-                        onClickEdit={() => {
-                          setOpenEdit(category);
-                        }}
-                        onClickDelete={() => {
-                          setOpenDelete(category);
-                        }}
-                        provided={provided}
-                      />
-                    )}
-                  </Draggable>
-                ))}
+              <div
+                data-test="container-categories"
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+              >
+                {itemsCategories && itemsCategories?.length > 0 ? (
+                  itemsCategories?.map((category, index) => (
+                    <Draggable
+                      key={category.id}
+                      draggableId={category.id}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <CategoryItem
+                          key={category.id}
+                          category={category}
+                          onClickEdit={() => {
+                            setOpenEdit(category);
+                          }}
+                          onClickDelete={() => {
+                            setOpenDelete(category);
+                          }}
+                          provided={provided}
+                        />
+                      )}
+                    </Draggable>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-400">
+                    Nenhuma categoria encontrada
+                  </div>
+                )}
                 {provided.placeholder}
               </div>
             )}
           </Droppable>
         </DragDropContext>
-      ) : isLoading ? (
-        <Skeleton className="h-12 w-full shadow rounded-md" />
       ) : (
-        <div className="text-center text-gray-400">
-          Nenhuma categoria encontrada
-        </div>
+        <Skeleton className="w-full h-20" />
       )}
 
       <CategoryModal

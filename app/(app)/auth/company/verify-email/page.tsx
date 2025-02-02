@@ -8,7 +8,7 @@ import useUser from "@/hooks/queries/useUser";
 export default function Page() {
   const { data: user, isLoading } = useUser();
 
-  if (isLoading || !user || !(user.companies.length > 0)) return null;
+  if (isLoading || !user || !user.company) return null;
 
   return (
     <main className="absolute bg-gray-50 top-0 bottom-0 right-0 left-0 flex flex-col justify-center items-center">
@@ -19,8 +19,7 @@ export default function Page() {
         </h1>
         <p className="text-center">
           Enviamos um email para você verificar sua conta. Por favor, verifique
-          seu email <span>{user.companies[0].email}</span> e preencha o campo
-          abaixo.
+          seu email <span>{user.company.email}</span> e preencha o campo abaixo.
         </p>
 
         <VerificationCode type="COMPANY" />

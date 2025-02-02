@@ -33,7 +33,7 @@ export default function CategoryDelete({
 
   const handleDelete = async () => {
     await mutateAsync();
-    await refetch()
+    await refetch();
     onClose();
   };
 
@@ -53,10 +53,15 @@ export default function CategoryDelete({
               <Button
                 color="default"
                 variant="light"
-                onClick={onClose}
+                onPress={onClose}
                 text="Cancelar"
               />
-              <Button color="danger" text="Enviar" onClick={handleDelete} />
+              <Button
+                data-test="button-modal-delete"
+                color="danger"
+                text="Enviar"
+                onPress={handleDelete}
+              />
             </ModalFooter>
           </>
         )}

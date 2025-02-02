@@ -1,21 +1,18 @@
 "use client";
 
-import useCompany from "@/hooks/queries/useCompany";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Input from "./Input";
 import ImagePicker from "./ImagePicker";
 import Button from "./Button";
-import { useMutation } from "@tanstack/react-query";
-import api from "@/services/api";
-import { useRouter } from "next/navigation";
 import AddressForm from "./AddressForm";
 import { AddressRequest } from "@/types/api/Address";
-import { toast } from "react-toastify";
 import Yup from "@/validators/Yup";
 import FormItem from "./FormItem";
 import ColorPicker from "./ColorPicker";
+import useUser from "@/hooks/queries/useUser";
+import useUpdateCreateCompany from "@/hooks/mutate/useUpdateCreateCompany";
 
 type CompanyForm = {
   name: string;
@@ -42,8 +39,8 @@ const schema = Yup.object().shape({
 });
 
 export default function CompanyForm() {
-  const router = useRouter();
-  const { data: company } = useCompany();
+  const { company } = useUser();
+  const { mutate, isPending } = useUpdateCreateCompany<CompanyForm>(company);
 
   const { control, handleSubmit, setValue } = useForm<CompanyForm>({
     resolver: yupResolver(schema),
@@ -63,26 +60,6 @@ export default function CompanyForm() {
         state: "",
         zip_code: "",
       },
-    },
-  });
-
-  const { mutate, isPending } = useMutation({
-    mutationKey: ["update-create-company"],
-    mutationFn: async (data: CompanyForm) => {
-      if (company?.id) {
-        return await api.put(`/company/${company.id}`, data);
-      }
-      return await api.post("/company", data);
-    },
-    onError: (error) => {
-      toast.error("Erro ao salvar empresa");
-      console.error(error);
-    },
-    onSuccess: () => {
-      if (!company?.id) {
-        router.push("/auth/company/verify-email");
-      }
-      toast.success("Empresa salva com sucesso");
     },
   });
 

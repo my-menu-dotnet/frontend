@@ -20,6 +20,7 @@ const CategoryItem = ({
 }: CategoryItemProps) => {
   return (
     <div
+      data-test="category-item"
       className="flex flex-row items-center gap-4 mt-2 px-4 h-12 shadow rounded-md"
       ref={provided.innerRef}
       {...provided.draggableProps}
@@ -35,10 +36,15 @@ const CategoryItem = ({
         />
       </Tooltip>
       <div className="flex-1">{category.name}</div>
-      <div onClick={onClickEdit} className="cursor-pointer">
+      <div
+        data-test="button-category-edit"
+        onClick={onClickEdit}
+        className="cursor-pointer"
+      >
         <LuPencil className="text-gray-600" />
       </div>
       <div
+        data-test="button-category-delete"
         onClick={onClickDelete}
         className="hover:bg-danger-50 p-2 rounded-full cursor-pointer"
       >

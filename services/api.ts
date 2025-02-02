@@ -1,5 +1,9 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import { ToastContent, ToastOptions } from "react-toastify";
+
+interface CustomAxiosRequestConfig extends AxiosRequestConfig {
+  _retry?: boolean;
+}
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -14,14 +18,16 @@ const setupApi = (
   ) => void
 ) => {
   let isRefreshing = false;
-  let failedRequestQueue = [] as {
+  let failedRequestQueue: Array<{
     onSuccess: () => void;
     onFailure: (err: AxiosError) => void;
-  }[];
+  }> = [];
 
-  return api.interceptors.response.use(
+  api.interceptors.response.use(
     (response) => response,
-    (error: AxiosError) => {
+    async (error: AxiosError) => {
+      const originalRequest = error.config as CustomAxiosRequestConfig;
+
       if (error.response?.status !== 401) {
         if (error.response?.status !== 403) {
           // @ts-ignore
@@ -33,41 +39,51 @@ const setupApi = (
         return Promise.reject(error);
       }
 
-      const originalRequest = error.config;
+      if (originalRequest._retry) {
+        return Promise.reject(error);
+      }
+
+      originalRequest._retry = true;
 
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedRequestQueue.push({
-            onSuccess: () => {
-              resolve(api(originalRequest!));
-            },
-            onFailure: (err: AxiosError) => {
-              reject(err);
-            },
+            onSuccess: () => resolve(api(originalRequest)),
+            onFailure: (err) => reject(err),
           });
         });
       }
 
       isRefreshing = true;
-      api
-        .post("/auth/refresh-token")
-        .then(() => {
-          console.log("Token refreshed");
-          failedRequestQueue.forEach((request) => request.onSuccess());
-          failedRequestQueue = [];
-          return api(originalRequest!);
-        })
-        .catch(() => {
-          failedRequestQueue.forEach((request) => request.onFailure(error));
-          failedRequestQueue = [];
-          logout();
-          return Promise.reject(error);
-        })
-        .finally(() => {
-          isRefreshing = false;
-        });
+
+      return new Promise((resolve, reject) => {
+        api
+          .post("/auth/refresh-token")
+          .then(() => {
+            failedRequestQueue.forEach((request) => request.onSuccess());
+            failedRequestQueue = [];
+            
+            console.log("SetupApi -> Refresh Token");
+
+            resolve(api(originalRequest));
+          })
+          .catch((err: AxiosError) => {
+            failedRequestQueue.forEach((request) => request.onFailure(err));
+            failedRequestQueue = [];
+
+            console.log("SetupApi -> Logout");
+            
+            logout();
+            reject(err);
+          })
+          .finally(() => {
+            isRefreshing = false;
+          });
+      });
     }
   );
+
+  return api;
 };
 
 export default api;

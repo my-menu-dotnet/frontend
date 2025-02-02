@@ -1,8 +1,8 @@
 "use client";
 
 import Block from "@/components/Block";
-import useCompany from "@/hooks/queries/useCompany";
 import useCompanyQrCode from "@/hooks/queries/useCompanyQrCode";
+import useUser from "@/hooks/queries/useUser";
 import { Skeleton } from "@nextui-org/react";
 import Image from "next/image";
 import { useMemo } from "react";
@@ -10,7 +10,7 @@ import { FiCopy } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 export default function QRCode() {
-  const { data: company, isLoading } = useCompany();
+  const { company, isLoading } = useUser();
   const { data: qrCode } = useCompanyQrCode();
 
   const menuUrl = useMemo(

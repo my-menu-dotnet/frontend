@@ -8,6 +8,7 @@ import Vegetarian from "./icons/Vegetarian";
 import Vegan from "./icons/Vegan";
 import LactoseFree from "./icons/LactoseFree";
 import { HTMLAttributes } from "react";
+import FoodDefault from "@/assets/default-food.jpg";
 
 type FoodCardProps = HTMLAttributes<HTMLLIElement> & {
   food: Food;
@@ -26,7 +27,7 @@ export default function FoodCard({
       {...props}
     >
       <Image
-        src={food.image.url}
+        src={food.image?.url || FoodDefault}
         alt={food.name}
         width={400}
         height={300}

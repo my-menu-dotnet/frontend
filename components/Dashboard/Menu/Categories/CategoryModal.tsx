@@ -92,6 +92,7 @@ const CategoryModal = ({ open, setOpen, newCategory }: CategoryModalProps) => {
                 name="name"
                 render={({ field, fieldState }) => (
                   <Input
+                    data-test="input-name"
                     label="Nome"
                     placeholder="Nome da categoria"
                     errorMessage={fieldState.error?.message}
@@ -104,6 +105,7 @@ const CategoryModal = ({ open, setOpen, newCategory }: CategoryModalProps) => {
                 name="status"
                 render={({ field, fieldState }) => (
                   <Select
+                    data-test="select-status"
                     className="w-full"
                     label="Status"
                     placeholder="Selecione um status"
@@ -118,7 +120,12 @@ const CategoryModal = ({ open, setOpen, newCategory }: CategoryModalProps) => {
                     {...field}
                   >
                     {status.map((s) => (
-                      <SelectItem key={s.key}>{s.label}</SelectItem>
+                      <SelectItem
+                        data-test={`select-item-${s.key}`}
+                        key={s.key}
+                      >
+                        {s.label}
+                      </SelectItem>
                     ))}
                   </Select>
                 )}
@@ -131,7 +138,7 @@ const CategoryModal = ({ open, setOpen, newCategory }: CategoryModalProps) => {
                 onPress={onClose}
                 text="Cancelar"
               />
-              <Button text="Enviar" type="submit" />
+              <Button data-test="input-submit" text="Enviar" type="submit" />
             </ModalFooter>
           </form>
         )}

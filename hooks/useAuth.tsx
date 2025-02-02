@@ -36,7 +36,7 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { data: user, isLoading, refetch } = useUser();
+  const { data: user, isLoading, refetch, isRefetching } = useUser();
   const router = useRouter();
   const pathName = usePathname();
   const queryClient = useQueryClient();
@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const handleRedirect = () => {
-    if (isLoading) return;
+    if (isLoading || isRefetching) return;
 
     if (!user && !(pathName == "/auth/login" || pathName == "/auth/register")) {
       router.replace("/auth/login");
@@ -67,15 +67,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.replace("/auth/verify-email");
       return;
     }
-    if (user && user.companies.length === 0) {
+    if (user && !user.company) {
       router.replace("/auth/company");
       return;
     }
-    if (
-      user &&
-      user.companies.length > 0 &&
-      !user.companies[0].verified_email
-    ) {
+    if (user && user.company && !user.company.verified_email) {
       router.replace("/auth/company/verify-email");
       return;
     }

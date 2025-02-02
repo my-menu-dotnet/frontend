@@ -8,7 +8,7 @@ type User = {
   cpf: string;
   phone: string;
   address: Address;
-  companies: Company[];
+  company: Company;
   created_at: string;
   updated_at: string;
   verified_email: boolean;

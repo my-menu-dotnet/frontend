@@ -84,10 +84,30 @@ export default async function Page({ params }: Props) {
           </header>
           <main className="flex flex-col w-full items-center px-4">
             <div className="max-w-[1200px] w-full">
-              <div
-                className="w-full h-80 rounded-md"
-                style={{ backgroundColor: color }}
-              ></div>
+              {menu.banners.length > 0 && (
+                <section className="flex flex-row gap-4 mt-4">
+                  {menu.banners.map((banner) => (
+                    <a
+                      key={banner.id}
+                      href={banner.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block w-full relative"
+                    >
+                      <div className="relative w-full pt-[33%]">
+                        <Image
+                          src={banner.image.url}
+                          alt={menu.company.name}
+                          fill
+                          quality={100}
+                          priority
+                          className="object-cover absolute inset-0 rounded-md"
+                        />
+                      </div>
+                    </a>
+                  ))}
+                </section>
+              )}
               <div className="w-full">
                 {menu.categories.map(
                   (category: Category) =>

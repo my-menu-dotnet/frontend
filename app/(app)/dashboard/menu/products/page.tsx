@@ -28,13 +28,16 @@ export default function Page() {
   return (
     <Block>
       <div className="w-full flex justify-end mb-4">
-        <Button onPress={() => setOpenEdit({} as OpenEdit)}>
+        <Button
+          onPress={() => setOpenEdit({} as OpenEdit)}
+          data-test="add-food"
+        >
           <GoPlus size={24} />
           Adicionar
         </Button>
       </div>
 
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6" data-test="food-container">
         {foodByCategory?.map(
           (category) =>
             category.foods &&
@@ -44,6 +47,7 @@ export default function Page() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
                   {category.foods.map((food) => (
                     <FoodCard
+                      data-test={`food-${food.name}`}
                       key={food.id}
                       className="cursor-pointer"
                       food={food}

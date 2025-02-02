@@ -1,10 +1,10 @@
 import api from "@/services/api";
 import { TotalCompanyAccess } from "@/types/api/analytics/TotalCompanyAccess";
 import { useQuery } from "@tanstack/react-query";
-import useCompany from "../useCompany";
+import useUser from "../useUser";
 
 const useCompanyAccess = () => {
-  const { data: company } = useCompany();
+  const { company } = useUser();
   const companyId = company?.id;
 
   return useQuery<TotalCompanyAccess | null>({
@@ -15,7 +15,7 @@ const useCompanyAccess = () => {
     retry: false,
     enabled: !!companyId,
   });
-}
+};
 
 const fetchCompany = async (companyId?: string) => {
   try {

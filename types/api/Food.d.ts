@@ -9,7 +9,7 @@ type Food = {
   discounts: Omit<Discounts[], "food">;
   active_discount?: Omit<Discounts, "food">;
   price: number;
-  image: FileStorage;
+  image?: FileStorage;
   status: FoodStatus;
   lactose_free: boolean;
   gluten_free: boolean;

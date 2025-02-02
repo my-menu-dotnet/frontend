@@ -1,15 +1,16 @@
 "use client";
 
+import QUERY_KEY from "@/constants/queryKey";
 import api from "@/services/api";
 import { FileStorage } from "@/types/api/FileStorage";
 import { validateImageFileType } from "@/validators/file";
 import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { HTMLProps, useEffect, useRef, useState } from "react";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 
-type ImagePickerProps = {
+type ImagePickerProps = HTMLProps<HTMLInputElement> & {
   fileStorage: FileStorage | undefined;
   onFileChange?: (file: FileStorage) => void;
 };
@@ -17,12 +18,12 @@ type ImagePickerProps = {
 export default function ImagePicker({
   fileStorage,
   onFileChange,
+  ...props
 }: ImagePickerProps) {
   const [file, setFile] = useState<FileStorage | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { mutate } = useMutation({
-    mutationKey: ["uploadFile"],
+    mutationKey: [QUERY_KEY.UPLOAD_FILE],
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append("file", file);
@@ -34,18 +35,13 @@ export default function ImagePicker({
     },
   });
 
-  function handleOpenFile() {
-    fileInputRef.current?.click();
-  }
+  function handleFileChange(blobFile: File) {
 
-  function handleFileChange() {
-    const blobFile = fileInputRef.current?.files?.[0];
-    
     if (!validateImageFileType(blobFile)) {
       toast.error("Tipo de arquivo não suportado");
       return;
     }
-    
+
     if (blobFile) {
       mutate(blobFile);
     }
@@ -65,12 +61,20 @@ export default function ImagePicker({
 
   return (
     <div className="relative">
-      <div
-        onClick={handleOpenFile}
+      <label
+        htmlFor="image-picker"
+        data-test="image-picker"
         className="flex flex-col justify-center items-center w-full h-64 border rounded-xl cursor-pointer border-dashed border-gray-300 py-4"
       >
         {file?.url ? (
-          <Image src={file.url} width={400} height={400} alt="" className="h-full object-contain" />
+          <Image
+            data-test="image-preview"
+            src={file.url}
+            width={400}
+            height={400}
+            alt=""
+            className="h-full object-contain"
+          />
         ) : (
           <>
             <IoCloudUploadOutline size={30} />
@@ -81,13 +85,22 @@ export default function ImagePicker({
           </>
         )}
         <input
+          id="image-picker"
           type="file"
           className="hidden"
-          ref={fileInputRef}
-          onChange={handleFileChange}
+          onChange={(e) => {
+            const file = e.currentTarget?.files?.[0];
+            
+            if (!file) {
+              return;
+            }
+
+            handleFileChange(file);
+          }}
           value={""}
+          {...props}
         />
-      </div>
+      </label>
     </div>
   );
 }

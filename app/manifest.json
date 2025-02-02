@@ -1,9 +1,10 @@
 {
-  "name": "My Menu",
-  "short_name": "",
-  "description": "My Menu is a simple application that allows you to create your own menu with your favorite dishes and drinks. You can also share your menu with your customers and friends. Enjoy it!",
+  "name": "My Menu - Crie seu Cardápio Digital Grátis e Personalizado!",
+  "short_name": "My Menu",
+  "description": "Transforme seu cardápio com o My Menu! Digital, interativo e acessível via QR Code. Personalize fácil e experimente grátis!",
   "start_url": "/",
   "display": "standalone",
+  "author": "My Menu Team",
   "icons": [
     {
       "src": "/favicon.ico",

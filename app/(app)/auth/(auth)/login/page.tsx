@@ -72,6 +72,7 @@ export default function Page() {
           control={control}
           render={({ field, fieldState }) => (
             <Input
+              id="input-email"
               size="lg"
               label="Email"
               placeholder="Digite seu email"
@@ -85,6 +86,7 @@ export default function Page() {
           control={control}
           render={({ field, fieldState }) => (
             <InputPassword
+              id="input-password"
               size="lg"
               label="Password"
               placeholder="Digite sua senha"
@@ -99,7 +101,12 @@ export default function Page() {
             Esqueceu sua senha?
           </a>
         </div>
-        <Button text="Entrar" isLoading={isPending} type="submit" />
+        <Button
+          id="input-submit"
+          text="Entrar"
+          isLoading={isPending}
+          type="submit"
+        />
       </form>
 
       <p className="mb-8">
