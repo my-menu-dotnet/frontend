@@ -5,7 +5,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { NextUIProvider } from "@nextui-org/react";
 import { Roboto } from "next/font/google";
-import Head from "next/head";
+import { AuthProvider } from "@/hooks/useAuth";
 
 export const metadata: Metadata = {
   title: "Crie seu Cardápio Digital Grátis e Personalizado!",
@@ -70,6 +70,20 @@ export const metadata: Metadata = {
       },
     ],
   },
+  applicationName: "My Menu - Cardápio Digital",
+  abstract: `
+    Modernize seu restaurante com um cardápio digital acessível via QR Code. Fácil de criar, 
+    editar e compartilhar. Aumente suas vendas e ofereça uma experiência única aos seus clientes!
+  `,
+  robots: {
+    follow: true,
+    index: true,
+  },
+  manifest: "https://my-menu.net/manifest.json",
+  publisher: "My Menu",
+  alternates: {
+    canonical: "https://my-menu.net",
+  },
 };
 
 const roboto = Roboto({ subsets: ["latin"], weight: "400" });
@@ -80,19 +94,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="pt-br"
-      className={`light w-full h-full bg-white ${roboto.className}`}
-    >
-      <Head>
-        <link rel="canonical" href="https://www.my-menu.net" key="canonical" />
-      </Head>
-      <body className={`antialiased w-full h-full`}>
+    <html lang="pt-br" className={`light w-full h-full ${roboto.className}`}>
+      <body className={`antialiased w-full min-h-screen bg-slate-50`}>
         <ReactQueryProvider>
-          <NextUIProvider className="w-full h-full">
-            {children}
-            <ToastContainer />
-          </NextUIProvider>
+          <AuthProvider>
+            <NextUIProvider>
+              {children}
+              <ToastContainer />
+            </NextUIProvider>
+          </AuthProvider>
         </ReactQueryProvider>
       </body>
     </html>

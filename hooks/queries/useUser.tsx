@@ -12,8 +12,10 @@ const useUser: UseUserType = () => {
     queryFn: async () => {
       return await fetchUser();
     },
-    retry: false,
     staleTime: Infinity,
+    refetchOnMount: false,
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
   });
 
   return {

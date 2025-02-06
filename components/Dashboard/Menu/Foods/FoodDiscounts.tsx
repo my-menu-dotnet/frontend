@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { useMemo } from "react";
 import { FiPercent } from "react-icons/fi";
 import { MdAttachMoney } from "react-icons/md";
+
 type FoodDiscountsProps = {
   food: Food | null;
 };

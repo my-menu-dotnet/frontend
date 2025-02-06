@@ -2,36 +2,22 @@
 
 import Block from "@/components/Block";
 import Button from "@/components/Button";
-import FoodModal from "@/components/Dashboard/Menu/Foods/FoodModal";
+import CreateModal from "@/components/Dashboard/Food/CreateModal";
 import FoodCard from "@/components/FoodCard";
-import GlutenFree from "@/components/icons/GlutenFree";
-import LactoseFree from "@/components/icons/LactoseFree";
-import Vegan from "@/components/icons/Vegan";
-import Vegetarian from "@/components/icons/Vegetarian";
 import useCategory from "@/hooks/queries/useCategory";
-import { Food } from "@/types/api/Food";
-import { serrialize } from "@/utils/text";
-import { Tooltip } from "@nextui-org/react";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { GoPlus } from "react-icons/go";
 
-type OpenEdit = {
-  food: Food;
-  category_id: string;
-};
-
 export default function Page() {
+  const router = useRouter();
   const { data: foodByCategory } = useCategory();
-  const [openEdit, setOpenEdit] = useState<OpenEdit | null>(null);
+  const [open, setOpen] = useState(false);
 
   return (
     <Block>
       <div className="w-full flex justify-end mb-4">
-        <Button
-          onPress={() => setOpenEdit({} as OpenEdit)}
-          data-test="add-food"
-        >
+        <Button onPress={() => setOpen(true)} data-test="add-food">
           <GoPlus size={24} />
           Adicionar
         </Button>
@@ -51,12 +37,7 @@ export default function Page() {
                       key={food.id}
                       className="cursor-pointer"
                       food={food}
-                      onClick={() =>
-                        setOpenEdit({
-                          food,
-                          category_id: category.id,
-                        })
-                      }
+                      onClick={() => router.push(`/dashboard/food/${food.id}`)}
                     />
                   ))}
                 </div>
@@ -65,12 +46,7 @@ export default function Page() {
         )}
       </div>
 
-      <FoodModal
-        open={Boolean(openEdit)}
-        onClose={() => setOpenEdit(null)}
-        food={openEdit && openEdit?.food}
-        category_id={openEdit && openEdit?.category_id}
-      />
+      <CreateModal open={open} onClose={() => setOpen(false)} />
     </Block>
   );
 }

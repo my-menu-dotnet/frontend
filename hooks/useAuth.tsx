@@ -8,10 +8,9 @@ import {
   useEffect,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import api, { setupApi } from "@/services/api";
+import api from "@/services/api";
 import { useQueryClient } from "@tanstack/react-query";
 import useUser from "./queries/useUser";
-import { toast } from "react-toastify";
 
 type AuthContextProps = {
   login: () => void;
@@ -36,13 +35,13 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { data: user, isLoading, refetch, isRefetching } = useUser();
+  const { data: user } = useUser();
   const router = useRouter();
   const pathName = usePathname();
   const queryClient = useQueryClient();
 
   const login = () => {
-    refetch();
+    localStorage.setItem("authenticated", "true");
     router.push("/dashboard");
   };
 
@@ -50,44 +49,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await api.post("/auth/logout");
       queryClient.clear();
+      localStorage.removeItem("authenticated");
       router.replace("/auth/login");
     } catch (logoutError) {
       console.error(logoutError);
     }
   }, []);
 
-  const handleRedirect = () => {
-    if (isLoading || isRefetching) return;
+  const handleRedirect = useCallback(() => {
+    const authenticated = localStorage.getItem("authenticated");
 
-    if (!user && !(pathName == "/auth/login" || pathName == "/auth/register")) {
+    if (!authenticated && pathName.startsWith("/dashboard")) {
       router.replace("/auth/login");
       return;
     }
-    if (user && !user.verified_email) {
-      router.replace("/auth/verify-email");
-      return;
-    }
-    if (user && !user.company) {
-      router.replace("/auth/company");
-      return;
-    }
-    if (user && user.company && !user.company.verified_email) {
-      router.replace("/auth/company/verify-email");
-      return;
-    }
-    if (user && pathName.startsWith("/auth")) {
+
+    if (authenticated && pathName.startsWith("/auth")) {
       router.replace("/dashboard");
       return;
     }
-  };
+
+    if (authenticated && user && pathName.startsWith("/dashboard")) {
+      const redirectChecks = [
+        {
+          condition: !user.verified_email,
+          route: "/auth/verify-email",
+        },
+        {
+          condition: !user.company,
+          route: "/auth/company",
+        },
+        {
+          condition: user.company && !user.company.verified_email,
+          route: "/auth/company/verify-email",
+        },
+      ];
+
+      for (const check of redirectChecks) {
+        if (check.condition) {
+          router.replace(check.route);
+          return;
+        }
+      }
+    }
+  }, [pathName, router, user]);
 
   useEffect(() => {
     handleRedirect();
-  }, [pathName, user, isLoading]);
-
-  useEffect(() => {
-    setupApi(logout, toast);
-  }, []);
+  }, [handleRedirect]);
 
   return (
     <AuthContext.Provider value={{ login, logout }}>

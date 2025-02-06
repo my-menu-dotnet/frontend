@@ -9,6 +9,7 @@ import useDiscount from "@/hooks/queries/useDiscount";
 import useDiscounts from "@/hooks/queries/useDiscounts";
 import api from "@/services/api";
 import { DiscountsStatus, DiscountsType } from "@/types/api/Discounts";
+import { Food } from "@/types/api/Food";
 import { discountsStatusMasks } from "@/utils/lists";
 import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -54,29 +55,31 @@ const schema = Yup.object().shape({
 });
 
 type DiscountsFormProps = {
+  food: Food;
   discountId: string | null;
   open: boolean;
   onClose: () => void;
 };
 
 export default function DiscountsForm({
+  food,
   discountId,
   open,
   onClose,
 }: DiscountsFormProps) {
   const { data: discount } = useDiscount(discountId);
-  const { data: categories } = useCategory();
   const { refetch: refecthDiscounts } = useDiscounts();
 
   const { control, setValue, watch, setError, handleSubmit, reset } =
     useForm<DiscountsFormForm>({
       defaultValues: {
         status: "ACTIVE",
+        food_id: food.id,
       },
       resolver: yupResolver(schema),
     });
 
-  const { mutateAsync } = useMutation({
+  const { mutateAsync, error } = useMutation({
     mutationKey: ["create-update-discounts"],
     mutationFn: async (data: DiscountsFormForm) => {
       if (discountId) {
@@ -91,15 +94,7 @@ export default function DiscountsForm({
   });
 
   const handleSave = (data: DiscountsFormForm) => {
-    const selectedFood = categories!
-      .flatMap((category) => category.foods)
-      .find((food) => food.id === data.food_id);
-
-    if (!selectedFood) {
-      throw new Error("Produto não encontrado");
-    }
-
-    if (data.type === "AMOUNT" && data.discount >= selectedFood.price) {
+    if (data.type === "AMOUNT" && data.discount >= food.price) {
       setError("discount", {
         type: "max",
         message:
@@ -122,6 +117,14 @@ export default function DiscountsForm({
     toast.promise(res, {
       pending: "Salvando desconto...",
       success: "Desconto salvo com sucesso",
+    });
+
+    res.catch((e) => {
+      if (e.status === 409) {
+        toast.error(
+          "Já existe um desconto ativo no momento ou na validade selecionado"
+        );
+      }
     });
   };
 
@@ -151,31 +154,6 @@ export default function DiscountsForm({
           <ModalHeader>Adicionar desconto</ModalHeader>
           <ModalBody>
             <div className="flex flex-col gap-2">
-              <Controller
-                control={control}
-                name="food_id"
-                render={({ field, fieldState }) => (
-                  <Select
-                    label="Produto"
-                    placeholder="Selecione um produto"
-                    isRequired
-                    isInvalid={fieldState.invalid}
-                    errorMessage={fieldState.error?.message}
-                    selectedKeys={[field.value]}
-                    {...field}
-                  >
-                    {categories?.map((category) => (
-                      <SelectSection key={category.id} title={category.name}>
-                        {category.foods.map((food) => (
-                          <SelectItem key={food.id} value={food.id}>
-                            {food.name}
-                          </SelectItem>
-                        ))}
-                      </SelectSection>
-                    ))}
-                  </Select>
-                )}
-              />
               <Controller
                 control={control}
                 name="discount"

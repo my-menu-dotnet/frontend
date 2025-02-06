@@ -1,3 +1,4 @@
+import { BannerRedirect, BannerType } from "@/types/api/Banner";
 import { DiscountsStatus } from "@/types/api/Discounts";
 import { StatesProps } from "@/types/lists";
 
@@ -73,3 +74,14 @@ export const discountsStatusMasks = {
   EXPIRED: "Expirado",
   PENDING: "Pendente",
 } as { [key in DiscountsStatus]: string };
+
+export const bannerRedirectMasks = {
+  FOOD: "Produto",
+  CATEGORY: "Categoria",
+  URL: "URL",
+} as { [key in BannerRedirect]: string };
+
+export const bannerTypeMasks = {
+  MOBILE: "Mobile",
+  DESKTOP: "Desktop",
+} as { [key in BannerType]: string };

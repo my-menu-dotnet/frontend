@@ -8,6 +8,7 @@ type Food = {
   description: string;
   discounts: Omit<Discounts[], "food">;
   active_discount?: Omit<Discounts, "food">;
+  category: Omit<Category, "foods">
   price: number;
   image?: FileStorage;
   status: FoodStatus;

@@ -1,17 +1,19 @@
 "use client";
 
 import Block from "@/components/Block";
-import useCompanyQrCode from "@/hooks/queries/useCompanyQrCode";
 import useUser from "@/hooks/queries/useUser";
 import { Skeleton } from "@nextui-org/react";
-import Image from "next/image";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FiCopy } from "react-icons/fi";
 import { toast } from "react-toastify";
+import { QRCode as QRCodeGen } from "react-qrcode-logo";
+import { QRCodeConfig } from "@/app/dashboard/qrcode/page";
+import { getQRCodeConfig, QRCodeDefault } from "@/utils/QRCode";
+import Link from "next/link";
 
 export default function QRCode() {
   const { company, isLoading } = useUser();
-  const { data: qrCode } = useCompanyQrCode();
+  const [qrConfig, setQrConfig] = useState<QRCodeConfig>();
 
   const menuUrl = useMemo(
     () => `${process.env.NEXT_PUBLIC_FRONTEND_URL}/menu/${company?.url}`,
@@ -24,28 +26,45 @@ export default function QRCode() {
     });
   };
 
-  return !isLoading && company ? (
+  useEffect(() => {
+    const config = getQRCodeConfig();
+    setQrConfig(config || QRCodeDefault);
+  }, []);
+
+  return !isLoading && company && qrConfig ? (
     <div className="">
-      <Block className="h-80 flex flex-col items-center">
+      <Block className="h-80 flex flex-col items-center px-2">
         <div
-          className="border-[2px] border-gray-100 rounded-md bg-gray-50 px-2 py-1 flex flex-row items-center gap-2 cursor-pointer"
+          className="w-full max-w-[200px]  border-2 border-gray-300 rounded-md bg-gray-50 px-2 py-1 flex flex-row items-center gap-2 cursor-pointer"
           onClick={handleCopy}
         >
-          <p className="max-w-[200px] line-clamp-1">{menuUrl}</p>
-          <FiCopy />
-        </div>
-        {qrCode && (
-          <div>
-            <Image
-              src={qrCode}
-              width={400}
-              height={400}
-              alt="QRCode"
-              className="w-52 h-52"
-            />
-            <p className="text-center -mt-4 font-bold">{company.name}</p>
+          <p className="truncate overflow-hidden whitespace-nowrap">
+            {menuUrl}
+          </p>
+          <div className="min-w-5">
+            <FiCopy size={20} />
           </div>
-        )}
+        </div>
+        <div className="flex flex-col items-center">
+          <QRCodeGen
+            value={menuUrl}
+            ecLevel={qrConfig?.ecLevel}
+            size={200}
+            bgColor={qrConfig?.bgColor}
+            fgColor={qrConfig?.fgColor}
+            logoImage={qrConfig?.logoImage ? company.image.url : undefined}
+            logoWidth={qrConfig?.logoWidth}
+            logoOpacity={qrConfig?.logoOpacity}
+            removeQrCodeBehindLogo={qrConfig?.removeQrCodeBehindLogo}
+            logoPadding={qrConfig?.logoPadding}
+            qrStyle={qrConfig?.qrStyle}
+            eyeRadius={qrConfig?.eyeRadius}
+            eyeColor={qrConfig?.eyeColor}
+          />
+          <Link className="text-gray-500 text-center hover:text-gray-400 transition-colors" href="/dashboard/qrcode">
+            Personalize seu QR Code
+          </Link>
+        </div>
       </Block>
     </div>
   ) : (

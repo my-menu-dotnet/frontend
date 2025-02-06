@@ -1,4 +1,4 @@
-import './envConfig.ts'
+import "./envConfig.ts";
 import type { NextConfig } from "next";
 
 const protocol = (process.env.FILE_PROTOCOL || "http") as "http" | "https";

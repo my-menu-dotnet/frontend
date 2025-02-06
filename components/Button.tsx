@@ -3,7 +3,7 @@ import {
   ButtonProps as NextButtonProps,
 } from "@nextui-org/button";
 
-type ButtonProps = NextButtonProps & {
+export type ButtonProps = NextButtonProps & {
   text?: string;
   children?: React.ReactNode;
 };

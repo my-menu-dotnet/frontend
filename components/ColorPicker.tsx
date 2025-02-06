@@ -1,15 +1,13 @@
 "use client";
 
 import { useRef } from "react";
-import { ControllerRenderProps } from "react-hook-form";
 import Input from "./Input";
 import { InputProps } from "@nextui-org/react";
 
-type ColorPickerProps = ControllerRenderProps &
-  InputProps & {
-    label: string;
-    placeholder?: string;
-  };
+type ColorPickerProps = InputProps & {
+  label: string;
+  placeholder?: string;
+};
 
 export default function ColorPicker({
   label,

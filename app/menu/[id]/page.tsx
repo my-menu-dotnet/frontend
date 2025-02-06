@@ -5,10 +5,11 @@ import Image from "next/image";
 import { MdOutlineAlternateEmail } from "react-icons/md";
 import Phone from "@/components/Menu/Phone";
 import { CiLocationArrow1 } from "react-icons/ci";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import FoodCard from "@/components/FoodCard";
 import { Food } from "@/types/api/Food";
 import { Category } from "@/types/api/Category";
+import Analytics from "@/components/Menu/Analytics";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -50,13 +51,13 @@ export default async function Page({ params }: Props) {
     return (
       menu && (
         <>
-          <header className="w-full flex justify-center px-4">
-            <section className="flex flex-row items-center justify-between max-w-[1200px] w-full py-2">
+          <header className="w-full flex justify-center items-center px-4 h-24">
+            <section className="flex flex-row justify-between items-center max-w-[1200px] h-full w-full">
               <Image
                 src={menu.company.image.url}
                 alt={menu.company.name}
-                width={120}
-                height={120}
+                width={70}
+                height={70}
                 quality={100}
                 priority
               />
@@ -147,12 +148,14 @@ export default async function Page({ params }: Props) {
               &#9829;
             </p>
           </footer>
+
+          <Analytics menu={menu} />
         </>
       )
     );
   } catch (error) {
     console.log(error);
-    return redirect("/404");
+    return notFound();
   }
 }
 

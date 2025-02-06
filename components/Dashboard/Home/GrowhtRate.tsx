@@ -33,7 +33,10 @@ export function GrowthRate() {
     <div className="flex flex-row lg:flex-col flex-wrap gap-4 h-80">
       {!isLoading && companyAccess ? (
         Object.entries(companyAccess).map(([key, value]) => (
-          <Block key={key} className="flex-1 flex justify-around items-center gap-4">
+          <Block
+            key={key}
+            className="flex-1 flex justify-around items-center gap-4"
+          >
             <div
               className={`flex justify-center items-center w-16 h-16 rounded-lg ${masks[key].color} text-white`}
             >

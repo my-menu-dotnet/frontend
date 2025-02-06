@@ -1,12 +1,13 @@
 "use client";
 
 import menus, { PageMenus } from "@/utils/menus";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useMemo } from "react";
-import { FaLongArrowAltLeft } from "react-icons/fa";
+import { MdChevronLeft } from "react-icons/md";
 
 export default function Header() {
   const pathName = usePathname();
+  const router = useRouter();
 
   const current = useMemo(() => {
     const list = menus.reduce((acc, item) => {
@@ -23,17 +24,27 @@ export default function Header() {
     return list;
   }, []);
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <header className="mb-4 bg-white p-6">
       <div className="ml-[80px]">
-        {/* <p className="text-sm text-gray-500 flex gap-2 items-center mb-4">
-          <FaLongArrowAltLeft />
-          Voltar
-        </p> */}
-        <h1 className="text-lg">
-          {current[pathName as keyof typeof current].title}
-        </h1>
-        <h2 className="text-gray-400 text-sm">{current[pathName as keyof typeof current].description}</h2>
+        {current[pathName as keyof typeof current] ? (
+          <>
+            <h1 className="text-lg">
+              {current[pathName as keyof typeof current].title}
+            </h1>
+            <h2 className="text-gray-400 text-sm">
+              {current[pathName as keyof typeof current].description}
+            </h2>
+          </>
+        ) : (
+          <div onClick={handleBack} className="cursor-pointer">
+            <MdChevronLeft className="text-gray-400" size={25} />
+          </div>
+        )}
       </div>
     </header>
   );

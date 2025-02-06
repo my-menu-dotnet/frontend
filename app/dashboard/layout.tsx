@@ -7,9 +7,9 @@ type LayoutDashboardProps = {
 
 export default function LayoutDashboard({ children }: LayoutDashboardProps) {
   return (
-    <div className="min-h-full flex flex-row flex-nowrap bg-[#F1F1F1]">
+    <div className="min-h-screen flex flex-row flex-nowrap bg-[#F1F1F1]">
       <Sidebar />
-      <div className="w-full">
+      <div className="w-full min-h-full">
         <Header />
         <section className="px-1 md:px-4 ml-[80px]">{children}</section>
       </div>

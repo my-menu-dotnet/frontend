@@ -39,8 +39,9 @@ const schema = Yup.object().shape({
 });
 
 export default function CompanyForm() {
-  const { company } = useUser();
-  const { mutate, isPending } = useUpdateCreateCompany<CompanyForm>(company);
+  const { company, refetch: refetchUser } = useUser();
+  const { mutateAsync, isPending } =
+    useUpdateCreateCompany<CompanyForm>(company);
 
   const { control, handleSubmit, setValue } = useForm<CompanyForm>({
     resolver: yupResolver(schema),
@@ -73,7 +74,7 @@ export default function CompanyForm() {
         zip_code: data.address.zip_code.replace(/\D/g, ""),
       },
     };
-    mutate(newData);
+    mutateAsync(newData).then(() => refetchUser());
   };
 
   useEffect(() => {

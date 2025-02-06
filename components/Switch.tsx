@@ -28,6 +28,26 @@ function Status({ value, onChange, ...rest }: StatusProps) {
   );
 }
 
+type ActiveProps = Omit<Omit<SwitchProps, "onChange">, "value"> & {
+  value: boolean;
+  onChange?: (value: boolean) => void;
+};
+
+function Active({ value, onChange, ...rest }: ActiveProps) {
+  return (
+    <Switch
+      isSelected={value}
+      onValueChange={(value) => {
+        onChange?.(value);
+      }}
+      {...rest}
+    >
+      {value ? "Ativo" : "Inativo"}
+    </Switch>
+  );
+}
+
 Switch.Status = Status;
+Switch.Active = Active;
 
 export default Switch;

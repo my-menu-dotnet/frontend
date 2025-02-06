@@ -1,11 +1,18 @@
+import { Category } from "./Category";
 import { Company } from "./Company";
 import { FileStorage } from "./FileStorage";
+import { Food } from "./Food";
 
 type Banner = {
   id: string;
+  title: string;
+  description?: string;
   image: FileStorage;
   redirect: BannerRedirect;
-  url: string;
+  category?: Category;
+  food?: Food;
+  url?: string;
+  type: BannerType;
   order: number;
   active: boolean;
   company: Company;
@@ -13,6 +20,7 @@ type Banner = {
   updated_at: string;
 };
 
-type BannerRedirect = "URL" | "CATEGORY" | "PRODUCT" | "MENU";
+type BannerRedirect = "URL" | "CATEGORY" | "FOOD";
+type BannerType = "MOBILE" | "DESKTOP";
 
-export type { Banner, BannerRedirect };
+export type { Banner, BannerRedirect, BannerType };

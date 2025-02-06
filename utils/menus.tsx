@@ -5,6 +5,8 @@ import { GoPerson } from "react-icons/go";
 import { GoGear } from "react-icons/go";
 import { TbCategoryPlus } from "react-icons/tb";
 import { LuBadgePercent } from "react-icons/lu";
+import { PiNewspaperClippingLight } from "react-icons/pi";
+import { MdWallpaper } from "react-icons/md";
 
 export type PageMenus = {
   title: string;
@@ -42,14 +44,14 @@ const menus: PageMenus[] = [
     title: "Produtos",
     description: "Adicione, edite ou remova produtos do seu cardápio!",
     icon: <MdOutlineFastfood />,
-    to: "/dashboard/menu/products",
+    to: "/dashboard/food",
     enabled: true,
   },
   {
-    title: "Promoções",
-    description: "Adicione, edite ou remova promoções do seu cardápio!",
-    icon: <LuBadgePercent />,
-    to: "/dashboard/menu/discounts",
+    title: "Banners",
+    description: "Adicione, edite ou remova banners do seu cardápio!",
+    icon: <MdWallpaper />,
+    to: "/dashboard/banners",
     enabled: true,
   },
   {

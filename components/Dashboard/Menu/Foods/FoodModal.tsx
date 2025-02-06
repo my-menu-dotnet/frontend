@@ -1,5 +1,4 @@
 import Button from "@/components/Button";
-import Checkbox from "@/components/Checkbox";
 import ImagePicker from "@/components/ImagePicker";
 import Input from "@/components/Input";
 import Switch from "@/components/Switch";
@@ -236,12 +235,13 @@ export default function FoodModal({
             <Controller
               control={control}
               name="image_id"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <ImagePicker
                   fileStorage={food?.image}
                   onFileChange={(file) => {
                     field.onChange(file.id);
                   }}
+                  errorMessage={fieldState.error?.message}
                 />
               )}
             />

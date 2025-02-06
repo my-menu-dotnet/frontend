@@ -6,18 +6,20 @@ import { FileStorage } from "@/types/api/FileStorage";
 import { validateImageFileType } from "@/validators/file";
 import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
-import { HTMLProps, useEffect, useRef, useState } from "react";
+import { HTMLProps, useEffect, useState } from "react";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
 
 type ImagePickerProps = HTMLProps<HTMLInputElement> & {
-  fileStorage: FileStorage | undefined;
+  fileStorage?: FileStorage;
   onFileChange?: (file: FileStorage) => void;
+  errorMessage?: string;
 };
 
 export default function ImagePicker({
   fileStorage,
   onFileChange,
+  errorMessage,
   ...props
 }: ImagePickerProps) {
   const [file, setFile] = useState<FileStorage | null>(null);
@@ -36,7 +38,6 @@ export default function ImagePicker({
   });
 
   function handleFileChange(blobFile: File) {
-
     if (!validateImageFileType(blobFile)) {
       toast.error("Tipo de arquivo não suportado");
       return;
@@ -90,7 +91,7 @@ export default function ImagePicker({
           className="hidden"
           onChange={(e) => {
             const file = e.currentTarget?.files?.[0];
-            
+
             if (!file) {
               return;
             }
@@ -100,6 +101,9 @@ export default function ImagePicker({
           value={""}
           {...props}
         />
+        {errorMessage && (
+          <p className="text-red-500 text-sm">{errorMessage}</p>
+        )}
       </label>
     </div>
   );
