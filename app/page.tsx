@@ -15,170 +15,172 @@ import { MdOutlineAlternateEmail } from "react-icons/md";
 
 const montserrat = Montserrat({ weight: "900", subsets: ["latin"] });
 
-export default async function Home() {
+async function getHomeResponse() {
   const homeResponse: HomeResponse = (await api.get("/home")).data;
+  return homeResponse;
+}
+
+export default async function Home() {
+  const homeResponse = await getHomeResponse();
+
+  if (!homeResponse) {
+    return <></>
+  }
 
   return (
-    homeResponse && (
-      <>
-        <header className="w-full flex justify-between items-center h-36 px-6 md:px-20">
-          <Image
-            src={Logo}
-            alt="My Menu Logo"
-            width={70}
-            height={70}
-            quality={100}
-            priority
-          />
-          <nav className="flex flex-row items-center gap-2 md:gap-4">
-            <NavLink href="/auth/login" buttonProps={{ variant: "bordered" }}>
-              Entrar
-            </NavLink>
-            <NavLink href="/auth/register">Cadastre-se</NavLink>
-          </nav>
-        </header>
-        <main className="px-6 md:px-20">
-          <section className="flex flex-row justify-center lg:justify-between items-center">
-            <div className="lg:max-w-[50%]">
-              <h2 className="text-lg font-bold text-primary">
-                CARDÁPIO DIGITAL
-              </h2>
-              <h1
-                className="text-4xl mt-4 max-w-[570px]"
-                style={montserrat.style}
-              >
-                Crie seu cardápio digital personalizado!
-              </h1>
-              <p className="text-lg text-gray-400 mt-8">
-                Modernize seu restaurante com um cardápio digital acessível via
-                QR Code e link personalizado. Fácil de criar, editar e
-                compartilhar. Aumente suas vendas e ofereça uma experiência
-                única aos seus clientes!
-              </p>
-
-              <div className="flex flex-row items-center mt-12 gap-6">
-                <NavLink href={"/auth/register"}>Começar agora</NavLink>
-
-                <Link href={"#about"}>
-                  <span className="font-bold text-primary">Saiba mais</span>
-                </Link>
-              </div>
-            </div>
-            <div className="w-full lg:flex justify-center items-center hidden">
-              <Image
-                src={HomeImage}
-                alt="Kitchen Delivery"
-                quality={100}
-                width={500}
-                height={500}
-                priority
-              />
-            </div>
-          </section>
-
-          <section className="mt-20 flex flex-wrap flex-row items-center gap-8">
-            <aside className="max-w-[400px]">
-              <h2 className="text-xl">
-                Por que escolher o nosso{" "}
-                <span className="font-bold">Cardápio Digital?</span>
-              </h2>
-              <p className="text-gray-400 mt-2">
-                O My Menu é a solução ideal para você que deseja modernizar o
-                seu negócio e oferecer uma experiência única aos seus clientes
-                de forma totalmente gratuita.
-              </p>
-            </aside>
-
-            <div className="flex-1 min-w-[300px] md:min-w-[400px]">
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
-                <Item
-                  icon={<MdAttachMoney size={20} />}
-                  title="Gratuito"
-                  description="Crie seu cardápio digital de forma gratuita."
-                />
-                <Item
-                  icon={<BiFoodMenu size={20} />}
-                  title="Cardápios personalizados"
-                  description="Crie cardápios personalizados com a cara do seu negócio."
-                />
-                <Item
-                  icon={<LuQrCode size={20} />}
-                  title="QR Code e link personalizado"
-                  description="Divulgue seu cardápio por QR Code e link personalizado."
-                />
-                <Item
-                  icon={<RiDiscountPercentLine size={20} />}
-                  title="Promoções e descontos"
-                  description="Atraia mais clientes com promoções e descontos exclusivos."
-                />
-              </div>
-            </div>
-          </section>
-
-          <section className="w-full flex items-center justify-center mt-20">
-            <div
-              className="bg-primary w-auto md:w-full max-w-[1200px] min-h-24 p-6 rounded-lg flex flex-col md:flex-row items-center justify-around text-white text-center shadow-lg gap-8 md:gap-0"
+    <>
+      <header className="w-full flex justify-between items-center h-36 px-6 md:px-20">
+        <Image
+          src={Logo}
+          alt="My Menu Logo"
+          width={70}
+          height={70}
+          quality={100}
+          priority
+        />
+        <nav className="flex flex-row items-center gap-2 md:gap-4">
+          <NavLink href="/auth/login" buttonProps={{ variant: "bordered" }}>
+            Entrar
+          </NavLink>
+          <NavLink href="/auth/register">Cadastre-se</NavLink>
+        </nav>
+      </header>
+      <main className="px-6 md:px-20">
+        <section className="flex flex-row justify-center lg:justify-between items-center">
+          <div className="lg:max-w-[50%]">
+            <h2 className="text-lg font-bold text-primary">CARDÁPIO DIGITAL</h2>
+            <h1
+              className="text-4xl mt-4 max-w-[570px]"
               style={montserrat.style}
             >
-              <h3 className="w-40">
-                <span className="block">+{homeResponse.total_access}</span>{" "}
-                Acessos
-              </h3>
-              <h3 className="w-40">
-                <span className="block">+{homeResponse.total_companies}</span>{" "}
-                Menus criado
-              </h3>
-              <h3 className="w-40">
-                <span className="block">+{homeResponse.total_food}</span> Itens
-                cadastrados
-              </h3>
-            </div>
-          </section>
-        </main>
+              Crie seu cardápio digital personalizado!
+            </h1>
+            <p className="text-lg text-gray-400 mt-8">
+              Modernize seu restaurante com um cardápio digital acessível via QR
+              Code e link personalizado. Fácil de criar, editar e compartilhar.
+              Aumente suas vendas e ofereça uma experiência única aos seus
+              clientes!
+            </p>
 
-        <footer className=" bg-white shadow-2xl mt-12 px-6 md:px-32">
-          <div className="py-8">
-            <div className="flex justify-between items-center">
-              <Image
-                src={Logo}
-                alt="My Menu Logo"
-                width={80}
-                height={80}
-                quality={100}
-                priority
-              />
-              <div className="text-gray-500 flex gap-2">
-                <Link
-                  href="https://www.instagram.com/mymenu.br/"
-                  target="_blank"
-                >
-                  <FaInstagram size={25} />
-                </Link>
-                <Link href="contato@my-menu.net" type="email">
-                  <MdOutlineAlternateEmail size={25} />
-                </Link>
-              </div>
-            </div>
-            <div className="w-full flex justify-end">
-              <div className="flex gap-4">
-                <Link href="/auth/login" className="text-gray-500">
-                  Entrar
-                </Link>
-                <Link href="/auth/login" className="text-gray-500">
-                  Cadastre-se
-                </Link>
-              </div>
+            <div className="flex flex-row items-center mt-12 gap-6">
+              <NavLink href={"/auth/register"}>Começar agora</NavLink>
+
+              <Link href={"#about"}>
+                <span className="font-bold text-primary">Saiba mais</span>
+              </Link>
             </div>
           </div>
+          <div className="w-full lg:flex justify-center items-center hidden">
+            <Image
+              src={HomeImage}
+              alt="Kitchen Delivery"
+              quality={100}
+              width={500}
+              height={500}
+              priority
+            />
+          </div>
+        </section>
 
-          <hr className="w-full" />
+        <section className="mt-20 flex flex-wrap flex-row items-center gap-8">
+          <aside className="max-w-[400px]">
+            <h2 className="text-xl">
+              Por que escolher o nosso{" "}
+              <span className="font-bold">Cardápio Digital?</span>
+            </h2>
+            <p className="text-gray-400 mt-2">
+              O My Menu é a solução ideal para você que deseja modernizar o seu
+              negócio e oferecer uma experiência única aos seus clientes de
+              forma totalmente gratuita.
+            </p>
+          </aside>
 
-          <p className="text-center text-gray-400 py-8">
-            <small>&copy; 2025 My Menu. Todos os direitos reservados.</small>
-          </p>
-        </footer>
-      </>
-    )
+          <div className="flex-1 min-w-[300px] md:min-w-[400px]">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+              <Item
+                icon={<MdAttachMoney size={20} />}
+                title="Gratuito"
+                description="Crie seu cardápio digital de forma gratuita."
+              />
+              <Item
+                icon={<BiFoodMenu size={20} />}
+                title="Cardápios personalizados"
+                description="Crie cardápios personalizados com a cara do seu negócio."
+              />
+              <Item
+                icon={<LuQrCode size={20} />}
+                title="QR Code e link personalizado"
+                description="Divulgue seu cardápio por QR Code e link personalizado."
+              />
+              <Item
+                icon={<RiDiscountPercentLine size={20} />}
+                title="Promoções e descontos"
+                description="Atraia mais clientes com promoções e descontos exclusivos."
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="w-full flex items-center justify-center mt-20">
+          <div
+            className="bg-primary w-auto md:w-full max-w-[1200px] min-h-24 p-6 rounded-lg flex flex-col md:flex-row items-center justify-around text-white text-center shadow-lg gap-8 md:gap-0"
+            style={montserrat.style}
+          >
+            <h3 className="w-40">
+              <span className="block">+{homeResponse.total_access}</span>{" "}
+              Acessos
+            </h3>
+            <h3 className="w-40">
+              <span className="block">+{homeResponse.total_companies}</span>{" "}
+              Menus criado
+            </h3>
+            <h3 className="w-40">
+              <span className="block">+{homeResponse.total_food}</span> Itens
+              cadastrados
+            </h3>
+          </div>
+        </section>
+      </main>
+
+      <footer className=" bg-white shadow-2xl mt-12 px-6 md:px-32">
+        <div className="py-8">
+          <div className="flex justify-between items-center">
+            <Image
+              src={Logo}
+              alt="My Menu Logo"
+              width={80}
+              height={80}
+              quality={100}
+              priority
+            />
+            <div className="text-gray-500 flex gap-2">
+              <Link href="https://www.instagram.com/mymenu.br/" target="_blank">
+                <FaInstagram size={25} />
+              </Link>
+              <Link href="contato@my-menu.net" type="email">
+                <MdOutlineAlternateEmail size={25} />
+              </Link>
+            </div>
+          </div>
+          <div className="w-full flex justify-end">
+            <div className="flex gap-4">
+              <Link href="/auth/login" className="text-gray-500">
+                Entrar
+              </Link>
+              <Link href="/auth/login" className="text-gray-500">
+                Cadastre-se
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <hr className="w-full" />
+
+        <p className="text-center text-gray-400 py-8">
+          <small>&copy; 2025 My Menu. Todos os direitos reservados.</small>
+        </p>
+      </footer>
+    </>
   );
 }
 
