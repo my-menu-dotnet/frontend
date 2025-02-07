@@ -24,7 +24,7 @@ export default async function Home() {
   const homeResponse = await getHomeResponse();
 
   if (!homeResponse) {
-    return <></>
+    return <></>;
   }
 
   return (

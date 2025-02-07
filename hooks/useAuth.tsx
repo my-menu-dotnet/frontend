@@ -64,11 +64,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    if (authenticated && pathName.startsWith("/auth")) {
-      router.replace("/dashboard");
-      return;
-    }
-
     if (authenticated && user && pathName.startsWith("/dashboard")) {
       const redirectChecks = [
         {
@@ -90,6 +85,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           router.replace(check.route);
           return;
         }
+      }
+
+      if (authenticated && pathName.startsWith("/auth")) {
+        router.replace("/dashboard");
+        return;
       }
     }
   }, [pathName, router, user]);
