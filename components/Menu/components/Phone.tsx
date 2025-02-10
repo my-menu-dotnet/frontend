@@ -23,7 +23,7 @@ export default function Phone({ phone }: PhoneProps) {
 
   return (
     <p className="text-sm cursor-pointer" onClick={() => handleCopy()}>
-      <FiPhone size={22} />
+      <FiPhone size={19} />
     </p>
   );
 }

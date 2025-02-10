@@ -1,6 +1,6 @@
 "use client";
 
-import Input from "../Input";
+import Input from "../../Input";
 import { IoIosSearch } from "react-icons/io";
 
 export default function Search() {

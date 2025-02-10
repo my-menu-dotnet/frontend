@@ -2,14 +2,21 @@ import api from "@/services/api";
 import { Menu } from "@/types/api/Menu";
 import { Metadata } from "next";
 import Image from "next/image";
-import { MdOutlineAlternateEmail } from "react-icons/md";
-import Phone from "@/components/Menu/Phone";
-import { CiLocationArrow1 } from "react-icons/ci";
 import { notFound } from "next/navigation";
 import FoodCard from "@/components/FoodCard";
 import { Food } from "@/types/api/Food";
 import { Category } from "@/types/api/Category";
 import Analytics from "@/components/Menu/Analytics";
+import { Montserrat } from "next/font/google";
+import { Chip } from "@nextui-org/react";
+import { MdOutlineAlternateEmail } from "react-icons/md";
+import Phone from "@/components/Menu/components/Phone";
+import FoodDefault from "@/assets/default-food.jpg";
+import { CiLocationOn } from "react-icons/ci";
+import Header from "@/components/Menu/Header";
+import Banners from "@/components/Menu/Banners";
+import FoodList from "@/components/Menu/FoodList";
+import Footer from "@/components/Footer";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -51,103 +58,17 @@ export default async function Page({ params }: Props) {
     return (
       menu && (
         <>
-          <header className="w-full flex justify-center items-center px-4 h-24">
-            <section className="flex flex-row justify-between items-center max-w-[1200px] h-full w-full">
-              <Image
-                src={menu.company.image.url}
-                alt={menu.company.name}
-                width={70}
-                height={70}
-                quality={100}
-                priority
-              />
-              <address className="flex flex-row items-center gap-4 not-italic text-gray-400">
-                {menu.company.email && (
-                  <a href={`mailto:${menu.company.email}`}>
-                    <MdOutlineAlternateEmail size={22} />
-                  </a>
-                )}
-                {menu.company.phone && <Phone phone={menu.company.phone} />}
-                {menu.company.address && (
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${menu.company.address.latitude},${menu.company.address.longitude}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex flex-row gap-2 rounded-md px-2 py-1 text-white"
-                    style={{ backgroundColor: color }}
-                  >
-                    <CiLocationArrow1 size={22} />
-                    {menu.company.address.state} - {menu.company.address.city}
-                  </a>
-                )}
-              </address>
-            </section>
-          </header>
-          <main className="flex flex-col w-full items-center px-4">
-            <div className="max-w-[1200px] w-full">
-              {menu.banners.length > 0 && (
-                <section className="flex flex-row gap-4 mt-4">
-                  {menu.banners.map((banner) => (
-                    <a
-                      key={banner.id}
-                      href={banner.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block w-full relative"
-                    >
-                      <div className="relative w-full pt-[33%]">
-                        <Image
-                          src={banner.image.url}
-                          alt={menu.company.name}
-                          fill
-                          quality={100}
-                          priority
-                          className="object-cover absolute inset-0 rounded-md"
-                        />
-                      </div>
-                    </a>
-                  ))}
-                </section>
-              )}
-              <div className="w-full">
-                {menu.categories.map(
-                  (category: Category) =>
-                    category.foods.length > 0 && (
-                      <section
-                        key={category.id}
-                        className="flex flex-col gap-4 mt-4"
-                      >
-                        <h2 className="font-bold">{category.name}</h2>
-                        <ul className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {category.foods.map((product: Food) => (
-                            <FoodCard
-                              key={product.id}
-                              food={product}
-                              discountColor={color}
-                            />
-                          ))}
-                        </ul>
-                      </section>
-                    )
-                )}
+          <div className="min-h-screen">
+            <Header menu={menu} color={color} />
+            <main className="flex flex-col w-full items-center px-4">
+              <div className="max-w-[1200px] w-full">
+                <Banners menu={menu} />
+                <FoodList menu={menu} color={color} />
               </div>
-            </div>
-          </main>
-          <hr className="w-full mt-6" />
-          <footer className="flex flex-col justify-center items-center w-full h-16">
-            <p className="text-center">
-              Desenvolvidor por{" "}
-              <a
-                className="underline"
-                href="https://my-menu.net"
-                target="_blank"
-                rel="noreferrer"
-              >
-                @MyMenu
-              </a>{" "}
-              &#9829;
-            </p>
-          </footer>
+            </main>
+          </div>
+
+          <Footer />
 
           <Analytics menu={menu} />
         </>
@@ -170,3 +91,7 @@ const getMenu = async (id: string) => {
   staticMenu = data;
   return data as Menu;
 };
+
+{
+  /*  */
+}

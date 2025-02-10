@@ -10,13 +10,18 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import FoodDefault from "@/assets/default-food.jpg";
 import { format } from "date-fns";
+import FoodItem from "@/components/Dashboard/Food/FoodItem";
 
-type WIZARD_PAGES = "data" | "discounts";
+enum WIZARD_PAGES {
+  ITEMS = "Itens",
+  DATA = "Dados",
+  DISCOUNTS = "Descontos",
+}
 
 export default function Page() {
   const { id } = useParams<{ id: string }>();
   const { data: food, refetch } = useFood(id);
-  const [page, setPage] = useState<WIZARD_PAGES>("data");
+  const [page, setPage] = useState<WIZARD_PAGES>(WIZARD_PAGES.ITEMS);
 
   return (
     food && (
@@ -52,8 +57,16 @@ export default function Page() {
           className="mb-4"
           tabs={
             <>
-              <Tab key="data" title="Dados" className="ml-6" />
-              <Tab key="discounts" title="Descontos" />
+              <Tab
+                key={WIZARD_PAGES.ITEMS}
+                title={WIZARD_PAGES.ITEMS}
+                className="ml-6"
+              />
+              <Tab key={WIZARD_PAGES.DATA} title={WIZARD_PAGES.DATA} />
+              <Tab
+                key={WIZARD_PAGES.DISCOUNTS}
+                title={WIZARD_PAGES.DISCOUNTS}
+              />
             </>
           }
           tabsProps={{
@@ -61,10 +74,11 @@ export default function Page() {
             selectedKey: page,
           }}
         >
-          {page === "data" && (
+          {page === WIZARD_PAGES.ITEMS && <FoodItem food={food} />}
+          {page === WIZARD_PAGES.DATA && (
             <FoodForm food={food} onSuccess={() => refetch()} />
           )}
-          {page === "discounts" && <FoodDiscounts food={food} />}
+          {page === WIZARD_PAGES.DISCOUNTS && <FoodDiscounts food={food} />}
         </Block>
       </>
     )

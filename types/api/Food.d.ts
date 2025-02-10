@@ -1,6 +1,7 @@
 import { Category } from "./Category";
 import { Discounts } from "./Discounts";
 import { FileStorage } from "./FileStorage";
+import { FoodItemCategory } from "./food/FoodItemCategory";
 
 type Food = {
   id: string;
@@ -12,6 +13,7 @@ type Food = {
   price: number;
   image?: FileStorage;
   status: FoodStatus;
+  item_categories: FoodItemCategory[];
   lactose_free: boolean;
   gluten_free: boolean;
   vegan: boolean;

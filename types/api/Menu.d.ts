@@ -1,6 +1,6 @@
-import { Category } from "../Category";
-import { Company } from "../Company";
 import { Banner } from "./Banner";
+import { Category } from "./Category";
+import { Company } from "./Company";
 import { MenuCategory } from "./MenuCategory";
 
 type Menu = {

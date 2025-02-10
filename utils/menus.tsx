@@ -27,7 +27,7 @@ const menus: PageMenus[] = [
     enabled: true,
   },
   {
-    title: "Altere dados da sua empresa",
+    title: "Empresa",
     description: "Mantenha as informações da sua empresa sempre atualizadas!",
     icon: <MdStorefront />,
     to: "/dashboard/company",

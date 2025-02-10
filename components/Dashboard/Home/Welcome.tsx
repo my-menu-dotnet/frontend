@@ -13,19 +13,17 @@ export function Welcome() {
   return (
     <>
       {!isLoading && company ? (
-        <Block className="h-80 flex flex-row justify-between items-center">
+        <Block className="h-80 flex flex-row justify-between">
           <div className="flex-1 text-sm md:text-medium overflow-hidden">
             <h1 className="text-xl font-semibold">Bem vindo, {user?.name}</h1>
             <h2 className="text-gray-400">
               Acompanhe o progresso de acesso da sua empresa, {company?.name}
             </h2>
             <div className="flex flex-col items-start mt-4">
-              <ContactComponent>
-                <SlScreenSmartphone />
+              <ContactComponent icon={<SlScreenSmartphone />}>
                 {company?.phone}
               </ContactComponent>
-              <ContactComponent>
-                <MdOutlineAlternateEmail />
+              <ContactComponent icon={<MdOutlineAlternateEmail />}>
                 {company?.email}
               </ContactComponent>
 
@@ -59,12 +57,16 @@ export function Welcome() {
 
 type ContactComponentProps = {
   children: React.ReactNode;
+  icon: React.ReactNode;
 };
 
-const ContactComponent = ({ children }: ContactComponentProps) => {
+const ContactComponent = ({ icon, children }: ContactComponentProps) => {
   return (
-    <p className="line-clamp-1 max-w-[200px] overflow-hidden text-ellipsis text-sm md:text-medium">
-      {children}
-    </p>
+    <div className="max-w-[250px] flex justify-center items-center gap-2">
+      {icon}
+      <p className="truncate overflow-hidden whitespace-nowrap text-sm md:text-medium">
+        {children}
+      </p>
+    </div>
   );
 };

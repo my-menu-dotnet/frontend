@@ -1,7 +1,7 @@
 "use client";
 
 import { Category } from "@/types/api/Category";
-import Button from "../Button";
+import Button from "../../Button";
 import { redirect } from "next/navigation";
 
 type CategoriesProps = {
