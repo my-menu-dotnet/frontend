@@ -86,11 +86,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
       }
+    }
 
-      if (authenticated && pathName.startsWith("/auth")) {
-        router.replace("/dashboard");
-        return;
-      }
+    if (
+      authenticated &&
+      user &&
+      user.verified_email &&
+      user.company &&
+      user.company.verified_email &&
+      pathName.startsWith("/auth")
+    ) {
+      router.replace("/dashboard");
+      return;
     }
   }, [pathName, router, user]);
 

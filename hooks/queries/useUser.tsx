@@ -25,7 +25,7 @@ const useUser: UseUserType = () => {
 };
 
 const fetchUser = async () => {
-  const response = await api.get("/user/me");
+  const response = await api.get("/user");
   return response.data;
 };
 

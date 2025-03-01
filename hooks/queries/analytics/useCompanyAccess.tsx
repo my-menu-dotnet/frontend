@@ -4,24 +4,19 @@ import { useQuery } from "@tanstack/react-query";
 import useUser from "../useUser";
 
 const useCompanyAccess = () => {
-  const { company } = useUser();
-  const companyId = company?.id;
-
   return useQuery<TotalCompanyAccess | null>({
-    queryKey: ["companyAccess", companyId],
+    queryKey: ["companyAccess"],
     queryFn: async () => {
-      return await fetchCompany(companyId);
+      return await fetchCompany();
     },
     retry: false,
-    enabled: !!companyId,
+    staleTime: Infinity,
   });
 };
 
-const fetchCompany = async (companyId?: string) => {
+const fetchCompany = async () => {
   try {
-    const { data } = await api.get(
-      `/analytics/company/total-access/${companyId}`
-    );
+    const { data } = await api.get(`/analytics/company/total-access`);
     return data as TotalCompanyAccess;
   } catch (error) {
     console.error(error);

@@ -34,7 +34,7 @@ export default function QrCode() {
   const debounceConfig = useDebounce(qrConfig, 300);
 
   const menuUrl = useMemo(
-    () => `${process.env.NEXT_PUBLIC_FRONTEND_URL}/menu/${company?.url}`,
+    () => `${process.env.NEXT_PUBLIC_FRONTEND_URL}/menu/${company?.url}?access_way=QR_CODE`,
     [company?.url]
   );
 

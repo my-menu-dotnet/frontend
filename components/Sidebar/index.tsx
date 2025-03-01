@@ -8,44 +8,9 @@ import SubItem from "./SubItem";
 import menus from "@/utils/menus";
 import Image from "next/image";
 import Logo from "@/assets/logo.svg";
-import { Drawer, DrawerContent } from "@nextui-org/react";
-import Header from "./Header";
 import { useEffect, useState } from "react";
 
-export default function Sidebar({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    if (window.innerWidth < 768) {
-      setIsMobile(true);
-    }
-  }, []);
-
-  return (
-    <div className="min-h-screen flex flex-row flex-nowrap bg-[#F1F1F1]">
-      {isMobile ? (
-        <Drawer
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          placement="left"
-        >
-          <DrawerContent className="w-[80px]">
-            <Bar />
-          </DrawerContent>
-        </Drawer>
-      ) : (
-        <Bar />
-      )}
-      <div className="w-full min-h-full md:ml-[80px]">
-        <Header onClickMenu={() => setIsOpen(true)} />
-        <section className="px-1 md:px-4">{children}</section>
-      </div>
-    </div>
-  );
-}
-
-const Bar = () => {
+export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(true);
 
   useEffect(() => {
@@ -101,4 +66,4 @@ const Bar = () => {
       </Menu>
     </ProSideBar>
   );
-};
+}

@@ -1,10 +1,9 @@
-import Header from "@/components/Sidebar/Header";
-import Sidebar from "@/components/Sidebar";
+import DashboardLayout from "@/layout/DashboardLayout";
 
 type LayoutDashboardProps = {
   children: React.ReactNode;
 };
 
 export default function LayoutDashboard({ children }: LayoutDashboardProps) {
-  return <Sidebar>{children}</Sidebar>;
+  return <DashboardLayout>{children}</DashboardLayout>;
 }

@@ -4,8 +4,6 @@ import Block from "@/components/Block";
 import useUser from "@/hooks/queries/useUser";
 import { Skeleton } from "@nextui-org/react";
 import { useEffect, useMemo, useState } from "react";
-import { FiCopy } from "react-icons/fi";
-import { toast } from "react-toastify";
 import { QRCode as QRCodeGen } from "react-qrcode-logo";
 import { QRCodeConfig } from "@/app/dashboard/qrcode/page";
 import { getQRCodeConfig, QRCodeDefault } from "@/utils/QRCode";
@@ -17,7 +15,7 @@ export default function QRCode() {
   const [qrConfig, setQrConfig] = useState<QRCodeConfig>();
 
   const menuUrl = useMemo(
-    () => `${process.env.NEXT_PUBLIC_FRONTEND_URL}/menu/${company?.url}`,
+    () => `${process.env.NEXT_PUBLIC_FRONTEND_URL}/menu/${company?.url}?access_way=QR_CODE`,
     [company?.url]
   );
 
@@ -29,18 +27,18 @@ export default function QRCode() {
   return !isLoading && company && qrConfig ? (
     <div className="">
       <Block className="h-80 flex flex-col items-center px-2">
-        <div className="w-full max-w-[200px]  border-2 border-gray-300 rounded-md bg-gray-50 px-2 py-1 flex flex-row items-center gap-2 cursor-pointer">
-          <Link
-            href={menuUrl}
-            target="_blank"
-            className="truncate overflow-hidden whitespace-nowrap"
-          >
+        <Link
+          href={menuUrl}
+          target="_blank"
+          className="w-full max-w-[200px] border-2 border-gray-300 rounded-md bg-gray-50 px-2 py-1 flex flex-row items-center gap-2 cursor-pointer"
+        >
+          <span className="truncate overflow-hidden whitespace-nowrap">
             {menuUrl}
-          </Link>
+          </span>
           <div className="min-w-5">
             <FiExternalLink />
           </div>
-        </div>
+        </Link>
         <div className="flex flex-col items-center">
           <QRCodeGen
             value={menuUrl}

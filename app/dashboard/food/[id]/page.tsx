@@ -78,7 +78,7 @@ export default function Page() {
           {page === WIZARD_PAGES.DATA && (
             <FoodForm food={food} onSuccess={() => refetch()} />
           )}
-          {page === WIZARD_PAGES.DISCOUNTS && <FoodDiscounts food={food} />}
+          {page === WIZARD_PAGES.DISCOUNTS && <FoodDiscounts />}
         </Block>
       </>
     )

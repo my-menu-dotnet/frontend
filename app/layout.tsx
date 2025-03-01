@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { NextUIProvider } from "@nextui-org/react";
 import { Roboto } from "next/font/google";
 import { AuthProvider } from "@/hooks/useAuth";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 export const metadata: Metadata = {
   title: "Crie seu Cardápio Digital Grátis e Personalizado!",
@@ -105,6 +106,7 @@ export default function RootLayout({
           </AuthProvider>
         </ReactQueryProvider>
       </body>
+      <GoogleAnalytics gaId="G-LERMXSW7JQ" />
     </html>
   );
 }

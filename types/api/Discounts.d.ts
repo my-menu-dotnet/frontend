@@ -8,6 +8,7 @@ type Discounts = {
   start_at?: string;
   end_at?: string;
   status: DiscountsStatus;
+  active: boolean;
   type: DiscountsType;
   created_at: string;
   updated_at: string;

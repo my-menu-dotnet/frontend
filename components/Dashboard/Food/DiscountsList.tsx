@@ -13,12 +13,13 @@ import { FiPercent } from "react-icons/fi";
 import { GoPlus } from "react-icons/go";
 import { MdAttachMoney } from "react-icons/md";
 import DiscountsForm from "./components/DiscountsForm";
+import { useParams } from "next/navigation";
+import useFood from "@/hooks/queries/food/useFood";
 
-type FoodDiscountsProps = {
-  food: Food | null;
-};
+export default function FoodDiscounts() {
+  const { id } = useParams<{ id: string }>();
+  const { data: food } = useFood(id);
 
-export default function FoodDiscounts({ food }: FoodDiscountsProps) {
   const [open, setOpen] = useState(false);
   const columns = useMemo<ColumnDef<Discounts, unknown>[]>(
     () => [
@@ -150,7 +151,6 @@ export default function FoodDiscounts({ food }: FoodDiscountsProps) {
           </Button>
         </div>
         <DiscountsForm
-          food={food}
           open={open}
           onClose={() => setOpen(false)}
           discountId={null}

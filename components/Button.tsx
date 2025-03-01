@@ -12,7 +12,7 @@ export default function Button({ text, children, ...rest }: ButtonProps) {
   return (
     <NextButton
       color="primary"
-      className="font-semibold shadow-sm h-10"
+      className="font-semibold shadow-sm h-10 rounded-md"
       {...rest}
     >
       {text}

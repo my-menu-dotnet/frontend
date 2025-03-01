@@ -4,6 +4,7 @@ import Input from "@/components/Input";
 import Select from "@/components/Select";
 import SelectItem from "@/components/SelectItem";
 import Switch from "@/components/Switch";
+import useFood from "@/hooks/queries/food/useFood";
 import useCategory from "@/hooks/queries/useCategory";
 import useDiscount from "@/hooks/queries/useDiscount";
 import useDiscounts from "@/hooks/queries/useDiscounts";
@@ -24,6 +25,7 @@ import {
 } from "@nextui-org/react";
 import { I18nProvider } from "@react-aria/i18n";
 import { useMutation } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -34,7 +36,7 @@ type DiscountsFormForm = {
   start_at?: string;
   end_at?: string;
   type: DiscountsType;
-  status: DiscountsStatus;
+  active: boolean;
 };
 
 const schema = Yup.object().shape({
@@ -51,30 +53,29 @@ const schema = Yup.object().shape({
     }),
   start_at: Yup.string().optional().nullable(),
   end_at: Yup.string().optional().nullable(),
-  status: Yup.string().required(),
+  active: Yup.boolean().required(),
 });
 
 type DiscountsFormProps = {
-  food: Food;
   discountId: string | null;
   open: boolean;
   onClose: () => void;
 };
 
 export default function DiscountsForm({
-  food,
   discountId,
   open,
   onClose,
 }: DiscountsFormProps) {
+  const { id } = useParams<{ id: string }>();
+  const { data: food, refetch } = useFood(id);
   const { data: discount } = useDiscount(discountId);
-  const { refetch: refecthDiscounts } = useDiscounts();
 
   const { control, setValue, watch, setError, handleSubmit, reset } =
     useForm<DiscountsFormForm>({
       defaultValues: {
-        status: "ACTIVE",
-        food_id: food.id,
+        active: true,
+        food_id: food!.id,
       },
       resolver: yupResolver(schema),
     });
@@ -89,12 +90,12 @@ export default function DiscountsForm({
     },
     onSuccess: () => {
       handleClose();
-      refecthDiscounts();
+      refetch();
     },
   });
 
   const handleSave = (data: DiscountsFormForm) => {
-    if (data.type === "AMOUNT" && data.discount >= food.price) {
+    if (data.type === "AMOUNT" && data.discount >= food!.price) {
       setError("discount", {
         type: "max",
         message:
@@ -103,17 +104,7 @@ export default function DiscountsForm({
       return;
     }
 
-    const newData: DiscountsFormForm = {
-      ...data,
-      status:
-        data.status === "PENDING"
-          ? "ACTIVE"
-          : data.status === "EXPIRED"
-          ? "INACTIVE"
-          : data.status,
-    };
-
-    const res = mutateAsync(newData);
+    const res = mutateAsync(data);
     toast.promise(res, {
       pending: "Salvando desconto...",
       success: "Desconto salvo com sucesso",
@@ -138,7 +129,7 @@ export default function DiscountsForm({
       setValue("food_id", discount.food.id);
       setValue("discount", discount.discount);
       setValue("type", discount.type);
-      setValue("status", discount.status);
+      setValue("active", discount.active);
       setValue("start_at", discount.start_at);
       setValue("end_at", discount.end_at);
     }
@@ -221,20 +212,8 @@ export default function DiscountsForm({
           <ModalFooter className="flex justify-between">
             <Controller
               control={control}
-              name="status"
-              render={({ field }) => (
-                <Switch
-                  isSelected={
-                    field.value === "ACTIVE" || field.value === "PENDING"
-                  }
-                  isDisabled={field.value === "EXPIRED"}
-                  onValueChange={(value) => {
-                    field.onChange(value ? "ACTIVE" : "INACTIVE");
-                  }}
-                >
-                  {discountsStatusMasks[field.value]}
-                </Switch>
-              )}
+              name="active"
+              render={({ field }) => <Switch.Active {...field} />}
             />
             <div>
               <Button color="default" variant="light" onPress={handleClose}>

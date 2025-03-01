@@ -1,30 +1,33 @@
 import api from "@/services/api";
 import { Menu } from "@/types/api/Menu";
 import { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
-import FoodCard from "@/components/FoodCard";
-import { Food } from "@/types/api/Food";
-import { Category } from "@/types/api/Category";
-import Analytics from "@/components/Menu/Analytics";
-import { Montserrat } from "next/font/google";
-import { Chip } from "@nextui-org/react";
-import { MdOutlineAlternateEmail } from "react-icons/md";
-import Phone from "@/components/Menu/components/Phone";
-import FoodDefault from "@/assets/default-food.jpg";
-import { CiLocationOn } from "react-icons/ci";
 import Header from "@/components/Menu/Header";
 import Banners from "@/components/Menu/Banners";
 import FoodList from "@/components/Menu/FoodList";
 import Footer from "@/components/Footer";
+import Button from "@/components/Button";
+import { BsCart3 } from "react-icons/bs";
 
 type Props = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const id = (await params).id;
   const menu = await getMenu(id);
+
+  if (!menu) {
+    return {
+      title: "Menu não encontrado",
+      description: "O menu que você está tentando acessar não foi encontrado.",
+      robots: {
+        follow: false,
+        index: false,
+      },
+    };
+  }
 
   return {
     title: `${menu.company.name}`,
@@ -48,10 +51,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function Page({ params }: Props) {
+export default async function Page({ params, searchParams }: Props) {
   try {
     const { id } = await params;
+    const { access_way } = await searchParams;
     const menu = await getMenu(id);
+
+    if (!menu) {
+      return notFound();
+    }
+
+    api.post("/analytics/company/user-access", {
+      company_id: menu.company.id,
+      access_way: access_way || "WEB",
+      accessed_at: new Date(),
+    });
 
     const color = menu.company.primary_color || "#000";
 
@@ -70,7 +84,14 @@ export default async function Page({ params }: Props) {
 
           <Footer />
 
-          <Analytics menu={menu} />
+          <div
+            className="fixed bottom-0 right-0 z-50 h-14 w-full bg-white shadow-2xl flex items-center justify-end px-6"
+            style={{ boxShadow: "0px -2px 6px rgba(0, 0, 0, 0.1)" }}
+          >
+            <div className="flex items-center gap-4">
+              <BsCart3 size={30} className="fill-gray-400"/>
+            </div>
+          </div>
         </>
       )
     );
@@ -83,15 +104,18 @@ export default async function Page({ params }: Props) {
 let staticMenu = {} as Menu;
 
 const getMenu = async (id: string) => {
-  if (staticMenu.company && staticMenu.company.id === id) {
-    return staticMenu;
+  try {
+    // const cookieStore = cookies();
+    // const accessToken = (await cookieStore).get("accessToken");
+
+    if (staticMenu.company && staticMenu.company.id === id) {
+      return staticMenu;
+    }
+
+    const { data } = await api(`/menu/${id}`);
+    staticMenu = data;
+    return data as Menu;
+  } catch (e) {
+    console.error(e);
   }
-
-  const { data } = await api(`/menu/${id}`);
-  staticMenu = data;
-  return data as Menu;
 };
-
-{
-  /*  */
-}

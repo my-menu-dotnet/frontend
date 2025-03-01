@@ -46,7 +46,13 @@ export default function CreateModal({ open, onClose }: FoodModalProps) {
   };
 
   return (
-    <Modal isOpen={open} onClose={handleClose} size="4xl">
+    <Modal
+      isOpen={open}
+      onClose={handleClose}
+      size="4xl"
+      isDismissable={false}
+      isKeyboardDismissDisabled={true}
+    >
       <ModalContent data-test="food-modal">
         <ModalHeader>Produto</ModalHeader>
         <ModalBody>
