@@ -192,9 +192,12 @@ export default function DiscountsForm({
                 <DateRangePicker
                   label="Validade"
                   onChange={(range) => {
+                    // @ts-expect-error - Know issue from nextui https://github.com/heroui-inc/next-app-template/issues/35
                     setValue("start_at", range?.start.toString());
+                    // @ts-expect-error - Know issue from nextui https://github.com/heroui-inc/next-app-template/issues/35
                     setValue("end_at", range?.end.toString());
                   }}
+                  // @ts-expect-error - Know issue from nextui https://github.com/heroui-inc/next-app-template/issues/35
                   value={
                     end && start
                       ? {

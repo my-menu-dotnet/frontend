@@ -28,7 +28,10 @@ export default async function Home() {
 
   return (
     <>
-      <header className="w-full flex justify-between items-center h-36 px-6 md:px-20">
+      <header
+        className="w-full flex justify-between items-center h-28 px-6 md:px-20 bg-white"
+        style={{ boxShadow: "4px 0px 8px rgba(0, 0, 0, 0.1)" }}
+      >
         <Image
           src={Logo}
           alt="My Menu Logo"

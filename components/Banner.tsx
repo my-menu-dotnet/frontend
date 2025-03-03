@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
 import { FaChevronLeft } from "react-icons/fa6";
 
 type BannerProps<T> = {
   itemList: T[];
-  renderItem: (item: T) => JSX.Element;
+  renderItem: (item: T) => ReactNode;
 };
 
 export default function Banner<T>({ itemList, renderItem }: BannerProps<T>) {

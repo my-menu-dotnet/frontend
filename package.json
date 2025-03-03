@@ -14,6 +14,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.13.0",
     "@hello-pangea/dnd": "^17.0.0",
+    "@heroui/react": "^2.7.4",
     "@hookform/resolvers": "^3.9.1",
     "@internationalized/date": "^3.6.0",
     "@mercadopago/sdk-react": "^1.0.0",
