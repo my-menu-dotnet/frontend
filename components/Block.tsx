@@ -1,3 +1,5 @@
+"use client";
+
 import { Tabs, TabsProps } from "@nextui-org/react";
 import { DetailedHTMLProps, HTMLAttributes } from "react";
 

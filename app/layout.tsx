@@ -1,12 +1,10 @@
-import type { Metadata } from "next";
 import "@/globals.css";
-import { ReactQueryProvider } from "@/hooks/query";
-import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { NextUIProvider } from "@nextui-org/react";
+import type { Metadata } from "next";
+import { ToastContainer } from "react-toastify";
 import { Roboto } from "next/font/google";
-import { AuthProvider } from "@/hooks/useAuth";
-import { GoogleAnalytics } from '@next/third-parties/google'
+import { GoogleAnalytics } from "@next/third-parties/google";
+import LayoutProviders from "@/layout/LayoutProviders";
 
 export const metadata: Metadata = {
   title: "Crie seu Cardápio Digital Grátis e Personalizado!",
@@ -97,14 +95,10 @@ export default function RootLayout({
   return (
     <html lang="pt-br" className={`light w-full h-full ${roboto.className}`}>
       <body className={`antialiased w-full min-h-screen bg-slate-50`}>
-        <ReactQueryProvider>
-          <AuthProvider>
-            <NextUIProvider>
-              {children}
-              <ToastContainer />
-            </NextUIProvider>
-          </AuthProvider>
-        </ReactQueryProvider>
+        <LayoutProviders>
+          {children}
+          <ToastContainer />
+        </LayoutProviders>
       </body>
       <GoogleAnalytics gaId="G-LERMXSW7JQ" />
     </html>

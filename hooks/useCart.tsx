@@ -1,35 +1,111 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+"use client";
+
+import { useParams } from "next/navigation";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 
 interface CartContextType {
-  items: string[];
-  addItem: (item: string) => void;
-  removeItem: (item: string) => void;
+  items: FoodOrder[];
+  setItems: React.Dispatch<React.SetStateAction<FoodOrder[]>>;
+  addItem: (item: FoodOrder) => void;
+  removeItemUnity: (itemId: string) => void;
+  addItemUnity: (itemId: string) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-type OrderItemForm = {
+export type FoodOrder = {
+  id: string;
+  itemId: string;
+  quantity: number;
+  image: string;
   title: string;
   description: string;
-  image: string;
-  category_id: string;
-  quantity: number;
-  unit_price: number;
-}
+  price: number;
+  items: Omit<FoodOrder, "items">[];
+};
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [items, setItems] = useState<string[]>([]);
+  const [items, setItems] = useState<FoodOrder[]>([]);
 
-  const addItem = (item: string) => {
+  const addItem = (item: FoodOrder) => {
     setItems([...items, item]);
   };
 
-  const removeItem = (item: string) => {
-    setItems(items.filter(i => i !== item));
+  const removeItemUnity = (itemId: string) => {
+    const newItems = items.map((item) => {
+      if (item.id === itemId) {
+        return {
+          ...item,
+          quantity: item.quantity - 1,
+        };
+      }
+      const subItems = item.items.map((subItem) => {
+        if (subItem.id === itemId) {
+          return {
+            ...subItem,
+            quantity: subItem.quantity - 1,
+          };
+        }
+        return subItem;
+      });
+      return {
+        ...item,
+        items: subItems.filter((subItem) => subItem.quantity > 0),
+      };
+    });
+
+    setItems(newItems.filter((item) => item.quantity > 0));
   };
 
+  const addItemUnity = (itemId: string) => {
+    const newItems = items.map((item) => {
+      if (item.id === itemId) {
+        return {
+          ...item,
+          quantity: item.quantity + 1,
+        };
+      }
+      const subItems = item.items.map((subItem) => {
+        if (subItem.id === itemId) {
+          return {
+            ...subItem,
+            quantity: subItem.quantity + 1,
+          };
+        }
+        return subItem;
+      });
+
+      return {
+        ...item,
+        items: subItems,
+      };
+    });
+
+    setItems(newItems);
+  };
+
+  useEffect(() => {
+    console.log(items);
+    localStorage.setItem(`cart`, JSON.stringify(items));
+  }, [items]);
+
+  useEffect(() => {
+    const cart = localStorage.getItem(`cart`);
+    if (cart) {
+      setItems(JSON.parse(cart));
+    }
+  }, []);
+
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem }}>
+    <CartContext.Provider
+      value={{ items, setItems, addItem, removeItemUnity, addItemUnity }}
+    >
       {children}
     </CartContext.Provider>
   );
@@ -38,7 +114,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 export const useCart = () => {
   const context = useContext(CartContext);
   if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
   return context;
 };

@@ -7,7 +7,9 @@ const QUERY_KEY = {
   UPDATE_CREATE_BANNER: "updateCreateBanner",
   BANNERS: "banners",
   BANNER: "banner",
-  COMPANY_QR_CODE: "companyQrCode"
+  COMPANY_QR_CODE: "companyQrCode",
+  ADDRESS: "address",
+  ORDER: "order",
 }
 
 export default QUERY_KEY;

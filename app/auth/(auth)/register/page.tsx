@@ -89,8 +89,8 @@ export default function Page() {
     <main className="flex flex-col items-center justify-center gap-12 w-full h-full">
       <div className="w-full flex flex-col justify-center items-center mt-4">
         <Image src={Logo} className="mb-8" alt="Logo" width={60} height={60} />
-        <h1 className="text-2xl font-semibold">Bem vindo de volta</h1>
-        <h2 className="text-gray-500">Faça login para continuar</h2>
+        <h1 className="text-2xl font-semibold">Primeiro acesso? Seja bem-vindo!</h1>
+        <h2 className="text-gray-500">Preencha os campos abaixo para continuar</h2>
       </div>
       <form
         className="flex flex-col flex-1 w-[80%] gap-4"

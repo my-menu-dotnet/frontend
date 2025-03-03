@@ -1,0 +1,75 @@
+.step {
+  position: relative;
+  z-index: 2;
+}
+
+/* Add transition to the icon container */
+.step div:first-child {
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Add transition to the icon svg */
+.step div:first-child svg {
+  transition: color 0.3s ease;
+}
+
+/* Add transition to the text */
+.step p {
+  transition: color 0.3s ease, font-weight 0.3s ease;
+}
+
+.step::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 25%;
+  height: 2px;
+  background-color: #e0e0e0;
+  transform: translateY(-50%);
+  z-index: -1;
+  transition: background-color 0.3s ease; /* Add transition here */
+}
+
+.step[data-active='true'] {
+  div:first-child {
+    @apply border-primary bg-white;
+
+    svg {
+      @apply text-primary;
+    }
+  }
+
+  p {
+    @apply text-primary font-semibold;
+  }
+}
+
+.step[data-active='true']::after {
+  @apply bg-primary;
+}
+
+.step[data-active='true']::before {
+  @apply bg-primary;
+}
+
+.step::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 25%;
+  height: 2px;
+  background-color: #e0e0e0;
+  transform: translateY(-50%);
+  z-index: -1;
+  transition: background-color 0.3s ease; /* Update with ease timing function */
+}
+
+.step:last-child::after {
+  display: none;
+}
+
+.step:first-child::before {
+  display: none;
+}

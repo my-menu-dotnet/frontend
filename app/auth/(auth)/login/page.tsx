@@ -57,7 +57,7 @@ export default function Page() {
     <div className="flex flex-col items-center justify-center gap-12 w-full h-full">
       <div className="w-full mb-4 flex-1 flex flex-col justify-center items-center">
         <Image src={Logo} className="mb-8" alt="Logo" width={60} height={60} />
-        <h1 className="text-2xl font-semibold">Bem vindo de volta</h1>
+        <h1 className="text-2xl font-semibold">Bem-vindo de volta!</h1>
         <h2 className="text-gray-500">Faça login para continuar</h2>
       </div>
       <form

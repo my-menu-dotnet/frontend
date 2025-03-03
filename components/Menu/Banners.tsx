@@ -30,8 +30,6 @@ export default function Banners({ menu }: BannersProps) {
     setBanners(banners);
   }, []);
 
-  console.log(banners);
-
   return (
     banners.length > 0 && (
       <section className="flex flex-row gap-4 mt-4">
