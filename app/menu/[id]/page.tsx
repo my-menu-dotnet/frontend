@@ -55,7 +55,7 @@ const getMenu = async (id: string) => {
   try {
     // const cookieStore = cookies();
     // const accessToken = (await cookieStore).get("accessToken");
-    const { data } = await api(`/menu`, { headers: { _company: id } });
+    const { data } = await api(`/menu`, { headers: { "X-Company-ID": id } });
     return data as Menu;
   } catch (e) {
     console.error(e);

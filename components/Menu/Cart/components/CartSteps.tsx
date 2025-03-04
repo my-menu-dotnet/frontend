@@ -23,7 +23,7 @@ export default function CartSteps({ children }: CartStepsProps) {
   const childrenArray = Children.toArray(children);
 
   useEffect(() => {
-    api.defaults.headers["_company"] = menuId;
+    api.defaults.headers["X-Company-ID"] = menuId;
   }, []);
 
   return (
