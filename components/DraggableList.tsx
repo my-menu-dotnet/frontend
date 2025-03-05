@@ -77,7 +77,7 @@ export default function DraggableList<T extends Item>({
             className={listClassName}
             style={listStyle}
           >
-            {renderList()}
+            {renderList()} 
             {droppableProvided.placeholder}
           </div>
         )}

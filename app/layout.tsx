@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import { Roboto } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import LayoutProviders from "@/layout/LayoutProviders";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 export const metadata: Metadata = {
   title: "Crie seu Cardápio Digital Grátis e Personalizado!",
@@ -96,8 +97,10 @@ export default function RootLayout({
     <html lang="pt-br" className={`light w-full h-full ${roboto.className}`}>
       <body className={`antialiased w-full min-h-screen bg-slate-50`}>
         <LayoutProviders>
-          {children}
-          <ToastContainer />
+          <GoogleOAuthProvider clientId="732139418647-6e0d44kp4o4dqeo3vskar068ptdhrcc0.apps.googleusercontent.com">
+            {children}
+            <ToastContainer />
+          </GoogleOAuthProvider>
         </LayoutProviders>
       </body>
       <GoogleAnalytics gaId="G-LERMXSW7JQ" />

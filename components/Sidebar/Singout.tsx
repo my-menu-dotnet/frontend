@@ -12,8 +12,10 @@ import {
 import { FiLogOut } from "react-icons/fi";
 import { MenuItem } from "react-pro-sidebar";
 import Button from "../Button";
+import { useRouter } from "next/navigation";
 
 export default function Singout() {
+  const router = useRouter();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { logout } = useAuth();
 
@@ -45,7 +47,9 @@ export default function Singout() {
                 <Button
                   color="danger"
                   onPress={() => {
-                    logout();
+                    logout.mutateAsync().then(() => {
+                      router.push("/");
+                    });
                     onClose();
                   }}
                   text="Sair"

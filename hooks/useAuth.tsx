@@ -9,17 +9,39 @@ import {
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import api from "@/services/api";
-import { useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationResult,
+  useQueryClient,
+} from "@tanstack/react-query";
 import useUser from "./queries/useUser";
+import Cookies from "js-cookie";
+import { CredentialResponse } from "@react-oauth/google";
+import { AxiosError, AxiosResponse } from "axios";
+import { User } from "@/types/api/User";
 
 type AuthContextProps = {
-  login: () => void;
-  logout: () => void;
+  loginGoogle: UseMutationResult<
+    AxiosResponse<User, unknown>,
+    AxiosError<unknown, unknown>,
+    CredentialResponse,
+    unknown
+  >;
+  logout: UseMutationResult<AxiosResponse<unknown>, AxiosError<unknown>, void>;
 };
 
 const AuthContext = createContext<AuthContextProps>({
-  login: () => null,
-  logout: () => null,
+  loginGoogle: {} as UseMutationResult<
+    AxiosResponse<User, unknown>,
+    AxiosError<unknown, unknown>,
+    CredentialResponse,
+    unknown
+  >,
+  logout: {} as UseMutationResult<
+    AxiosResponse<unknown>,
+    AxiosError<unknown>,
+    void
+  >,
 });
 
 export function useAuth() {
@@ -35,67 +57,50 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { data: user } = useUser();
+  const { data: user, refetch: refetchUser } = useUser();
   const router = useRouter();
   const pathName = usePathname();
   const queryClient = useQueryClient();
 
-  const login = () => {
-    localStorage.setItem("authenticated", "true");
-    router.push("/dashboard");
-  };
+  const loginGoogle = useMutation<
+    AxiosResponse<User>,
+    AxiosError,
+    CredentialResponse
+  >({
+    mutationFn: (credential: CredentialResponse) =>
+      api.post("/v1/oauth/google", credential),
+    onSuccess: () => refetchUser(),
+  });
 
-  const logout = useCallback(async () => {
-    try {
-      await api.post("/auth/logout");
-      queryClient.clear();
-      localStorage.removeItem("authenticated");
-      router.replace("/auth/login");
-    } catch (logoutError) {
-      console.error(logoutError);
+  const logout = useMutation<AxiosResponse<unknown>, AxiosError<unknown>, void>(
+    {
+      mutationFn: () => api.post("/v1/oauth/logout"),
+      onSuccess: () => {
+        Cookies.remove("is_authenticated");
+        queryClient.clear();
+      },
     }
-  }, []);
+  );
 
-  const handleRedirect = useCallback(() => {
-    const authenticated = localStorage.getItem("authenticated");
-
+  const handleRedirect = useCallback(async () => {
+    const authenticated = Cookies.get("is_authenticated") === "true";
+    console.log(authenticated)
     if (!authenticated && pathName.startsWith("/dashboard")) {
       router.replace("/auth/login");
       return;
     }
 
-    if (authenticated && user && pathName.startsWith("/dashboard")) {
-      const redirectChecks = [
-        {
-          condition: !user.verified_email,
-          route: "/auth/verify-email",
-        },
-        {
-          condition: !user.company,
-          route: "/auth/company",
-        },
-        {
-          condition: user.company && !user.company.verified_email,
-          route: "/auth/company/verify-email",
-        },
-      ];
-
-      for (const check of redirectChecks) {
-        if (check.condition) {
-          router.replace(check.route);
-          return;
-        }
-      }
-    }
-
     if (
       authenticated &&
       user &&
-      user.verified_email &&
-      user.company &&
-      user.company.verified_email &&
-      pathName.startsWith("/auth")
+      !user.company &&
+      pathName.startsWith("/dashboard")
     ) {
+      router.replace("/auth/company");
+      return;
+    }
+
+    if (authenticated && user?.company && pathName.startsWith("/auth")) {
       router.replace("/dashboard");
       return;
     }
@@ -106,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [handleRedirect]);
 
   return (
-    <AuthContext.Provider value={{ login, logout }}>
+    <AuthContext.Provider value={{ loginGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

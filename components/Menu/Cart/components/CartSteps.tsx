@@ -9,7 +9,6 @@ import "../css/steps.css";
 import { useCartStep } from "../hooks/useCarStep";
 import { useParams } from "next/navigation";
 import api from "@/services/api";
-import { useCart } from "@/hooks/useCart";
 
 type CartStepsProps = {
   children: React.ReactNode;

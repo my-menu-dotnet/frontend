@@ -25,6 +25,6 @@
       "cypress",
     ]
   },
-  "include": ["svgr.d.ts", "next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["svgr.d.ts", "next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/teste/WebSocketService.js"],
   "exclude": ["node_modules"]
 }

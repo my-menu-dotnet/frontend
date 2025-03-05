@@ -9,7 +9,8 @@ const QUERY_KEY = {
   BANNER: "banner",
   COMPANY_QR_CODE: "companyQrCode",
   ADDRESS: "address",
-  ORDER: "order",
+  ORDER: "infiniteOrder",
+  KANBAN_ORDER: "kanbanOrder",
 }
 
 export default QUERY_KEY;

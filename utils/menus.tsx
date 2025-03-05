@@ -7,6 +7,7 @@ import { TbCategoryPlus } from "react-icons/tb";
 import { LuBadgePercent } from "react-icons/lu";
 import { PiNewspaperClippingLight } from "react-icons/pi";
 import { MdWallpaper } from "react-icons/md";
+import { LuClipboardCheck } from "react-icons/lu";
 
 export type PageMenus = {
   title: string;
@@ -45,6 +46,13 @@ const menus: PageMenus[] = [
     description: "Adicione, edite ou remova produtos do seu cardápio!",
     icon: <MdOutlineFastfood />,
     to: "/dashboard/food",
+    enabled: true,
+  },
+  {
+    title: "Pedidos",
+    description: "Veja os pedidos feitos pelos seus clientes!",
+    icon: <LuClipboardCheck />,
+    to: "/dashboard/orders",
     enabled: true,
   },
   {

@@ -8,20 +8,26 @@ import { currency } from "@/utils/text";
 import { Divider } from "@nextui-org/react";
 import { MdPayment } from "react-icons/md";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
-import useMutationOrder from "@/hooks/queries/useOrder";
+import useMutationOrder from "@/hooks/mutate/useMutationOrder";
 import { useEffect } from "react";
 import { OrderItemForm } from "@/types/api/order/OrderItemForm";
-initMercadoPago(process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || "");
+import Button from "@/components/Button";
+import { FaWhatsapp } from "react-icons/fa";
+// initMercadoPago(process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || "");
 
 export default function Checkout() {
   const { items } = useCart();
-  const { mutate, data: preference } = useMutationOrder();
+  const { mutateAsync } = useMutationOrder();
 
-  useEffect(() => {
-    const foodOrder = createOrderItemForm(items);
-    const total = calcTotalPrice(items);
-    mutate({ orderItemForm: foodOrder, total });
-  }, [items]);
+  const handleOrder = () => {
+    mutateAsync({
+      orderItemForm: createOrderItemForm(items),
+      total: calcTotalPrice(items),
+    }).then((order) => {
+      const whatsapUrl = `https://web.whatsapp.com/send?phone=5561985501197&text=Olá, gostaria de fazer o pedido ${order?.order_number}`;
+      window.open(whatsapUrl, "_blank");
+    });
+  };
 
   return (
     <Block>
@@ -67,13 +73,26 @@ export default function Checkout() {
         </div>
       </div>
 
-      {preference?.preference_id && (
+      <div className="mt-6">
+        <Button
+          startContent={<FaWhatsapp size={20} />}
+          className="w-full"
+          text="Finalizar compra"
+          onPress={handleOrder}
+        />
+        <p className="text-sm text-center text-gray-400 mt-2">
+          Ao cliclar em &quot;Finalizar compra&quot; você receberá o número do
+          pedido e será redirecionado para o WhatsApp para finalizar a compra.
+        </p>
+      </div>
+
+      {/* {preference?.preference_id && (
         <Wallet
           initialization={{
             preferenceId: preference?.preference_id,
           }}
         />
-      )}
+      )} */}
     </Block>
   );
 }

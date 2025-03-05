@@ -1,4 +1,5 @@
 import { Company } from "../Company";
+import { User } from "../User";
 import { OrderItem } from "./OrderItem";
 
 type Order = {
@@ -7,11 +8,13 @@ type Order = {
   total_price: number;
   status: OrderStatus;
   order_items: OrderItem[];
-  company: Company;
+  order_number: number;
+  order: number;
+  user: User;
   created_at: Date;
   updated_at: Date;
 };
 
-type OrderStatus = "SUCCESS" | "PENDING" | "FAILURE";
+type OrderStatus = "CREATED" | "ACCEPTED" | "PRODUCING" | "READY" | "DELIVERED" | "CANCELLED";
 
 export type { Order, OrderStatus };

@@ -14,17 +14,17 @@ import Yup from "@/validators/Yup";
 import { useMutation } from "@tanstack/react-query";
 import api from "@/services/api";
 import useUser from "@/hooks/queries/useUser";
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Email() {
-  const [email, setEmail] = useState("");
-  const [openCode, setOpenCode] = useState(false);
-  const { data: user, refetch: refetchUser } = useUser();
+  const { data: user } = useUser();
+  const { loginGoogle, logout } = useAuth();
   const { addStep, removeStep } = useCartStep();
 
-  const { mutate } = useMutation({
-    mutationFn: () => api.post("/auth/logout"),
-    onSuccess: () => refetchUser().then(addStep),
-  });
+  const handleLoginGoogle = (response: CredentialResponse) => {
+    loginGoogle.mutateAsync(response).then(addStep);
+  };
 
   return (
     <Block>
@@ -34,58 +34,27 @@ export default function Email() {
       </div>
 
       {!user?.email ? (
-        <AnimatePresence>
-          <div className="h-72 w-full">
-            {!openCode ? (
-              <motion.div
-                key="email"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="h-full"
-              >
-                <EmailInput
-                  email={email}
-                  setEmail={setEmail}
-                  next={() => setOpenCode(true)}
-                />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="code"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="h-full"
-              >
-                <EmailCode email={email} back={() => setOpenCode(false)} />
-              </motion.div>
-            )}
-          </div>
-        </AnimatePresence>
+        <GoogleLogin onSuccess={handleLoginGoogle} />
       ) : (
-        <>
-          <div className="h-72 flex flex-col justify-center items-center">
-            <p className="text-center text-gray-400 max-w-2xl">
-              Você já está logado com o email{" "}
-              <span className="font-semibold">{user.email}</span>.
-            </p>
-            <p className="text-center text-gray-400 max-w-2xl">
-              Caso deseje sair, clique{" "}
-              <span
-                className="text-primary font-semibold cursor-pointer"
-                onClick={() => mutate()}
-              >
-                aqui
-              </span>
-              .
-            </p>
-          </div>
-          <FooterButtons onClickBack={removeStep} onClickNext={addStep} />
-        </>
+        <div className="h-72 flex flex-col justify-center items-center">
+          <p className="text-center text-gray-400 max-w-2xl">
+            Você já está logado como{" "}
+            <span className="font-semibold">{user.name}</span>.
+          </p>
+          <p className="text-center text-gray-400 max-w-2xl">
+            Não é você?{" "}
+            <span
+              className="text-primary font-semibold cursor-pointer"
+              onClick={() => logout.mutateAsync()}
+            >
+              Sair
+            </span>
+            .
+          </p>
+        </div>
       )}
+
+      <FooterButtons onClickNext={addStep} onClickBack={removeStep} />
     </Block>
   );
 }

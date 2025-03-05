@@ -41,10 +41,9 @@ export default async function Home() {
           priority
         />
         <nav className="flex flex-row items-center gap-2 md:gap-4">
-          <NavLink href="/auth/login" buttonProps={{ variant: "bordered" }}>
+          <NavLink href="/auth" buttonProps={{ variant: "bordered" }}>
             Entrar
           </NavLink>
-          <NavLink href="/auth/register">Cadastre-se</NavLink>
         </nav>
       </header>
       <main className="px-6 md:px-20">

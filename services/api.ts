@@ -43,7 +43,7 @@ api.interceptors.response.use(
 
     return new Promise((resolve, reject) => {
       api
-        .post("/auth/refresh-token")
+        .post("/v1/oauth/refresh-token")
         .then(() => {
           failedRequestQueue.forEach((request) => request.onSuccess());
           failedRequestQueue = [];
@@ -54,7 +54,7 @@ api.interceptors.response.use(
           failedRequestQueue.forEach((request) => request.onFailure(err));
           failedRequestQueue = [];
 
-          api.post("/auth/logout").then(() => {
+          api.post("/v1/oauth/logout").then(() => {
             localStorage.removeItem("authenticated");
           });
           reject(err);
