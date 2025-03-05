@@ -29,6 +29,8 @@ const playOrderSound = () => {
   });
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export const NotificationOrderProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -41,7 +43,7 @@ export const NotificationOrderProvider: React.FC<{ children: ReactNode }> = ({
       return;
     }
     const tenantId = user.company.id;
-    const socket = new SockJS("http://localhost:8080/ws");
+    const socket = new SockJS(`${API_URL}/ws`);
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
