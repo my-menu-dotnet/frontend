@@ -1,6 +1,7 @@
 "use client";
 
 import Button from "@/components/Button";
+import { useState } from "react";
 import {
   Br,
   Cut,
@@ -9,37 +10,52 @@ import {
   Text,
   Row,
   render,
+  Raw,
 } from "react-thermal-printer";
 
 export default function Page() {
+  const [previewText, setPreviewText] = useState<Uint8Array>();
+
   const receipt = (
-    <Printer type="epson" width={42} characterSet="korea">
-      <Text size={{ width: 2, height: 2 }}>9,500원</Text>
-      <Text bold={true}>결제 완료</Text>
+    <Printer type="epson" width={32} characterSet="korea">
+      <Text size={{ width: 2, height: 2 }} align="center">
+        PEDIDO #000
+      </Text>
       <Br />
       <Line />
-      <Row left="결제방법" right="체크카드" />
-      <Row left="카드번호" right="123456**********" />
-      <Row left="할부기간" right="일시불" />
-      <Row left="결제금액" right="9,500" />
-      <Row left="부가세액" right="863" />
-      <Row left="공급가액" right="8,637" />
+
+      <Row left="Cliente" right="Thiago Crepequer" />
+      <Row left="Telefone" right="61 99999-9999" />
+      <Row left="E-mail" right="crepequersthiag@gmail.com" />
+
+      <Text align="center">SQN 113, Bloco B, Apartamento 304</Text>
+
       <Line />
-      <Row left="맛있는 옥수수수염차 X 2" right="11,000" />
-      <Text>옵션1(500)/옵션2/메모</Text>
-      <Row left="(-) 할인" right="- 500" />
+
+      <Row left="Pizza de Calabresa" right="R$ 49,90" />
+      <Text>- Sem cebola</Text>
+      <Row left="Desconto" right="- 10%" />
+
       <Br />
+
+      <Row left="Pizza de Frango" right="R$ 49,90" />
+      <Text>- Sem cebola e com bastante queijo</Text>
+      <Row left="Desconto" right="- 20%" />
+
       <Line />
-      <Row left="합계" right="9,500" />
-      <Row left="(-) 할인 2%" right="- 1,000" />
-      <Line />
-      <Row left="대표" right="김대표" />
-      <Row left="사업자등록번호" right="000-00-00000" />
-      <Row left="대표번호" right="0000-0000" />
-      <Row left="주소" right="어디시 어디구 어디동 몇동몇호" />
-      <Line />
+
+      <Row left="Subtotal" right="R$ 89,80" />
+      <Row left="Taxa de entrega" right="R$ 10,00" />
+      <Row left="Descontos" right="- R$ 14,98" />
+
       <Br />
-      <Text align="center">Wifi: some-wifi / PW: 123123</Text>
+
+      <Row left="Total" right="R$ 84,82" />
+
+      <Line />
+
+      <Text align="center">Obrigado pela preferência!</Text>
+      <Text align="center">Desenvolvido por My Menu</Text>
       <Cut />
     </Printer>
   );
@@ -47,20 +63,27 @@ export default function Page() {
   const fetchData = async () => {
     const data: Uint8Array = await render(receipt);
 
-    // @ts-expect-error -- asd
-    const port = await window.navigator.serial.requestPort();
-    await port.open({ baudRate: 9600 });
+    // Convertendo o Uint8Array para texto, assumindo que os dados são compatíveis com UTF-8
+    const text = new TextDecoder("utf-8").decode(data);
 
-    const writer = port.writable?.getWriter();
-    if (writer != null) { 
-      await writer.write(data);
-      writer.releaseLock();
-    }
+    // Atualizando o estado do texto para mostrar o preview
+    setPreviewText(data);
+    console.log(data);
+    // const port = await window.navigator.serial.requestPort();
+    // await port.open({ baudRate: 9600 });
+
+    // const writer = port.writable?.getWriter();
+    // if (writer != null) {
+    //   await writer.write(data);
+    //   writer.releaseLock();
+    // }
   };
 
   return (
     <div>
       <Button onPress={fetchData} />
+
+      {previewText && <Raw data={previewText} />}
     </div>
   );
 }
