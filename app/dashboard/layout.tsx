@@ -1,3 +1,5 @@
+import { NotificationOrderProvider } from "@/hooks/useNotificationOrder";
+import { PrintProvider } from "@/hooks/usePrint";
 import DashboardLayout from "@/layout/DashboardLayout";
 
 type LayoutDashboardProps = {
@@ -5,5 +7,11 @@ type LayoutDashboardProps = {
 };
 
 export default function LayoutDashboard({ children }: LayoutDashboardProps) {
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return (
+    <DashboardLayout>
+      <NotificationOrderProvider>
+        <PrintProvider>{children}</PrintProvider>
+      </NotificationOrderProvider>
+    </DashboardLayout>
+  );
 }

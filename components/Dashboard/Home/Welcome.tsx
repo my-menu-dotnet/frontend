@@ -1,7 +1,9 @@
 "use client";
 
 import Block from "@/components/Block";
+import Button from "@/components/Button";
 import useUser from "@/hooks/queries/useUser";
+import { usePrint } from "@/hooks/usePrint";
 import { Skeleton } from "@nextui-org/react";
 import Image from "next/image";
 import { MdOutlineAlternateEmail } from "react-icons/md";
@@ -9,6 +11,11 @@ import { SlScreenSmartphone } from "react-icons/sl";
 
 export function Welcome() {
   const { data: user, company, isLoading } = useUser();
+  const { grantPermissionToUsePrinter } = usePrint();
+
+  const handleClick = () => {
+    grantPermissionToUsePrinter();
+  };
 
   return (
     <>
@@ -35,6 +42,7 @@ export function Welcome() {
                   - {company.address.city}, {company.address.state}
                 </p>
               )}
+              <Button className="mt-4" onPress={handleClick}>Imprimir</Button>
             </div>
           </div>
           <div className="max-w-[400px]">

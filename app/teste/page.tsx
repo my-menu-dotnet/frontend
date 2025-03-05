@@ -27,7 +27,9 @@ export default function Page() {
       <Row left="Cliente" right="Thiago Crepequer" />
       <Row left="Telefone" right="61 99999-9999" />
       <Row left="E-mail" right="crepequersthiag@gmail.com" />
-
+      
+      <Br />
+      
       <Text align="center">SQN 113, Bloco B, Apartamento 304</Text>
 
       <Line />
