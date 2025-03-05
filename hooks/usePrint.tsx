@@ -17,6 +17,7 @@ import {
   Text,
   Row,
   render,
+  Image,
   Raw,
 } from "react-thermal-printer";
 import { currency } from "@/utils/text";
@@ -61,7 +62,7 @@ export const PrintProvider = ({ children }: { children: ReactNode }) => {
     tryToPrint();
   }, [newOrder]);
 
-  console.log(port)
+  console.log(port);
 
   return (
     <PrintContext.Provider value={{ grantPermissionToUsePrinter }}>
@@ -80,10 +81,9 @@ export const usePrint = (): PrintContextProps => {
 
 const getReceipt = (order: Order, company: Company) => {
   const MAX_CARACTERS = 32;
-  const encoder = (text: string) => new TextEncoder().encode(text);
 
   return (
-    <Printer type="epson" width={MAX_CARACTERS} encoder={encoder}>
+    <Printer type="epson" width={MAX_CARACTERS} characterSet="pc860_portuguese">
       <Text size={{ width: 2, height: 2 }} align="center">
         {company.name}
       </Text>
@@ -94,7 +94,7 @@ const getReceipt = (order: Order, company: Company) => {
 
       <Br />
       <Text size={{ width: 2, height: 2 }} align="center">
-        PEDIDO #000
+        PEDIDO #{String(order.order_number).padStart(3, "0")}
       </Text>
       <Br />
 
@@ -146,6 +146,16 @@ const getReceipt = (order: Order, company: Company) => {
 
       <Text align="center">Obrigado pela preferência!</Text>
       <Text align="center">By: My Menu</Text>
+
+      <Image
+        src="https://mymenu.com.br/assets/images/logo.png"
+        width={MAX_CARACTERS}
+        align="center"
+      />
+
+      <Text align="center">
+        *Esse cupom não tem valor fiscal, apenas informativo.
+      </Text>
       <Cut />
     </Printer>
   );
