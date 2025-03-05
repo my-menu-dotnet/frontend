@@ -148,7 +148,7 @@ const getReceipt = (order: Order, company: Company) => {
       <Text align="center">By: My Menu</Text>
 
       <Image
-        src="https://mymenu.com.br/assets/images/logo.png"
+        src="https://my-menu.net/assets/images/logo.png"
         width={MAX_CARACTERS}
         align="center"
       />
