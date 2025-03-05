@@ -151,9 +151,9 @@ const getReceipt = (order: Order, company: Company) => {
   );
 };
 
-const formattToMaxCaracters = (text: string, max: number) => {
-  if (text.length > max) {
+const formattToMaxCaracters = (text: string | undefined, max: number) => {
+  if (text && text.length > max) {
     return text.slice(0, max - 3) + "...";
   }
-  return text;
+  return text || "";
 };
