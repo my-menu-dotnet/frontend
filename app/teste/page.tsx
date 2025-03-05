@@ -63,20 +63,15 @@ export default function Page() {
   const fetchData = async () => {
     const data: Uint8Array = await render(receipt);
 
-    // Convertendo o Uint8Array para texto, assumindo que os dados são compatíveis com UTF-8
-    const text = new TextDecoder("utf-8").decode(data);
+    // @ts-expect-error - teste
+    const port = await window.navigator.serial.requestPort();
+    await port.open({ baudRate: 9600 });
 
-    // Atualizando o estado do texto para mostrar o preview
-    setPreviewText(data);
-    console.log(data);
-    // const port = await window.navigator.serial.requestPort();
-    // await port.open({ baudRate: 9600 });
-
-    // const writer = port.writable?.getWriter();
-    // if (writer != null) {
-    //   await writer.write(data);
-    //   writer.releaseLock();
-    // }
+    const writer = port.writable?.getWriter();
+    if (writer != null) {
+      await writer.write(data);
+      writer.releaseLock();
+    }
   };
 
   return (
