@@ -83,24 +83,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const handleRedirect = useCallback(async () => {
-    const authenticated = Cookies.get("is_authenticated") === "true";
-    console.log(authenticated)
-    if (!authenticated && pathName.startsWith("/dashboard")) {
-      router.replace("/auth/login");
+    if (!user && pathName.startsWith("/dashboard")) {
+      router.replace("/auth");
       return;
     }
 
-    if (
-      authenticated &&
-      user &&
-      !user.company &&
-      pathName.startsWith("/dashboard")
-    ) {
+    if (user && !user.company && pathName.startsWith("/dashboard")) {
       router.replace("/auth/company");
       return;
     }
 
-    if (authenticated && user?.company && pathName.startsWith("/auth")) {
+    if (user?.company && pathName.startsWith("/auth")) {
       router.replace("/dashboard");
       return;
     }
