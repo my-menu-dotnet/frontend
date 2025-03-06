@@ -10,8 +10,8 @@ const useInfiniteFood = () =>
     queryFn: async ({ pageParam = 0 }) => await fetchFoodSelect(pageParam),
     getNextPageParam: (lastPage) => {
       if (!lastPage) return undefined;
-      return lastPage?.pageable.page_number < lastPage?.total_pages
-        ? lastPage.pageable.page_number + 1
+      return lastPage?.page.number < lastPage?.page.total_pages
+        ? lastPage.page.total_pages + 1
         : null;
     },
     initialPageParam: 0,
