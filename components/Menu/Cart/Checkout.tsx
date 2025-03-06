@@ -35,14 +35,10 @@ export default function Checkout() {
       orderItemForm: orders,
       total: calcTotalPrice(items),
     }).then((order) => {
+      const pedido = String(order.order_number).padStart(3, "0");
       const whatsapUrl = `https://wa.me/${getPhoneNumber(
         company.phone
-      )}?text=Olá, acabei de fazer o pedido #${String(
-        order.order_number
-      ).padStart(
-        3,
-        "0"
-      )} pelo My Menu. Poderia me ajudar a finalizar a compra?`;
+      )}?text=Olá, acabei de fazer o pedido ${pedido} pelo My Menu. Poderia me ajudar a finalizar a compra?`;
       setTimeout(() => {
         window.open(whatsapUrl, "_blank");
       });
