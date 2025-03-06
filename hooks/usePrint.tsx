@@ -23,6 +23,8 @@ import {
 import { currency } from "@/utils/text";
 import { Company } from "@/types/api/Company";
 import useUser from "./queries/useUser";
+import { OrderDiscount } from "@/types/api/order/OrderDiscount";
+import { OrderItem } from "@/types/api/order/OrderItem";
 
 type PrintContextProps = {
   grantPermissionToUsePrinter: () => void;
@@ -84,6 +86,10 @@ const getReceipt = (order: Order, company: Company) => {
 
   return (
     <Printer type="epson" width={MAX_CARACTERS} characterSet="pc860_portuguese">
+      <Image
+        src="https://my-menu.net/assets/images/hlogo.png"
+        width={MAX_CARACTERS / 2}
+      />
       <Text size={{ width: 2, height: 2 }} align="center">
         {company.name}
       </Text>
@@ -125,8 +131,13 @@ const getReceipt = (order: Order, company: Company) => {
             left={`${item.quantity} ${item.title}`}
             right={currency(item.unit_price * item.quantity)}
           />
-          {/* <Text>- Sem cebola</Text> */}
-          {/* <Row left="Desconto" right="- 10%" /> */}
+          {item.observation && <Text>- {item.observation}</Text>}
+          {item.discount && (
+            <Row
+              left="Desconto"
+              right={`- ${formattDiscount(item.discount)}`}
+            />
+          )}
 
           <Br />
         </>
@@ -136,7 +147,7 @@ const getReceipt = (order: Order, company: Company) => {
 
       <Row left="Subtotal" right={currency(order.total_price)} />
       <Row left="Taxa de entrega" right="R$ 0" />
-      <Row left="Descontos" right="- R$ 0" />
+      <Row left="Descontos" right={`${calcTotalDiscount(order.order_items)}`} />
 
       <Br />
 
@@ -145,13 +156,6 @@ const getReceipt = (order: Order, company: Company) => {
       <Line />
 
       <Text align="center">Obrigado pela preferência!</Text>
-      <Text align="center">By: My Menu</Text>
-
-      <Image
-        src="https://my-menu.net/assets/images/logo.png"
-        width={MAX_CARACTERS}
-        align="center"
-      />
 
       <Text align="center">
         *Esse cupom não tem valor fiscal, apenas informativo.
@@ -166,4 +170,29 @@ const formattToMaxCaracters = (text: string | undefined, max: number) => {
     return text.slice(0, max - 3) + "...";
   }
   return text || "";
+};
+
+const formattDiscount = (discount: OrderDiscount) => {
+  if (discount.type === "PERCENTAGE") {
+    return `- ${discount.discount}%`;
+  }
+  return `- R$ ${discount.discount}`;
+};
+
+export const calcTotalDiscount = (items: OrderItem[]) => {
+  return items.reduce((acc, item) => {
+    const currentTotal = item.unit_price * item.quantity;
+    let currentoTotalWithDiscount = currentTotal;
+
+    if (item.discount && item.discount.discount && item.discount.type) {
+      if (item.discount.type === "PERCENTAGE") {
+        currentoTotalWithDiscount =
+          currentTotal - (currentTotal * item.discount.discount) / 100;
+      } else {
+        currentoTotalWithDiscount = currentTotal - item.discount.discount;
+      }
+    }
+
+    return acc + (currentTotal - currentoTotalWithDiscount);
+  }, 0);
 };

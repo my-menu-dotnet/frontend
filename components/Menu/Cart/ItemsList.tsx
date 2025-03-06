@@ -3,13 +3,11 @@
 import Block from "@/components/Block";
 import SimpleFoodItem from "@/components/SimpleFoodItem";
 import { useCart } from "@/hooks/useCart";
-import { currency } from "@/utils/text";
 import { Divider } from "@nextui-org/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BsCart3 } from "react-icons/bs";
 import { useCartStep } from "./hooks/useCarStep";
 import FooterButtons from "./components/FooterButtons";
-import { calcTotalDiscount, calcTotalPrice, calcTotalWithoutDiscount } from "@/utils/calcTotalPrice";
 import { toast } from "react-toastify";
 import OrderOverview from "@/components/OrderOverview";
 
@@ -53,7 +51,7 @@ export default function ItemsList() {
                 <SimpleFoodItem
                   title={item.title}
                   price={item.price}
-                  description={item.description}
+                  description={item.observation || ""}
                   discount={item.discount}
                   image={item.image}
                   onClickAdd={() => handleAddItem(item.id)}
@@ -74,7 +72,7 @@ export default function ItemsList() {
                         <SimpleFoodItem
                           title={subItem.title}
                           price={subItem.price}
-                          description={subItem.description}
+                          description=""
                           image={subItem.image}
                           onClickAdd={() => handleAddItem(subItem.id)}
                           onClickRemove={() => handleRemoveItem(subItem.id)}
