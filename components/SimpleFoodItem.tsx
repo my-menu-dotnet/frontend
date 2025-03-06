@@ -18,6 +18,7 @@ type SimpleFoodItemProps = {
   hasIncrease?: boolean;
   hasPlus?: boolean;
   hasChangeQuantity?: boolean;
+  isDisabled?: boolean;
 };
 
 export default function SimpleFoodItem({
@@ -31,6 +32,7 @@ export default function SimpleFoodItem({
   total,
   hasIncrease = true,
   hasChangeQuantity = true,
+  isDisabled = false,
 }: SimpleFoodItemProps) {
   return (
     <div className="flex items-center gap-2 h-24">
@@ -48,17 +50,21 @@ export default function SimpleFoodItem({
           <p className="text-sm text-gray-400">{description}</p>
         </div>
         {!!price && price !== 0 && (
-          <div className="mt-2 text-sm">
-            {hasIncrease && "+"}{" "}
+          <div className="mt-2 text-sm flex gap-1">
+            <span>{hasIncrease && "+"}</span>
             <Price price={price} discount={discount} discountIcon={false} />
           </div>
         )}
       </div>
       <div>
-        {!!price && hasChangeQuantity && (
-          <div className="flex flex-col items-center gap-1">
+        {hasChangeQuantity && (
+          <div
+            className={`flex flex-col items-center gap-1 ${
+              isDisabled && "opacity-50"
+            }`}
+          >
             <div
-              onClick={() => onClickAdd && onClickAdd()}
+              onClick={() => !isDisabled && onClickAdd && onClickAdd()}
               className="bg-gray-100 p-1 rounded-full flex items-center justify-center cursor-pointer
               "
             >
@@ -66,7 +72,7 @@ export default function SimpleFoodItem({
             </div>
             {total}
             <div
-              onClick={() => onClickRemove && onClickRemove()}
+              onClick={() => !isDisabled && onClickRemove && onClickRemove()}
               className="bg-gray-100 p-1 rounded-full flex items-center justify-center cursor-pointer"
             >
               <BiMinus />

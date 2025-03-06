@@ -18,18 +18,29 @@ import { OrderItemForm } from "@/types/api/order/OrderItemForm";
 import Button from "@/components/Button";
 import { FaWhatsapp } from "react-icons/fa";
 import OrderOverview from "@/components/OrderOverview";
+import { useMenuCompany } from "@/hooks/useMenuCompany";
 // initMercadoPago(process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || "");
 
 export default function Checkout() {
   const { items } = useCart();
+  const { company } = useMenuCompany();
   const { mutateAsync } = useMutationOrder();
 
+  console.log(items)
+
   const handleOrder = () => {
+    const orders = createOrderItemForm(items);
+    
+    console.log("items", items);
+    console.log("orders", orders);
+
     mutateAsync({
-      orderItemForm: createOrderItemForm(items),
+      orderItemForm: orders,
       total: calcTotalPrice(items),
     }).then((order) => {
-      const whatsapUrl = `https://web.whatsapp.com/send?phone=5561985501197&text=Olá, gostaria de fazer o pedido ${order?.order_number}`;
+      const whatsapUrl = `https://wa.me/${getPhoneNumber(
+        company.phone
+      )}?text=Olá, gostaria de fazer o pedido ${order?.order_number}`;
       window.open(whatsapUrl, "_blank");
     });
   };
@@ -114,4 +125,8 @@ const createOrderItemForm = (items: FoodOrder[]): OrderItemForm[] => {
   });
 
   return orderItemForm;
+};
+
+const getPhoneNumber = (number: string) => {
+  return "55" + number.replace(/\D/g, "");
 };

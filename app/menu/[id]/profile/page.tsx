@@ -7,6 +7,7 @@ import Table from "@/components/Table";
 import useOrdersUser from "@/hooks/queries/order/useOrdersUser";
 import useOrderUserTotal from "@/hooks/queries/order/useOrderUserTotal";
 import useUser from "@/hooks/queries/useUser";
+import api from "@/services/api";
 import { Order } from "@/types/api/order/Order";
 import { orderStatusColor, orderStatusMask } from "@/utils/order";
 import { currency } from "@/utils/text";

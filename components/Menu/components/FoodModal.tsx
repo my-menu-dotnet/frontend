@@ -25,6 +25,9 @@ import { FoodItem } from "@/types/api/food/FoodItem";
 import SimpleFoodItem from "@/components/SimpleFoodItem";
 import { v4 } from "uuid";
 import Textarea from "@/components/Textarea";
+import { Category } from "@/types/api/Category";
+import { FoodItemCategory } from "@/types/api/food/FoodItemCategory";
+import { toast } from "react-toastify";
 
 type FoodModalProps = {
   food?: Food;
@@ -47,8 +50,6 @@ export default function FoodModal({ food, onClose }: FoodModalProps) {
   });
 
   const addSubItem = (item: FoodItem) => {
-    let newItems;
-
     const defaultItem = {
       id: v4(),
       itemId: item.id,
@@ -59,27 +60,32 @@ export default function FoodModal({ food, onClose }: FoodModalProps) {
       quantity: 1,
     };
 
-    if (currentItem?.items.length === 0) {
-      newItems = [defaultItem];
-    } else {
-      newItems =
-        currentItem?.items.map((i) => {
-          if (i.itemId === item.id) {
-            return {
-              ...i,
-              quantity: i.quantity + 1,
-            };
-          }
-          return defaultItem;
-        }) || [];
-    }
+    setCurrentItem((state) => {
+      // Check if item already exists in the array
+      const existingItemIndex = state.items.findIndex(
+        (i) => i.itemId === item.id
+      );
 
-    setCurrentItem((state) => ({
-      ...state,
-      items: newItems,
-    }));
+      if (existingItemIndex >= 0) {
+        // Item exists, update its quantity
+        const updatedItems = [...state.items];
+        updatedItems[existingItemIndex] = {
+          ...updatedItems[existingItemIndex],
+          quantity: updatedItems[existingItemIndex].quantity + 1,
+        };
+        return {
+          ...state,
+          items: updatedItems,
+        };
+      } else {
+        // Item doesn't exist, add it to the array
+        return {
+          ...state,
+          items: [...state.items, defaultItem],
+        };
+      }
+    });
   };
-
   const removeSubItem = (itemId: string) => {
     const newItems = currentItem?.items.map((item) => {
       if (item.itemId === itemId) {
@@ -97,6 +103,24 @@ export default function FoodModal({ food, onClose }: FoodModalProps) {
   };
 
   const handleAddToCart = () => {
+    // Validate minimum items for each category
+    const invalidCategories = food?.item_categories
+      .filter((category) => {
+        const totalSelected = getTotalSelectedByCategory(category, currentItem);
+        return totalSelected < (category.min_items || 0);
+      })
+      .map((category) => category.title);
+
+    if (invalidCategories && invalidCategories.length > 0) {
+      // Show error message for categories that don't meet minimum requirements
+      toast.error(
+        `A categoria(s) ${invalidCategories.join(
+          ", "
+        )} não atingiu o mínimo de itens selecionados.`
+      );
+      return;
+    }
+
     currentItem.observation = textAreaRef.current?.value;
     addItem(currentItem);
     onClose();
@@ -188,7 +212,21 @@ export default function FoodModal({ food, onClose }: FoodModalProps) {
                       category.food_items.length > 0 && (
                         <Fragment key={category.id}>
                           <div className="w-full">
-                            <h3 className="text-lg">{category.title}</h3>
+                            <div className="mb-2 flex justify-between items-center">
+                              <div>
+                                <h3 className="text-lg">{category.title}</h3>
+                                <p className="text-sm text-gray-400">
+                                  {category.description}
+                                </p>
+                              </div>
+                              <div className="text-md text-gray-400">
+                                {getTotalSelectedByCategory(
+                                  category,
+                                  currentItem
+                                )}
+                                /{category.max_items}
+                              </div>
+                            </div>
 
                             <div className="flex flex-col gap-2">
                               {category.food_items.map((item, index) => (
@@ -198,7 +236,16 @@ export default function FoodModal({ food, onClose }: FoodModalProps) {
                                     description={item.description}
                                     image={item.image?.url}
                                     price={item.price_increase}
-                                    onClickAdd={() => addSubItem(item)}
+                                    onClickAdd={() => {
+                                      if (
+                                        getTotalSelectedByCategory(
+                                          category,
+                                          currentItem
+                                        ) < category.max_items
+                                      ) {
+                                        addSubItem(item);
+                                      }
+                                    }}
                                     onClickRemove={() => removeSubItem(item.id)}
                                     total={
                                       currentItem.items.find(
@@ -246,4 +293,14 @@ const calcTotal = (food: FoodOrder) => {
     0
   );
   return food.price + itemsTotal;
+};
+
+const getTotalSelectedByCategory = (
+  category: FoodItemCategory,
+  currentItem: FoodOrder
+) => {
+  return category.food_items.reduce((acc, item) => {
+    const citem = currentItem.items.find((i) => i.itemId === item.id);
+    return acc + (citem?.quantity || 0);
+  }, 0);
 };

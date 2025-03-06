@@ -1,6 +1,6 @@
 import Footer from "@/components/Footer";
-import BottomBar from "@/components/Menu/BottomBar";
 import { CartProvider } from "@/hooks/useCart";
+import { MenuCompanyProvider } from "@/hooks/useMenuCompany";
 import api from "@/services/api";
 import { Menu } from "@/types/api/Menu";
 import { Metadata } from "next";
@@ -40,16 +40,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function MenuLayout({
+export default async function MenuLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ id: string }>;
 }>) {
+  const menu = await getMenu((await params).id);
+
+  if (!menu) {
+    return notFound();
+  }
+
   return (
     <>
-      <CartProvider>{children}</CartProvider>
-
-      <Footer />
+      <CartProvider>
+        <MenuCompanyProvider company={menu.company}>
+          {children}
+          <Footer />
+        </MenuCompanyProvider>
+      </CartProvider>
     </>
   );
 }

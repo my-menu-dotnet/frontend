@@ -35,6 +35,8 @@ export type FoodOrder = {
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<FoodOrder[]>([]);
+  const params = useParams();
+  const menuId = params.id;
 
   const addItem = (item: FoodOrder) => {
     setItems([...items, item]);

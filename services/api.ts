@@ -66,4 +66,22 @@ api.interceptors.response.use(
   }
 );
 
+api.interceptors.request.use(
+  (config) => {
+    if (typeof window !== 'undefined') {
+      const pathParts = window.location.pathname.split('/');
+      const companyIdIndex = pathParts.indexOf('menu') + 1;
+      const companyId = pathParts[companyIdIndex];
+      
+      if (companyId) {
+        config.headers['X-Company-ID'] = companyId;
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export default api;
