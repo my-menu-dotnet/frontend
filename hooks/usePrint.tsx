@@ -6,6 +6,7 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  Fragment,
 } from "react";
 import { useNotificationOrder } from "./useNotificationOrder";
 import { Order } from "@/types/api/order/Order";
@@ -132,12 +133,15 @@ const getReceipt = (order: Order, company: Company) => {
 
       <Br />
 
-      <Text align="center">SQN 113, Bloco B, Apartamento 304</Text>
+      <Text align="center">
+        {order.user.address.neighborhood}, {order.user.address.street},{" "}
+        {order.user.address.number}
+      </Text>
 
       <Line />
 
       {order.order_items.map((item, index) => (
-        <>
+        <Fragment key={index}>
           <Row
             left={`${item.quantity} ${item.title}`}
             right={currency(item.unit_price * item.quantity)}
@@ -148,7 +152,7 @@ const getReceipt = (order: Order, company: Company) => {
           )}
 
           <Br />
-        </>
+        </Fragment>
       ))}
 
       <Line />

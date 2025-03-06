@@ -34,7 +34,9 @@ export default function Email() {
       </div>
 
       {!user?.email ? (
-        <GoogleLogin onSuccess={handleLoginGoogle} />
+        <div className="w-full h-72 flex flex-col justify-center items-center">
+          <GoogleLogin onSuccess={handleLoginGoogle} useOneTap auto_select />
+        </div>
       ) : (
         <div className="h-72 flex flex-col justify-center items-center">
           <p className="text-center text-gray-400 max-w-2xl">

@@ -30,14 +30,19 @@ export default function Checkout() {
 
   const handleOrder = () => {
     const orders = createOrderItemForm(items);
-    
+
     mutateAsync({
       orderItemForm: orders,
       total: calcTotalPrice(items),
     }).then((order) => {
       const whatsapUrl = `https://wa.me/${getPhoneNumber(
         company.phone
-      )}?text=Olá, gostaria de fazer o pedido ${order?.order_number}`;
+      )}?text=Olá, acabei de fazer o pedido #${String(
+        order.order_number
+      ).padStart(
+        3,
+        "0"
+      )} pelo My Menu. Poderia me ajudar a finalizar a compra?`;
       setTimeout(() => {
         window.open(whatsapUrl, "_blank");
       });
