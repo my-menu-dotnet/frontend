@@ -55,7 +55,7 @@ export const PrintProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const print = async (order: Order) => {
-    if (!newOrder || !port || !company) {
+    if (!order || !company) {
       return;
     }
 
@@ -160,7 +160,7 @@ const getReceipt = (order: Order, company: Company) => {
       <Row left="Taxa de entrega" right="R$ 0" />
       <Row
         left="Descontos"
-        right={`${currency(calcTotalDiscount(order.order_items))}`}
+        right={`- ${currency(calcTotalDiscount(order.order_items))}`}
       />
 
       <Br />

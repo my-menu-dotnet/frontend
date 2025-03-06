@@ -7,6 +7,7 @@ import PopupAlert from "./components/PopupAlert";
 import CurrentOrder from "./components/CurrentOrder";
 import OrderModal from "../components/OrderModal";
 import { Order } from "@/types/api/order/Order";
+import { useNotificationOrder } from "@/hooks/useNotificationOrder";
 
 export enum OrderStatus {
   CREATED = "CREATED",
@@ -23,6 +24,7 @@ export default function OrderKanban() {
     Record<OrderStatus, typeof orders>
   >({} as Record<OrderStatus, typeof orders>);
   const [selectedOrder, setSelectedOrder] = useState<Order | undefined>();
+  const { newOrder } = useNotificationOrder();
 
   const { mutate } = useMutationOrderStatus();
 
@@ -112,6 +114,12 @@ export default function OrderKanban() {
 
     setOrderByStatus(orderByStatus);
   }, [orders]);
+
+  useEffect(() => {
+    if (newOrder) {
+      refetchOrderKanban();
+    }
+  }, [newOrder])
 
   return (
     <>

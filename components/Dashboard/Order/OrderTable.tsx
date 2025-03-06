@@ -6,14 +6,16 @@ import { currency } from "@/utils/text";
 import { Tooltip, User } from "@nextui-org/react";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import OrderModal from "./components/OrderModal";
 import Button from "@/components/Button";
 import { TiChevronRight } from "react-icons/ti";
+import { useNotificationOrder } from "@/hooks/useNotificationOrder";
 
 export default function OrderTable() {
   const { data: orders, refetch: refetchOrders, isLoading } = useOrders();
   const [selected, setSelected] = useState<Order | undefined>();
+  const { newOrder } = useNotificationOrder();
 
   const columns = useMemo<ColumnDef<Order, unknown>[]>(
     () => [
@@ -84,6 +86,12 @@ export default function OrderTable() {
     ],
     [orders]
   );
+
+  useEffect(() => {
+    if (newOrder) {
+      refetchOrders();
+    }
+  }, [newOrder])
 
   return (
     <>
