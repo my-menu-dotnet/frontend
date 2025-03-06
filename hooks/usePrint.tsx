@@ -88,8 +88,11 @@ const getReceipt = (order: Order, company: Company) => {
     <Printer type="epson" width={MAX_CARACTERS} characterSet="pc860_portuguese">
       <Image
         src="https://my-menu.net/assets/images/hlogo.png"
-        width={MAX_CARACTERS / 2}
+        width={MAX_CARACTERS}
       />
+
+      <Br />
+
       <Text size={{ width: 2, height: 2 }} align="center">
         {company.name}
       </Text>
@@ -133,10 +136,7 @@ const getReceipt = (order: Order, company: Company) => {
           />
           {item.observation && <Text>- {item.observation}</Text>}
           {item.discount && (
-            <Row
-              left="Desconto"
-              right={`- ${formattDiscount(item.discount)}`}
-            />
+            <Row left="Desconto" right={formattDiscount(item.discount)} />
           )}
 
           <Br />
@@ -145,9 +145,15 @@ const getReceipt = (order: Order, company: Company) => {
 
       <Line />
 
-      <Row left="Subtotal" right={currency(order.total_price)} />
+      <Row
+        left="Subtotal"
+        right={currency(calcTotalWithoutDiscount(order.order_items))}
+      />
       <Row left="Taxa de entrega" right="R$ 0" />
-      <Row left="Descontos" right={`${calcTotalDiscount(order.order_items)}`} />
+      <Row
+        left="Descontos"
+        right={`${currency(calcTotalDiscount(order.order_items))}`}
+      />
 
       <Br />
 
@@ -194,5 +200,20 @@ export const calcTotalDiscount = (items: OrderItem[]) => {
     }
 
     return acc + (currentTotal - currentoTotalWithDiscount);
+  }, 0);
+};
+
+export const calcTotalWithoutDiscount = (items: OrderItem[]) => {
+  return items.reduce((acc, item) => {
+    const currentTotal = item.unit_price * item.quantity;
+
+    return (
+      acc +
+      currentTotal +
+      (item.order_items?.reduce(
+        (acc, subItem) => acc + subItem.unit_price * subItem.quantity,
+        0
+      ) || 0)
+    );
   }, 0);
 };
