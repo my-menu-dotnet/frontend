@@ -6,10 +6,14 @@ import { currency } from "@/utils/text";
 import { Tooltip, User } from "@nextui-org/react";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import OrderModal from "./components/OrderModal";
+import Button from "@/components/Button";
+import { TiChevronRight } from "react-icons/ti";
 
 export default function OrderTable() {
-  const { data: orders, isLoading } = useOrders();
+  const { data: orders, refetch: refetchOrders, isLoading } = useOrders();
+  const [selected, setSelected] = useState<Order | undefined>();
 
   const columns = useMemo<ColumnDef<Order, unknown>[]>(
     () => [
@@ -37,7 +41,7 @@ export default function OrderTable() {
       },
       {
         header: "Pedido",
-        accessorKey: "order_number",
+        accessorFn: (row) => `#${String(row.order_number).padStart(3, "0")}`,
       },
       {
         header: "Cliente",
@@ -58,19 +62,47 @@ export default function OrderTable() {
           <span>{format(row.original.created_at, "dd/MM/yyyy HH:mm")}</span>
         ),
       },
+      {
+        id: "actions",
+        maxSize: 35,
+        cell: ({ row }) => (
+          <div className="flex items-center justify-center">
+            <Button
+              onPress={() => {
+                setSelected(row.original);
+              }}
+              isIconOnly
+              variant="light"
+              color="warning"
+              size="sm"
+            >
+              <TiChevronRight size={16} />
+            </Button>
+          </div>
+        ),
+      },
     ],
     [orders]
   );
 
   return (
-    <Table
-      aria-label="Orders"
-      data={orders?.content || []}
-      columns={columns}
-      bodyProps={{
-        emptyContent: "Nenhum banner cadastrado",
-        isLoading: isLoading,
-      }}
-    />
+    <>
+      <Table
+        aria-label="Orders"
+        data={orders?.content || []}
+        columns={columns}
+        bodyProps={{
+          emptyContent: "Nenhum banner cadastrado",
+          isLoading: isLoading,
+        }}
+      />
+      <OrderModal
+        order={selected}
+        onClose={() => {
+          setSelected(undefined);
+          refetchOrders();
+        }}
+      />
+    </>
   );
 }

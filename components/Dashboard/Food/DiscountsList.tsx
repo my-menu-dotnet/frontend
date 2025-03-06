@@ -94,16 +94,16 @@ export default function FoodDiscounts() {
           </Tooltip>
         ),
       },
-      {
-        header: "Válido de",
-        accessorFn: (row) =>
-          row.start_at ? format(new Date(row.start_at), "dd/MM/yyyy") : "-",
-      },
-      {
-        header: "Válido até",
-        accessorFn: (row) =>
-          row.end_at ? format(new Date(row.end_at), "dd/MM/yyyy") : "-",
-      },
+      // {
+      //   header: "Válido de",
+      //   accessorFn: (row) =>
+      //     row.start_at ? format(new Date(row.start_at), "dd/MM/yyyy") : "-",
+      // },
+      // {
+      //   header: "Válido até",
+      //   accessorFn: (row) =>
+      //     row.end_at ? format(new Date(row.end_at), "dd/MM/yyyy") : "-",
+      // },
       {
         id: "open",
         maxSize: 35,

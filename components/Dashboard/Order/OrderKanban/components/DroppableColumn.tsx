@@ -11,6 +11,7 @@ type DroppableColumnProps = {
   title: string;
   data: Order[];
   headerColor: HTMLAttributes<HTMLDivElement>["className"];
+  onClickOrder?: (order: Order) => void;
 };
 
 export default function DroppableColumn({
@@ -18,12 +19,13 @@ export default function DroppableColumn({
   title,
   data,
   headerColor,
+  onClickOrder,
 }: DroppableColumnProps) {
   return (
     <Droppable droppableId={droppeableId}>
       {(droppableProvided) => (
         <div
-          className={`flex flex-col min-w-[200px] w-full ${headerColor} bg-opacity-10 rounded-md`}
+          className={`flex flex-col min-w-[150px] w-full ${headerColor} bg-opacity-10 rounded-md`}
         >
           <div
             className={`${headerColor} text-white px-4 py-2 rounded-md mb-4`}
@@ -38,7 +40,11 @@ export default function DroppableColumn({
             {data.map((order, index) => (
               <Draggable key={order.id} draggableId={order.id} index={index}>
                 {(draggbleProvided) => (
-                  <Item draggbleProvided={draggbleProvided} order={order} />
+                  <Item
+                    draggbleProvided={draggbleProvided}
+                    order={order}
+                    onClick={() => onClickOrder && onClickOrder(order)}
+                  />
                 )}
               </Draggable>
             ))}
@@ -53,11 +59,12 @@ export default function DroppableColumn({
 type ItemProps = {
   draggbleProvided: DraggableProvided;
   order: Order;
+  onClick?: () => void;
 };
 
 type ItemStatus = "WARNING" | "DANGER";
 
-const Item = ({ draggbleProvided, order }: ItemProps) => {
+const Item = ({ draggbleProvided, order, onClick }: ItemProps) => {
   const [lateStatue, setLateStatus] = useState<ItemStatus>();
 
   const checkLateStatus = () => {
@@ -93,6 +100,7 @@ const Item = ({ draggbleProvided, order }: ItemProps) => {
       } ${
         lateStatue === "DANGER" && "border-t-red-500 border-t-4"
       } px-4 py-2 rounded-md shadow-md mb-4 flex flex-col gap-2`}
+      onClick={onClick}
     >
       <div className="w-full flex justify-between line-clamp-1">
         <p>{order.user.name}</p>
@@ -128,7 +136,8 @@ const Item = ({ draggbleProvided, order }: ItemProps) => {
             }
 
             const dayOfWeek = format(orderDate, "EEEE", { locale: ptBR });
-            const dayOfWeekUpper = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
+            const dayOfWeekUpper =
+              dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
 
             return `${dayOfWeekUpper} ${format(orderDate, "HH:mm")}`;
           })()}
@@ -142,7 +151,7 @@ const Item = ({ draggbleProvided, order }: ItemProps) => {
         </p>
       </div>
       <div className="w-full flex justify-between">
-        <p>{order.order_number}</p>
+        <p>#{String(order.order_number).padStart(3, "0")}</p>
         <p>{currency(order.total_price)}</p>
       </div>
     </div>

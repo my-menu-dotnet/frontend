@@ -60,7 +60,7 @@ export const NotificationOrderProvider: React.FC<{ children: ReactNode }> = ({
         client.subscribe(`/topic/orders/${tenantId}`, (message) => {
           const orderData = JSON.parse(message.body) as Order;
           console.log("Nova ordem recebida:", orderData);
-          
+
           playOrderSound();
 
           toast(
@@ -90,9 +90,30 @@ export const NotificationOrderProvider: React.FC<{ children: ReactNode }> = ({
         });
       },
       onStompError: (frame) => {
-        toast.error("Erro ao conectar ao sistema de notificações");
+        toast.error("Erro ao conectar ao sistema de notificações", {
+          autoClose: false,
+        });
         console.error("Erro do broker: " + frame.headers["message"]);
         console.error("Detalhes: " + frame.body);
+
+        setTimeout(() => {
+          client.activate();
+        }, 5000);
+      },
+      onWebSocketClose: () => {
+        toast.error("Conexão com o WebSocket fechada", {
+          autoClose: false,
+        });
+        console.error("Conexão com o WebSocket fechada");
+
+        setTimeout(() => {
+          client.activate();
+        }, 5000);
+      },
+      onDisconnect: () => {
+        setTimeout(() => {
+          client.activate();
+        }, 5000);
       },
     });
     client.activate();

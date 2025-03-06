@@ -28,6 +28,7 @@ import { OrderItem } from "@/types/api/order/OrderItem";
 
 type PrintContextProps = {
   grantPermissionToUsePrinter: () => void;
+  print: (order: Order) => void;
 };
 
 const PrintContext = createContext<PrintContextProps | undefined>(undefined);
@@ -46,12 +47,19 @@ export const PrintProvider = ({ children }: { children: ReactNode }) => {
     setPort(port);
   };
 
-  const tryToPrint = async () => {
+  const printNewOrder = async () => {
+    if (!newOrder || !port || !company) {
+      return;
+    }
+    print(newOrder);
+  };
+
+  const print = async (order: Order) => {
     if (!newOrder || !port || !company) {
       return;
     }
 
-    const data = await render(getReceipt(newOrder, company));
+    const data = await render(getReceipt(order, company));
 
     const writer = port.writable?.getWriter();
     if (writer != null) {
@@ -61,13 +69,13 @@ export const PrintProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    tryToPrint();
+    printNewOrder();
   }, [newOrder]);
 
   console.log(port);
 
   return (
-    <PrintContext.Provider value={{ grantPermissionToUsePrinter }}>
+    <PrintContext.Provider value={{ grantPermissionToUsePrinter, print }}>
       {children}
     </PrintContext.Provider>
   );

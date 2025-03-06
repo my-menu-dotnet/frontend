@@ -19,19 +19,18 @@ import Button from "@/components/Button";
 import { FaWhatsapp } from "react-icons/fa";
 import OrderOverview from "@/components/OrderOverview";
 import { useMenuCompany } from "@/hooks/useMenuCompany";
+import { useRouter } from "next/navigation";
 // initMercadoPago(process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || "");
 
 export default function Checkout() {
   const { items } = useCart();
   const { company } = useMenuCompany();
   const { mutateAsync } = useMutationOrder();
+  const router = useRouter();
 
   const handleOrder = () => {
     const orders = createOrderItemForm(items);
     
-    console.log("items", items);
-    console.log("orders", orders);
-
     mutateAsync({
       orderItemForm: orders,
       total: calcTotalPrice(items),
@@ -41,7 +40,9 @@ export default function Checkout() {
       )}?text=Olá, gostaria de fazer o pedido ${order?.order_number}`;
       setTimeout(() => {
         window.open(whatsapUrl, "_blank");
-      })
+      });
+
+      router.push(`/menu/${company.url}/profile`);
     });
   };
 
