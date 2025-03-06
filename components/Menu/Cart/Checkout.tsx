@@ -26,8 +26,6 @@ export default function Checkout() {
   const { company } = useMenuCompany();
   const { mutateAsync } = useMutationOrder();
 
-  console.log(items)
-
   const handleOrder = () => {
     const orders = createOrderItemForm(items);
     
@@ -41,7 +39,9 @@ export default function Checkout() {
       const whatsapUrl = `https://wa.me/${getPhoneNumber(
         company.phone
       )}?text=Olá, gostaria de fazer o pedido ${order?.order_number}`;
-      window.open(whatsapUrl, "_blank");
+      setTimeout(() => {
+        window.open(whatsapUrl, "_blank");
+      })
     });
   };
 
