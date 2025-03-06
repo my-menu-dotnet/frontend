@@ -57,7 +57,7 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { data: user, refetch: refetchUser } = useUser();
+  const { data: user, refetch: refetchUser, isLoading: isLoadingUser } = useUser();
   const router = useRouter();
   const pathName = usePathname();
   const queryClient = useQueryClient();
@@ -83,6 +83,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const handleRedirect = useCallback(async () => {
+    if (isLoadingUser) {
+      return;
+    }
+    
     if (!user && pathName.startsWith("/dashboard")) {
       router.replace("/auth");
       return;

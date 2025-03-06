@@ -1,11 +1,10 @@
 import Button from "@/components/Button";
 import Table from "@/components/Table";
 import { Discounts } from "@/types/api/Discounts";
-import { Food } from "@/types/api/Food";
 import { calculateDiscount } from "@/utils/discount";
 import { discountsStatusColors, discountsStatusMasks } from "@/utils/lists";
 import { currency } from "@/utils/text";
-import { Chip, Tooltip, User } from "@nextui-org/react";
+import { Chip, Tooltip } from "@nextui-org/react";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { useMemo, useState } from "react";
@@ -15,12 +14,13 @@ import { MdAttachMoney } from "react-icons/md";
 import DiscountsForm from "./components/DiscountsForm";
 import { useParams } from "next/navigation";
 import useFood from "@/hooks/queries/food/useFood";
+import { TiChevronRight } from "react-icons/ti";
 
 export default function FoodDiscounts() {
   const { id } = useParams<{ id: string }>();
   const { data: food } = useFood(id);
+  const [open, setOpen] = useState<boolean | string>(false);
 
-  const [open, setOpen] = useState(false);
   const columns = useMemo<ColumnDef<Discounts, unknown>[]>(
     () => [
       {
@@ -42,37 +42,6 @@ export default function FoodDiscounts() {
             </div>
           );
         },
-      },
-      {
-        header: "Produto",
-        cell: () => (
-          <div className="flex items-center gap-4">
-            <User
-              avatarProps={{
-                radius: "full",
-                src: food?.image?.url,
-              }}
-              name={food?.name}
-              description={food?.description}
-              classNames={{
-                description: "line-clamp-1",
-              }}
-            >
-              {food?.description}
-            </User>
-          </div>
-        ),
-      },
-      {
-        header: "Valor total",
-        cell: () =>
-          food?.price && (
-            <Tooltip content="Valor total do produto sem desconto">
-              <Chip size="sm" variant="flat">
-                <p className="ml-1">{currency(food?.price)}</p>
-              </Chip>
-            </Tooltip>
-          ),
       },
       {
         header: "Desconto",
@@ -135,6 +104,25 @@ export default function FoodDiscounts() {
         accessorFn: (row) =>
           row.end_at ? format(new Date(row.end_at), "dd/MM/yyyy") : "-",
       },
+      {
+        id: "open",
+        maxSize: 35,
+        cell: ({ row }) => (
+          <div className="flex items-center justify-center">
+            <Button
+              onPress={() => {
+                setOpen(row.original.id);
+              }}
+              isIconOnly
+              variant="light"
+              color="warning"
+              size="sm"
+            >
+              <TiChevronRight size={16} />
+            </Button>
+          </div>
+        ),
+      },
     ],
     [food?.discounts]
   );
@@ -151,9 +139,9 @@ export default function FoodDiscounts() {
           </Button>
         </div>
         <DiscountsForm
-          open={open}
+          open={!!open}
           onClose={() => setOpen(false)}
-          discountId={null}
+          discountId={typeof open === "boolean" ? null : open}
         />
         <Table
           aria-label="Discounts"

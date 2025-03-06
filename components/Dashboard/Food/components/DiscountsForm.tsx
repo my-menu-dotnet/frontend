@@ -71,7 +71,7 @@ export default function DiscountsForm({
   const { data: food, refetch } = useFood(id);
   const { data: discount } = useDiscount(discountId);
 
-  const { control, setValue, watch, setError, handleSubmit, reset } =
+  const { control, setValue, getValues, setError, handleSubmit, reset } =
     useForm<DiscountsFormForm>({
       defaultValues: {
         active: true,
@@ -135,8 +135,7 @@ export default function DiscountsForm({
     }
   }, [discount, open]);
 
-  const end = watch("end_at");
-  const start = watch("start_at");
+  console.log(getValues("active"));
 
   return (
     <>
@@ -188,7 +187,7 @@ export default function DiscountsForm({
                 )}
               />
 
-              <I18nProvider locale="pt-BR">
+              {/* <I18nProvider locale="pt-BR">
                 <DateRangePicker
                   label="Validade"
                   onChange={(range) => {
@@ -209,7 +208,7 @@ export default function DiscountsForm({
                   minValue={today(getLocalTimeZone())}
                   visibleMonths={2}
                 />
-              </I18nProvider>
+              </I18nProvider> */}
             </div>
           </ModalBody>
           <ModalFooter className="flex justify-between">

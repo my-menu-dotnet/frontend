@@ -1,30 +1,11 @@
 type Page<T> = {
   content: T[];
-  pageable: {
-    page_number: number;
-    page_size: number;
-    sort: {
-      empty: boolean;
-      sorted: boolean;
-      unsorted: boolean;
-    };
-    offset: number;
-    paged: boolean;
-    unpaged: boolean;
-  };
-  last: boolean;
-  total_pages: number;
-  total_elements: number;
-  first: boolean;
-  size: number;
-  number: number;
-  sort: {
-    empty: boolean;
-    sorted: boolean;
-    unsorted: boolean;
-  };
-  number_of_elements: number;
-  empty: boolean;
+  page: {
+    number: number;
+    size: number;
+    total_elements: number;
+    total_pages: number;
+  }
 };
 
 type PageParams = {

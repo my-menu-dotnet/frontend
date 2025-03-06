@@ -19,11 +19,12 @@ import Price from "@/components/Price";
 import { GoPlus } from "react-icons/go";
 import { BiMinus } from "react-icons/bi";
 import Button from "@/components/Button";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { FoodOrder, useCart } from "@/hooks/useCart";
 import { FoodItem } from "@/types/api/food/FoodItem";
 import SimpleFoodItem from "@/components/SimpleFoodItem";
 import { v4 } from "uuid";
+import Textarea from "@/components/Textarea";
 
 type FoodModalProps = {
   food?: Food;
@@ -31,7 +32,8 @@ type FoodModalProps = {
 };
 
 export default function FoodModal({ food, onClose }: FoodModalProps) {
-  const { addItem } = useCart();
+  const { addItem, items } = useCart();
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [currentItem, setCurrentItem] = useState<FoodOrder>({
     id: v4(),
     itemId: food?.id || "",
@@ -40,6 +42,7 @@ export default function FoodModal({ food, onClose }: FoodModalProps) {
     title: food?.name || "",
     description: food?.description || "",
     price: food?.price || 0,
+    discount: food?.active_discount,
     items: [],
   });
 
@@ -71,8 +74,6 @@ export default function FoodModal({ food, onClose }: FoodModalProps) {
         }) || [];
     }
 
-    console.log(newItems);
-
     setCurrentItem((state) => ({
       ...state,
       items: newItems,
@@ -96,6 +97,7 @@ export default function FoodModal({ food, onClose }: FoodModalProps) {
   };
 
   const handleAddToCart = () => {
+    currentItem.observation = textAreaRef.current?.value;
     addItem(currentItem);
     onClose();
   };
@@ -110,6 +112,7 @@ export default function FoodModal({ food, onClose }: FoodModalProps) {
         title: food.name,
         description: food.description,
         price: food.price,
+        discount: food.active_discount,
         items: [],
       });
     }
@@ -215,6 +218,11 @@ export default function FoodModal({ food, onClose }: FoodModalProps) {
                   )}
                 </>
               )}
+              <Textarea
+                label="Observações"
+                placeholder="Ex: Sem cebola, ponto da carne, etc."
+                ref={textAreaRef}
+              />
             </ModalBody>
             <ModalFooter>
               <div className="flex flex-row justify-between items-center w-full">

@@ -1,17 +1,17 @@
 "use client";
 
 import Block from "@/components/Block";
-import Button from "@/components/Button";
 import SimpleFoodItem from "@/components/SimpleFoodItem";
-import { FoodOrder, useCart } from "@/hooks/useCart";
+import { useCart } from "@/hooks/useCart";
 import { currency } from "@/utils/text";
 import { Divider } from "@nextui-org/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BsCart3 } from "react-icons/bs";
 import { useCartStep } from "./hooks/useCarStep";
 import FooterButtons from "./components/FooterButtons";
-import { calcTotalPrice } from "@/utils/calcTotalPrice";
+import { calcTotalDiscount, calcTotalPrice, calcTotalWithoutDiscount } from "@/utils/calcTotalPrice";
 import { toast } from "react-toastify";
+import OrderOverview from "@/components/OrderOverview";
 
 export default function ItemsList() {
   const { items, addItemUnity, removeItemUnity } = useCart();
@@ -39,7 +39,7 @@ export default function ItemsList() {
         <BsCart3 size={24} className="fill-gray-400" />
         <h1 className="text-lg">Seu carrinho</h1>
       </div>
-      <div className={`min-h-36 ${items.length === 0 ? "max-h-36" : ""}`}>
+      <div className={`min-h-36 ${items.length === 0 ? "max-h-36" : ""} mt-6`}>
         <AnimatePresence initial={false}>
           {items.length > 0 ? (
             items.map((item, index) => (
@@ -54,6 +54,7 @@ export default function ItemsList() {
                   title={item.title}
                   price={item.price}
                   description={item.description}
+                  discount={item.discount}
                   image={item.image}
                   onClickAdd={() => handleAddItem(item.id)}
                   onClickRemove={() => handleRemoveItem(item.id)}
@@ -104,13 +105,7 @@ export default function ItemsList() {
 
       <Divider className="my-4" />
 
-      <div>
-        <h2 className="text-lg text-gray-400">Resumo do pedido</h2>
-        <div className="flex justify-between items-center mt-2">
-          <span>Total</span>
-          <span>{currency(calcTotalPrice(items))}</span>
-        </div>
-      </div>
+      <OrderOverview items={items} />
 
       <FooterButtons onClickNext={handleNext} hasBack={false} />
     </Block>

@@ -3,22 +3,27 @@ import FoodDefault from "@/assets/default-food.jpg";
 import { currency } from "@/utils/text";
 import { GoPlus } from "react-icons/go";
 import { BiMinus } from "react-icons/bi";
+import { Discounts } from "@/types/api/Discounts";
+import Price from "./Price";
 
 type SimpleFoodItemProps = {
   title: string;
   description: string;
   price?: number;
+  discount?: Partial<Discounts>;
   image?: string;
   onClickAdd?: () => void;
   onClickRemove?: () => void;
   total: number;
   hasIncrease?: boolean;
+  hasPlus?: boolean;
   hasChangeQuantity?: boolean;
 };
 
 export default function SimpleFoodItem({
   title,
   description,
+  discount,
   price,
   image,
   onClickAdd,
@@ -44,7 +49,8 @@ export default function SimpleFoodItem({
         </div>
         {!!price && price !== 0 && (
           <div className="mt-2 text-sm">
-            {hasIncrease && "+"} {currency(price)}
+            {hasIncrease && "+"}{" "}
+            <Price price={price} discount={discount} discountIcon={false} />
           </div>
         )}
       </div>

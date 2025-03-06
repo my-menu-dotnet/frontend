@@ -109,8 +109,8 @@ export default function BannerTable() {
         }}
       />
       <div className="w-full flex justify-end">
-        {banners && banners.total_pages > 1 && (
-          <Pagination initialPage={1} total={banners?.total_pages} />
+        {banners && banners.page.total_pages > 1 && (
+          <Pagination initialPage={1} total={banners?.page.total_pages} />
         )}
       </div>
     </>

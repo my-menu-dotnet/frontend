@@ -3,7 +3,11 @@
 import Block from "@/components/Block";
 import SimpleFoodItem from "@/components/SimpleFoodItem";
 import { FoodOrder, useCart } from "@/hooks/useCart";
-import { calcTotalPrice } from "@/utils/calcTotalPrice";
+import {
+  calcTotalDiscount,
+  calcTotalPrice,
+  calcTotalWithoutDiscount,
+} from "@/utils/calcTotalPrice";
 import { currency } from "@/utils/text";
 import { Divider } from "@nextui-org/react";
 import { MdPayment } from "react-icons/md";
@@ -13,6 +17,7 @@ import { useEffect } from "react";
 import { OrderItemForm } from "@/types/api/order/OrderItemForm";
 import Button from "@/components/Button";
 import { FaWhatsapp } from "react-icons/fa";
+import OrderOverview from "@/components/OrderOverview";
 // initMercadoPago(process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || "");
 
 export default function Checkout() {
@@ -42,10 +47,12 @@ export default function Checkout() {
             <SimpleFoodItem
               title={item.title}
               price={item.price}
-              description={item.description}
+              description={item.observation || ""}
+              discount={item.discount}
               image={item.image}
               total={item.quantity}
               hasIncrease={false}
+              hasChangeQuantity={false}
             />
             <div className="ml-8">
               {item.items.map((subItem) => (
@@ -53,9 +60,10 @@ export default function Checkout() {
                   <SimpleFoodItem
                     title={subItem.title}
                     price={subItem.price}
-                    description={subItem.description}
+                    description=""
                     image={subItem.image}
                     total={subItem.quantity}
+                    hasChangeQuantity={false}
                   />
                 </div>
               ))}
@@ -65,13 +73,7 @@ export default function Checkout() {
 
       <Divider className="my-4" />
 
-      <div>
-        <h2 className="text-lg text-gray-400">Resumo do pedido</h2>
-        <div className="flex justify-between items-center mt-2">
-          <span>Total</span>
-          <span>{currency(calcTotalPrice(items))}</span>
-        </div>
-      </div>
+      <OrderOverview items={items} />
 
       <div className="mt-6">
         <Button
@@ -102,6 +104,8 @@ const createOrderItemForm = (items: FoodOrder[]): OrderItemForm[] => {
     return {
       item_id: item.itemId,
       quantity: item.quantity,
+      observation: item.observation,
+      discount_id: item.discount?.id,
       items: item.items.map((subItem) => ({
         item_id: subItem.itemId,
         quantity: subItem.quantity,

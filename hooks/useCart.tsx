@@ -1,5 +1,6 @@
 "use client";
 
+import { Discounts } from "@/types/api/Discounts";
 import { useParams } from "next/navigation";
 import React, {
   createContext,
@@ -27,6 +28,8 @@ export type FoodOrder = {
   title: string;
   description: string;
   price: number;
+  observation?: string;
+  discount?: Partial<Discounts>;
   items: Omit<FoodOrder, "items">[];
 };
 
