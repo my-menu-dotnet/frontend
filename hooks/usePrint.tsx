@@ -87,7 +87,7 @@ const getReceipt = (order: Order, company: Company) => {
   return (
     <Printer type="epson" width={MAX_CARACTERS} characterSet="pc860_portuguese">
       <Image
-        src="https://my-menu.net/assets/images/hlogo.png"
+        src="https://my-menu.net/assets/images/hlogo-2.png"
         width={MAX_CARACTERS}
       />
 
