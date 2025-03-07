@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
 
   if (url.hostname === "lettes.my-menu.net") {
-    if (url.pathname === "/" || url.pathname === "/menu") {
+    if (url.pathname === "/" || url.pathname.startsWith("/menu")) {
       return NextResponse.redirect(
         "https://lettes.my-menu.net/menu/34966345-2ec8-4227-b9c6-08a34d2d25a6"
       );
