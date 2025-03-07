@@ -146,7 +146,15 @@ const getReceipt = (order: Order, company: Company) => {
             left={`${item.quantity} ${item.title}`}
             right={currency(item.unit_price * item.quantity)}
           />
-          {item.observation && <Text>- {item.observation}</Text>}
+          {item.observation && <Text>Obs: {item.observation}</Text>}
+          {item.order_items?.map((subItem, subIndex) => (
+            <Fragment key={subIndex}>
+              <Row
+                left={`${subItem.quantity} ${subItem.title}`}
+                right={currency(subItem.unit_price * subItem.quantity)}
+              />
+            </Fragment>
+          ))}
           {item.discount && (
             <Row left="Desconto" right={formattDiscount(item.discount)} />
           )}
