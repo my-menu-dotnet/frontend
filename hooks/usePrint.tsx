@@ -120,22 +120,22 @@ const getReceipt = (order: Order, company: Company) => {
 
       <Row
         left="Nome"
-        right={formattToMaxCaracters(order.user.name, MAX_CARACTERS - 5)}
+        right={formattToMaxCaracters(order.user_name, MAX_CARACTERS - 5)}
       />
       <Row
         left="Tel."
-        right={formattToMaxCaracters(order.user.phone, MAX_CARACTERS - 5)}
+        right={formattToMaxCaracters(order.user?.phone, MAX_CARACTERS - 5)}
       />
       <Row
         left="Email"
-        right={formattToMaxCaracters(order.user.email, MAX_CARACTERS - 6)}
+        right={formattToMaxCaracters(order.user?.email, MAX_CARACTERS - 6)}
       />
 
       <Br />
 
       <Text align="center">
-        {order.user.address.neighborhood}, {order.user.address.street},{" "}
-        {order.user.address.number}
+        {order.address.neighborhood}, {order.address.street},{" "}
+        {order.address.number}
       </Text>
 
       <Line />

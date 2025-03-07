@@ -70,7 +70,7 @@ export const NotificationOrderProvider: React.FC<{ children: ReactNode }> = ({
                 Pedido: <strong>{orderData.order_number}</strong>
               </p>
               <p>
-                Cliente: <strong>{orderData.user.name}</strong>
+                Cliente: <strong>{orderData.user_name}</strong>
               </p>
               <p>
                 Valor: <strong>{currency(orderData.total_price)}</strong>

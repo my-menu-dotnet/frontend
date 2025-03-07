@@ -86,12 +86,12 @@ export default function CurrentOrder({ order }: CurrentOrderProps) {
         <div className={`pr-4`}>{elapsedTime}</div>
         <div className="border-l-2 border-dashed pl-4 text-sm max-w-[300px] w-full pb-2">
           <div className="flex flex-col h-full">
-            <span>Nome: {order.user.name}</span>
-            <span>Tel.: {order.user.phone}</span>
-            <span>Email: {order.user.email}</span>
+            <span>Nome: {order.user_name}</span>
+            <span>Tel.: {order.user?.phone}</span>
+            <span>Email: {order.user?.email}</span>
             <span>
-              Endereço: {order.user.address.neighborhood},{" "}
-              {order.user.address.street}, {order.user.address.number}
+              Endereço: {order.address.neighborhood},{" "}
+              {order.address.street}, {order.address.number}
             </span>
           </div>
           <div className="w-full flex items-center gap-2 justify-end text-gray-400">
