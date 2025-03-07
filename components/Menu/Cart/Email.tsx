@@ -16,6 +16,7 @@ import api from "@/services/api";
 import useUser from "@/hooks/queries/useUser";
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "@/hooks/useAuth";
+import Button from "@/components/Button";
 
 export default function Email() {
   const { data: user } = useUser();
@@ -35,7 +36,19 @@ export default function Email() {
 
       {!user?.email ? (
         <div className="w-full h-72 flex flex-col justify-center items-center">
+          <p className="text-center mb-8 text-gray-400 max-w-lg">
+            Faça login para salvar seu endereço, acompanhar seus pedidos e
+            receber ofertas exclusivas.
+          </p>
           <GoogleLogin onSuccess={handleLoginGoogle} useOneTap auto_select />
+          <p className="mt-2 text-center text-gray-400">Ou</p>
+          <Button
+            variant="light"
+            color="default"
+            className="text-gray-500"
+            text="Continuar sem login"
+            onPress={() => addStep()}
+          />
         </div>
       ) : (
         <div className="h-72 flex flex-col justify-center items-center">
@@ -56,7 +69,7 @@ export default function Email() {
         </div>
       )}
 
-      <FooterButtons onClickNext={addStep} onClickBack={removeStep} />
+      <FooterButtons onClickNext={addStep} onClickBack={removeStep} hasNext={!!user} />
     </Block>
   );
 }

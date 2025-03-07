@@ -49,8 +49,8 @@ export default function OrderTable() {
         header: "Cliente",
         cell: ({ row }) => (
           <User
-            name={row.original.user.name}
-            description={row.original.user.email}
+            name={row.original.user_name}
+            description={row.original.user?.email}
           />
         ),
       },

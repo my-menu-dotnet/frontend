@@ -9,42 +9,64 @@ import {
   calcTotalWithoutDiscount,
 } from "@/utils/calcTotalPrice";
 import { currency } from "@/utils/text";
-import { Divider } from "@nextui-org/react";
+import { Divider, Input } from "@nextui-org/react";
 import { MdPayment } from "react-icons/md";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import useMutationOrder from "@/hooks/mutate/useMutationOrder";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { OrderItemForm } from "@/types/api/order/OrderItemForm";
 import Button from "@/components/Button";
 import { FaWhatsapp } from "react-icons/fa";
 import OrderOverview from "@/components/OrderOverview";
 import { useMenuCompany } from "@/hooks/useMenuCompany";
 import { useRouter } from "next/navigation";
+import { useCartStep } from "./hooks/useCarStep";
+import { useMutationOrderAnonymous } from "@/hooks/mutate/useMutationOrderAnonymous";
+import useUser from "@/hooks/queries/useUser";
 // initMercadoPago(process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || "");
 
 export default function Checkout() {
+  const nameRef = useRef<HTMLInputElement>(null);
   const { items } = useCart();
+  const { address } = useCartStep();
+  const { data: user } = useUser();
   const { company } = useMenuCompany();
   const { mutateAsync } = useMutationOrder();
+  const { mutateAsync: mutateAsyncAnon } = useMutationOrderAnonymous();
   const router = useRouter();
+
+  const handleRedirect = (orderNumber: number) => {
+    const pedido = String(orderNumber).padStart(3, "0");
+    const whatsapUrl = `https://wa.me/${getPhoneNumber(
+      company.phone
+    )}?text=Olá, acabei de fazer o pedido ${pedido} pelo My Menu. Poderia me ajudar a finalizar a compra?`;
+    setTimeout(() => {
+      window.open(whatsapUrl, "_blank");
+    });
+
+    if (user) {
+      return router.push(`/menu/${company.url}/profile`);
+    }
+    router.push(`/menu/${company.url}`);
+  };
 
   const handleOrder = () => {
     const orders = createOrderItemForm(items);
 
+    if (!user) {
+      mutateAsyncAnon({
+        order_items: orders,
+        address: address!,
+        user_name: nameRef.current?.value || "",
+        company_observation: "",
+      }).then((order) => handleRedirect(order.order_number));
+      return;
+    }
+
     mutateAsync({
       orderItemForm: orders,
       total: calcTotalPrice(items),
-    }).then((order) => {
-      const pedido = String(order.order_number).padStart(3, "0");
-      const whatsapUrl = `https://wa.me/${getPhoneNumber(
-        company.phone
-      )}?text=Olá, acabei de fazer o pedido ${pedido} pelo My Menu. Poderia me ajudar a finalizar a compra?`;
-      setTimeout(() => {
-        window.open(whatsapUrl, "_blank");
-      });
-
-      router.push(`/menu/${company.url}/profile`);
-    });
+    }).then((order) => handleRedirect(order.order_number));
   };
 
   return (
@@ -89,6 +111,16 @@ export default function Checkout() {
       <OrderOverview items={items} />
 
       <div className="mt-6">
+        {!user && (
+          <Input
+            ref={nameRef}
+            label="Nome"
+            placeholder="Digite seu nome"
+            className="mb-4"
+            required
+          />
+        )}
+
         <Button
           startContent={<FaWhatsapp size={20} />}
           className="w-full"

@@ -103,7 +103,7 @@ const Item = ({ draggbleProvided, order, onClick }: ItemProps) => {
       onClick={onClick}
     >
       <div className="w-full flex justify-between line-clamp-1">
-        <p>{order.user.name}</p>
+        <p>{order.user_name}</p>
         <p
           className={`${lateStatue === "DANGER" && "text-red-500"} ${
             lateStatue === "WARNING" && "text-yellow-500"
@@ -146,8 +146,8 @@ const Item = ({ draggbleProvided, order, onClick }: ItemProps) => {
       <div className="flex items-center gap-1 text-sm text-gray-400">
         <CiLocationOn size={18} />
         <p>
-          {order.user.address.neighborhood}, {order.user.address.street},{" "}
-          {order.user.address.number}
+          {order.address.neighborhood}, {order.address.street},{" "}
+          {order.address.number}
         </p>
       </div>
       <div className="w-full flex justify-between">

@@ -44,9 +44,9 @@ export default function OrderModal({
             <ModalBody>
               <div>
                 <h2>Cliente</h2>
-                <p>Nome: {order.user.name}</p>
-                <p>Email: {order.user.email}</p>
-                <p>Tel.:{order.user.phone}</p>
+                <p>Nome: {order.user_name}</p>
+                <p>Email: {order.user?.email}</p>
+                <p>Tel.:{order.user?.phone}</p>
               </div>
 
               <Divider />
@@ -54,8 +54,8 @@ export default function OrderModal({
               <div>
                 <h2>Endereço</h2>
                 <p>
-                  {order.user.address.neighborhood}, {order.user.address.street}
-                  , {order.user.address.number}
+                  {order.address.neighborhood}, {order.address.street}
+                  , {order.address.number}
                 </p>
               </div>
 

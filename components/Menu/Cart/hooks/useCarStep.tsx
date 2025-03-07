@@ -2,12 +2,14 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import CartSteps from "../components/CartSteps";
-import useUser from "@/hooks/queries/useUser";
+import { Address } from "@/types/api/Address";
 
 interface CartStepContextProps {
   step: number;
   addStep: () => void;
   removeStep: () => void;
+  setAddress: (address: Partial<Address>) => void;
+  address?: Partial<Address>;
 }
 
 const CartStepContext = createContext<CartStepContextProps | undefined>(
@@ -24,6 +26,7 @@ export const CartStepProvider: React.FC<CartStepProviderProps> = ({
   children,
 }) => {
   const [step, setStep] = useState(0);
+  const [address, setAddress] = useState<Partial<Address>>();
 
   const addStep = () => {
     if (step < maxSteps) {
@@ -38,7 +41,7 @@ export const CartStepProvider: React.FC<CartStepProviderProps> = ({
   };
 
   return (
-    <CartStepContext.Provider value={{ step, addStep, removeStep }}>
+    <CartStepContext.Provider value={{ step, addStep, removeStep, setAddress, address }}>
       <CartSteps>{children}</CartSteps>
     </CartStepContext.Provider>
   );

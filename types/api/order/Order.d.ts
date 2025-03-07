@@ -1,3 +1,4 @@
+import { Address } from "../Address";
 import { Company } from "../Company";
 import { User } from "../User";
 import { OrderItem } from "./OrderItem";
@@ -10,7 +11,9 @@ type Order = {
   order_items: OrderItem[];
   order_number: number;
   order: number;
-  user: User;
+  user_name: string;
+  address: Address;
+  user?: User;
   created_at: Date;
   updated_at: Date;
 };

@@ -39,7 +39,7 @@ const schema = Yup.object().shape({
 
 export default function Address() {
   const { data: user, refetch: refetchUser } = useUser();
-  const { addStep, removeStep } = useCartStep();
+  const { addStep, removeStep, setAddress } = useCartStep();
   const [cep, setCep] = useState<string | undefined>();
   const { data: address, isLoading: isLoadingAddress } = useAddress({
     cep: cep,
@@ -58,16 +58,20 @@ export default function Address() {
     },
   });
 
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: (address: AddressForm) => api.patch("/user", { address }),
-    onSuccess: () => refetchUser().then(addStep),
   });
 
   const handleUpdateAddress = async (data: AddressForm) => {
-    mutate({
-      ...data,
-      zip_code: data.zip_code.replace(/\D/g, ""),
-    });
+    if (user) {
+      await mutateAsync({
+        ...data,
+        zip_code: data.zip_code.replace(/\D/g, ""),
+      });
+      await refetchUser();
+    }
+    setAddress(data);
+    addStep();
   };
 
   useEffect(() => {
