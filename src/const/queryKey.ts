@@ -1,0 +1,5 @@
+export const QUERY_KEY = {
+  ORDERS: "ORDERS",
+  CATEGORIES: "CATEGORIES",
+  CATEGORY: "CATEGORY"
+}
