@@ -1,7 +1,6 @@
 // import useMutationOrderStatus from "@/hooks/mutate/useMutationOrderStatus";
 import { DragDropContext } from "@hello-pangea/dnd";
 import { useEffect, useState } from "react";
-import PopupAlert from "./components/PopupAlert";
 import useOrders from "@/hooks/queries/order/useOrders";
 import { Order, OrderStatus } from "@/@types/api/order/Order";
 import { orderOrderByStatus } from "../../utils/orderOrderByStatus";
@@ -87,8 +86,6 @@ export default function OrderKanban() {
           )}
         </div>
       </DragDropContext>
-
-      <PopupAlert />
     </>
   );
 }
