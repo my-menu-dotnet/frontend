@@ -12,7 +12,7 @@ const useCategories = ({ page = 0, ...rest }: Partial<CategoryFilter>) => {
   });
 
   const query = useQuery<Page<Category> | undefined>({
-    queryKey: [QUERY_KEY.CATEGORIES],
+    queryKey: [QUERY_KEY.CATEGORIES, filters],
     queryFn: async () => {
       return await fetchCategories(filters);
     },

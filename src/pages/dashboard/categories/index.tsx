@@ -14,19 +14,18 @@ import CreateEditModal from "./components/CreateEditeModal";
 import Switch from "@/components/form/Switch";
 import useMutateCategoryActive from "@/hooks/mutation/category/useMutateCategoryActive";
 import DeleteModal from "./components/DeleteModal";
+import useMutateCategoryOrder from "@/hooks/mutation/category/useMutateCategoryOrder";
 
 export default function Categories() {
-  const { data } = useCategories({});
+  const { data, setFilters } = useCategories({
+    sort: "order",
+  });
   const { mutate: mutateCateogryActive } = useMutateCategoryActive();
+  const { mutate: mutateCategoryOrder } = useMutateCategoryOrder();
   const [openEdit, setOpenEdit] = useState<string | boolean>(false);
   const [openDelete, setOpenDelete] = useState<string>();
 
   const columns: ColumnDef<Category>[] = [
-    {
-      accessorKey: "order",
-      header: "Ordem",
-      cell: (info) => info.getValue(),
-    },
     {
       accessorKey: "active",
       header: "Ativo",
@@ -89,6 +88,22 @@ export default function Categories() {
     mutateCateogryActive({ id, active });
   };
 
+  const handlePageChange = (page: number) => {
+    setFilters((prev) => ({
+      ...prev,
+      page: page,
+    }));
+  };
+
+  const handleDragEnd = (sourceIndex: number, destinationIndex: number) => {
+    const newData = [...(data?.content || [])];
+    const [movedItem] = newData.splice(sourceIndex, 1);
+    newData.splice(destinationIndex, 0, movedItem);
+
+    const newOrder = newData.map((item) => item.id);
+    mutateCategoryOrder({ ids: newOrder });
+  };
+
   return (
     <>
       <Card>
@@ -96,7 +111,15 @@ export default function Categories() {
           <h1 className="text-lg">Categorias</h1>
           <Button onClick={() => setOpenEdit(true)}>Adicionar</Button>
         </div>
-        <Table page={data?.content || []} columns={columns} />
+        <Table
+          page={data?.page.number}
+          total_pages={data?.page.total_pages}
+          onPageChange={handlePageChange}
+          data={data?.content || []}
+          columns={columns}
+          dragable
+          onDragEnd={handleDragEnd}
+        />
       </Card>
 
       <CreateEditModal
