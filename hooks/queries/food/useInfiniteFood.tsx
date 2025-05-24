@@ -23,6 +23,7 @@ const fetchFoodSelect = async (page: unknown): Promise<Page<Food>> => {
     const { data } = await api.get(`/food`, {
       params: {
         page,
+        size: 100,
       },
     });
     return data as Page<Food>;
