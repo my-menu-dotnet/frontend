@@ -103,11 +103,9 @@ const getReceipt = (order: Order, company: Company) => {
 
       <Line />
 
-      <Br />
       <Text size={{ width: 2, height: 2 }} align="center">
         PEDIDO #{String(order.order_number).padStart(3, "0")}
       </Text>
-      <Br />
 
       <Line />
 
@@ -119,41 +117,35 @@ const getReceipt = (order: Order, company: Company) => {
         left="Tel."
         right={formattToMaxCaracters(order.user?.phone, MAX_CARACTERS - 5)}
       />
-      <Row
-        left="Email"
-        right={formattToMaxCaracters(order.user?.email, MAX_CARACTERS - 6)}
-      />
 
       <Br />
 
       <Text align="center">
         {order.address.neighborhood}, {order.address.street},{" "}
         {order.address.number}
+        {order.address.complement ? `, ${order.address.complement}` : ""}
       </Text>
 
       <Line />
 
       {order.order_items.map((item, index) => (
         <Fragment key={index}>
-          <Text size={{ width: 1, height: 1 }} align="left">
-            Categoria: {item.category}
-          </Text>
           <Row
             left={`${item.quantity} ${item.title}`}
             right={currency(item.unit_price * item.quantity)}
           />
-          {item.observation && <Text>Obs: {item.observation}</Text>}
           {item.order_items?.map((subItem, subIndex) => (
             <Fragment key={subIndex}>
               <Text size={{ width: 1, height: 1 }} align="left">
                 {subItem.category}
               </Text>
               <Row
-                left={`${subItem.quantity} ${subItem.title}`}
+                left={`- ${subItem.quantity} ${subItem.title}`}
                 right={currency(subItem.unit_price * subItem.quantity)}
               />
             </Fragment>
           ))}
+          {item.observation && <Text>Obs: {item.observation}</Text>}
           {item.discount && (
             <Row left="Desconto" right={formattDiscount(item.discount)} />
           )}
@@ -177,13 +169,6 @@ const getReceipt = (order: Order, company: Company) => {
 
       <Row left="Total" right={currency(order.total_price)} />
 
-      <Line />
-
-      <Text align="center">Obrigado pela preferência!</Text>
-
-      <Text align="center">
-        *Esse cupom não tem valor fiscal, apenas informativo.
-      </Text>
       <Cut />
     </Printer>
   );
