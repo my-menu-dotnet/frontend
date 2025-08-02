@@ -1,6 +1,6 @@
 import { Address } from "./Address";
+import { BusinessHours } from "./BusinessHours";
 import { Category } from "./Category";
-import { FileStorage } from "./FileStorage";
 
 type Company = {
   id: string;
@@ -13,8 +13,9 @@ type Company = {
   email: string;
   verified_email: boolean;
   categories: Category[];
-  image: FileStorage;
-  header?: FileStorage;
+  business_hours: BusinessHours[];
+  image: string;
+  header?: string;
   delivery: boolean;
   address: Address;
-}
+};

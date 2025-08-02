@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${menu.company.name}`,
     icons: {
-      icon: menu.company.image.url,
+      icon: menu.company.image,
     },
     description: menu.company.description,
     authors: [

@@ -97,7 +97,11 @@ export default function FoodList({ menu, color }: FoodList) {
         )}
       </div>
 
-      <FoodModal food={foodOpen} onClose={() => setFoodOpen(undefined)} />
+      <FoodModal 
+        food={foodOpen} 
+        onClose={() => setFoodOpen(undefined)} 
+        businessHours={menu.company.business_hours}
+      />
     </>
   );
 }

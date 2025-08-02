@@ -28,15 +28,19 @@ import Textarea from "@/components/Textarea";
 import { Category } from "@/types/api/Category";
 import { FoodItemCategory } from "@/types/api/food/FoodItemCategory";
 import { toast } from "react-toastify";
+import { BusinessHours } from "@/types/api/BusinessHours";
+import { useBusinessStatus } from "@/hooks/useBusinessStatus";
 
 type FoodModalProps = {
   food?: Food;
   onClose: () => void;
+  businessHours?: BusinessHours[];
 };
 
-export default function FoodModal({ food, onClose }: FoodModalProps) {
+export default function FoodModal({ food, onClose, businessHours = [] }: FoodModalProps) {
   const { addItem, items } = useCart();
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const { isOpen, status } = useBusinessStatus(businessHours);
   const [currentItem, setCurrentItem] = useState<FoodOrder>({
     id: v4(),
     itemId: food?.id || "",
@@ -103,6 +107,12 @@ export default function FoodModal({ food, onClose }: FoodModalProps) {
   };
 
   const handleAddToCart = () => {
+    // Check if restaurant is open
+    if (!isOpen) {
+      toast.error(`Não é possível fazer pedidos agora. ${status}.`);
+      return;
+    }
+
     // Validate minimum items for each category
     const invalidCategories = food?.item_categories
       .filter((category) => {
@@ -273,10 +283,17 @@ export default function FoodModal({ food, onClose }: FoodModalProps) {
             </ModalBody>
             <ModalFooter>
               <div className="flex flex-row justify-between items-center w-full">
-                <div>Total: {currency(calcTotal(currentItem))}</div>
+                <div>
+                  {!isOpen && (
+                    <p className="text-red-600 text-sm">{status}</p>
+                  )}
+                  <p>Total: {currency(calcTotal(currentItem))}</p>
+                </div>
                 <Button
                   onPress={() => handleAddToCart()}
-                  text="Adicionar ao carrinho"
+                  text={isOpen ? "Adicionar ao carrinho" : "Estabelecimento fechado"}
+                  isDisabled={!isOpen}
+                  color={isOpen ? "primary" : "default"}
                 />
               </div>
             </ModalFooter>

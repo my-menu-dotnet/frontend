@@ -7,15 +7,24 @@ import { useMemo } from "react";
 import { BsCart3 } from "react-icons/bs";
 import { FaRegUser } from "react-icons/fa";
 import { OrderStatus } from "../Dashboard/Order/OrderKanban";
+import { useMenuCompany } from "@/hooks/useMenuCompany";
+import { useBusinessStatus } from "@/hooks/useBusinessStatus";
+import { toast } from "react-toastify";
 
 export default function BottomBar() {
   const { items } = useCart();
   const { data: orders } = useOrdersUser();
+  const { company } = useMenuCompany();
+  const { isOpen, status } = useBusinessStatus(company.business_hours);
   const router = useRouter();
   const params = useParams();
   const menuId = params.id;
 
   const handleCartClick = () => {
+    if (!isOpen) {
+      toast.error(`Não é possível fazer pedidos agora. ${status}.`);
+      return;
+    }
     router.push(`/menu/${menuId}/cart`);
   };
 
@@ -44,11 +53,16 @@ export default function BottomBar() {
         )}
       </div>
       <div
-        className="flex items-center gap-4 relative cursor-pointer"
+        className={`flex items-center gap-4 relative cursor-pointer ${!isOpen ? 'opacity-50' : ''}`}
         onClick={handleCartClick}
       >
         <BsCart3 size={30} className="fill-gray-400" />
-        {items.length > 0 && (
+        {!isOpen && (
+          <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
+            ×
+          </div>
+        )}
+        {isOpen && items.length > 0 && (
           <div className="absolute -top-2 -right-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center text-white text-sm">
             {items.length}
           </div>

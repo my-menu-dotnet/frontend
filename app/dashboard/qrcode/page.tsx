@@ -173,7 +173,7 @@ export default function QrCode() {
                 bgColor={debounceConfig?.bgColor}
                 fgColor={debounceConfig?.fgColor}
                 logoImage={
-                  debounceConfig?.logoImage ? company.image.url : undefined
+                  debounceConfig?.logoImage ? company.image : undefined
                 }
                 logoWidth={debounceConfig?.logoWidth}
                 logoOpacity={debounceConfig?.logoOpacity}

@@ -46,7 +46,7 @@ export default function QRCode() {
             size={200}
             bgColor={qrConfig?.bgColor}
             fgColor={qrConfig?.fgColor}
-            logoImage={qrConfig?.logoImage ? company.image.url : undefined}
+            logoImage={qrConfig?.logoImage ? company.image : undefined}
             logoWidth={qrConfig?.logoWidth}
             logoOpacity={qrConfig?.logoOpacity}
             removeQrCodeBehindLogo={qrConfig?.removeQrCodeBehindLogo}

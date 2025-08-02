@@ -9,6 +9,7 @@ import { PiNewspaperClippingLight } from "react-icons/pi";
 import { MdWallpaper } from "react-icons/md";
 import { LuClipboardCheck } from "react-icons/lu";
 import { HiOutlineChartBar } from "react-icons/hi";
+import { FiClock } from "react-icons/fi";
 
 export type PageMenus = {
   title: string;
@@ -33,6 +34,13 @@ const menus: PageMenus[] = [
     description: "Mantenha as informações da sua empresa sempre atualizadas!",
     icon: <MdStorefront />,
     to: "/dashboard/company",
+    enabled: true,
+  },
+  {
+    title: "Horários",
+    description: "Configure os horários de funcionamento da sua empresa!",
+    icon: <FiClock />,
+    to: "/dashboard/business-hours",
     enabled: true,
   },
   {
