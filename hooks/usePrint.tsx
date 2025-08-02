@@ -134,17 +134,31 @@ const getReceipt = (order: Order, company: Company) => {
             left={`${item.quantity} ${item.title}`}
             right={currency(item.unit_price * item.quantity)}
           />
-          {item.order_items?.map((subItem, subIndex) => (
-            <Fragment key={subIndex}>
-              <Text size={{ width: 1, height: 1 }} align="left">
-                {subItem.category}
-              </Text>
-              <Row
-                left={`- ${subItem.quantity} ${subItem.title}`}
-                right={currency(subItem.unit_price * subItem.quantity)}
-              />
-            </Fragment>
-          ))}
+          {item.order_items && (() => {
+            // Agrupa subitens por categoria
+            const groupedByCategory = item.order_items.reduce((acc, subItem) => {
+              if (!acc[subItem.category]) {
+                acc[subItem.category] = [];
+              }
+              acc[subItem.category].push(subItem);
+              return acc;
+            }, {} as Record<string, typeof item.order_items>);
+
+            return Object.entries(groupedByCategory).map(([category, subItems]) => (
+              <Fragment key={category}>
+                <Text size={{ width: 1, height: 1 }} align="left">
+                  {category}
+                </Text>
+                {subItems.map((subItem, subIndex) => (
+                  <Row
+                    key={subIndex}
+                    left={`- ${subItem.quantity} ${subItem.title}`}
+                    right={currency(subItem.unit_price * subItem.quantity)}
+                  />
+                ))}
+              </Fragment>
+            ));
+          })()}
           {item.observation && <Text>Obs: {item.observation}</Text>}
           {item.discount && (
             <Row left="Desconto" right={formattDiscount(item.discount)} />
