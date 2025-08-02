@@ -95,13 +95,6 @@ const getReceipt = (order: Order, company: Company) => {
 
   return (
     <Printer type="epson" width={MAX_CARACTERS} characterSet="pc860_portuguese">
-      <Image
-        src="https://my-menu.net/assets/images/hlogo-3.png"
-        width={MAX_CARACTERS}
-      />
-
-      <Br />
-
       <Text size={{ width: 2, height: 2 }} align="center">
         {company.name}
       </Text>
@@ -142,6 +135,9 @@ const getReceipt = (order: Order, company: Company) => {
 
       {order.order_items.map((item, index) => (
         <Fragment key={index}>
+          <Text size={{ width: 1, height: 1 }} align="left">
+            Categoria: {item.category}
+          </Text>
           <Row
             left={`${item.quantity} ${item.title}`}
             right={currency(item.unit_price * item.quantity)}
@@ -149,6 +145,9 @@ const getReceipt = (order: Order, company: Company) => {
           {item.observation && <Text>Obs: {item.observation}</Text>}
           {item.order_items?.map((subItem, subIndex) => (
             <Fragment key={subIndex}>
+              <Text size={{ width: 1, height: 1 }} align="left">
+                {subItem.category}
+              </Text>
               <Row
                 left={`${subItem.quantity} ${subItem.title}`}
                 right={currency(subItem.unit_price * subItem.quantity)}
@@ -169,7 +168,6 @@ const getReceipt = (order: Order, company: Company) => {
         left="Subtotal"
         right={currency(calcTotalWithoutDiscount(order.order_items))}
       />
-      <Row left="Taxa de entrega" right="R$ 0" />
       <Row
         left="Descontos"
         right={`- ${currency(calcTotalDiscount(order.order_items))}`}

@@ -84,7 +84,6 @@ export default function CompanyForm() {
       setValue("email", company.email || "");
       setValue("primary_color", company.primary_color || "");
       setValue("phone", company.phone || "");
-      setValue("image_id", company.image?.id || "");
       setValue("address.city", company.address?.city || "");
       setValue("address.complement", company.address?.complement || "");
       setValue("address.neighborhood", company.address?.neighborhood || "");
@@ -200,7 +199,7 @@ export default function CompanyForm() {
             icones tanto do menu quanto do app."
       >
         <ImagePicker
-          fileStorage={company?.image}
+          url={company?.image}
           onFileChange={(file) => setValue("image_id", file.id)}
         />
       </FormItem>

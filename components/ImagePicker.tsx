@@ -12,12 +12,14 @@ import { toast } from "react-toastify";
 
 type ImagePickerProps = HTMLProps<HTMLInputElement> & {
   fileStorage?: FileStorage;
+  url?: string;
   onFileChange?: (file: FileStorage) => void;
   errorMessage?: string;
 };
 
 export default function ImagePicker({
   fileStorage,
+  url,
   onFileChange,
   errorMessage,
   ...props
@@ -67,10 +69,10 @@ export default function ImagePicker({
         data-test="image-picker"
         className="flex flex-col justify-center items-center w-full h-64 border rounded-xl cursor-pointer border-dashed border-gray-300 py-4"
       >
-        {file?.url ? (
+        {file?.url || url ? (
           <Image
             data-test="image-preview"
-            src={file.url}
+            src={file?.url || url || ""}
             width={400}
             height={400}
             alt=""
@@ -101,9 +103,7 @@ export default function ImagePicker({
           value={""}
           {...props}
         />
-        {errorMessage && (
-          <p className="text-red-500 text-sm">{errorMessage}</p>
-        )}
+        {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
       </label>
     </div>
   );
