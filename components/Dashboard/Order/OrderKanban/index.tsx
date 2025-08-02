@@ -122,7 +122,7 @@ export default function OrderKanban() {
   }, [newOrder])
 
   return (
-    <>
+    <div className="w-full">
       <div className="flex flex-col gap-2 mb-4">
         {orderByStatus[OrderStatus.PRODUCING] &&
           orderByStatus[OrderStatus.PRODUCING]?.length > 0 &&
@@ -177,6 +177,6 @@ export default function OrderKanban() {
           />
         </div>
       </DragDropContext>
-    </>
+    </div>
   );
 }
