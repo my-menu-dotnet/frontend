@@ -1,27 +1,45 @@
-# Etapa 1 — Build
-FROM node:20-alpine AS builder
+# Development Stage
+FROM node:18-alpine AS development
 
 WORKDIR /app
+
 COPY package*.json ./
 
-# Ignora conflitos de peer deps
-RUN npm ci --legacy-peer-deps
+RUN npm ci
 
 COPY . .
-RUN npm run build
-
-# Etapa 2 — Runtime
-FROM node:20-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-
-COPY package*.json ./
-RUN npm ci --omit=dev --legacy-peer-deps
-
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.ts ./
-COPY --from=builder /app/package*.json ./
 
 EXPOSE 3000
-CMD ["npm", "start"]
+
+
+CMD ["npm", "run", "dev"]
+
+# Builder Stage
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+RUN npm run build
+
+# Production Stage 
+
+FROM node:18-alpine AS production
+
+WORKDIR /app
+
+# Copy the built artifacts from the builder stage
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# Set the environment variables (if needed)
+ENV NODE_ENV=production
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
