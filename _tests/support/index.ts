@@ -39,6 +39,7 @@
 import "./e2e/category";
 import "./e2e/food";
 import "./e2e/login";
+import "./e2e/order";
 
 import "./inputs/select";
 import "./inputs/imagePicker";
