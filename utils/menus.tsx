@@ -10,6 +10,7 @@ import { MdWallpaper } from "react-icons/md";
 import { LuClipboardCheck } from "react-icons/lu";
 import { HiOutlineChartBar } from "react-icons/hi";
 import { FiClock } from "react-icons/fi";
+import { FaUsers } from "react-icons/fa";
 
 export type PageMenus = {
   title: string;
@@ -69,6 +70,13 @@ const menus: PageMenus[] = [
     description: "Veja os pedidos feitos pelos seus clientes!",
     icon: <LuClipboardCheck />,
     to: "/dashboard/orders",
+    enabled: true,
+  },
+  {
+    title: "Clientes",
+    description: "Gerencie os clientes cadastrados!",
+    icon: <FaUsers />,
+    to: "/dashboard/clients",
     enabled: true,
   },
   {

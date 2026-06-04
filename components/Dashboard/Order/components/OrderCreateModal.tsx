@@ -1,4 +1,5 @@
 import Button from "@/components/Button";
+import ClientAutocomplete from "@/components/Dashboard/Client/ClientAutocomplete";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
 import SelectItem from "@/components/SelectItem";
@@ -10,6 +11,7 @@ import useCategory from "@/hooks/queries/useCategory";
 import useFood from "@/hooks/queries/food/useFood";
 import { FoodOrder } from "@/hooks/useCart";
 import { AddressRequest } from "@/types/api/Address";
+import { Client } from "@/types/api/Client";
 import { Food } from "@/types/api/Food";
 import { OrderItemForm } from "@/types/api/order/OrderItemForm";
 import { states } from "@/utils/lists";
@@ -33,6 +35,11 @@ type OrderCreateForm = {
   userName: string;
   companyObservation: string;
   address: AddressRequest;
+};
+
+type SelectedClientState = {
+  client: Client | null;
+  addressSnapshotTaken: boolean;
 };
 
 type FoodLoaderProps = {
@@ -77,11 +84,17 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
   const [pickingFood, setPickingFood] = useState(false);
   const [configuringFood, setConfiguringFood] = useState<Food | undefined>();
   const [selectedFoodId, setSelectedFoodId] = useState<string | undefined>();
+  const [selectedClient, setSelectedClient] = useState<SelectedClientState>({
+    client: null,
+    addressSnapshotTaken: false,
+  });
 
-  const { control, handleSubmit, reset } = useForm<OrderCreateForm>({
+  const { control, handleSubmit, reset, setValue, watch } = useForm<OrderCreateForm>({
     resolver: yupResolver(schema),
     defaultValues,
   });
+
+  const userName = watch("userName");
 
   const handleClose = () => {
     reset(defaultValues);
@@ -89,6 +102,7 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
     setPickingFood(false);
     setConfiguringFood(undefined);
     setSelectedFoodId(undefined);
+    setSelectedClient({ client: null, addressSnapshotTaken: false });
     onClose();
   };
 
@@ -157,6 +171,7 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
         ...data.address,
         zip_code: data.address.zip_code.replace(/\D/g, ""),
       },
+      client_id: selectedClient.client?.id,
     }).then(async (order) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: [QUERY_KEY.ORDER] }),
@@ -171,6 +186,25 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
       success: "Pedido criado com sucesso!",
       error: "Erro ao criar pedido",
     });
+  };
+
+  const handleClientSelected = (client: Client | null) => {
+    setSelectedClient({ client, addressSnapshotTaken: false });
+
+    if (client?.address) {
+      const a = client.address;
+      if (a.zip_code) setValue("address.zip_code", a.zip_code);
+      if (a.state) setValue("address.state", a.state);
+      if (a.city) setValue("address.city", a.city);
+      if (a.neighborhood) setValue("address.neighborhood", a.neighborhood);
+      if (a.street) setValue("address.street", a.street);
+      if (a.number) setValue("address.number", a.number);
+      if (a.complement) setValue("address.complement", a.complement);
+    }
+  };
+
+  const handleNameChange = (name: string) => {
+    setValue("userName", name, { shouldValidate: true });
   };
 
   return (
@@ -189,17 +223,24 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
               <Controller
                 name="userName"
                 control={control}
-                render={({ field, fieldState }) => (
-                  <Input
-                    label="Nome do cliente"
-                    placeholder="Digite o nome do cliente"
+                render={({ fieldState }) => (
+                  <ClientAutocomplete
+                    value={userName}
+                    onNameChange={handleNameChange}
+                    onClientSelected={handleClientSelected}
+                    isInvalid={Boolean(fieldState.error)}
                     errorMessage={fieldState.error?.message}
-                    isRequired
-                    data-test="input-customer-name"
-                    {...field}
                   />
                 )}
               />
+              {selectedClient.client && (
+                <p
+                  className="text-xs text-gray-500 -mt-2"
+                  data-test="selected-client-hint"
+                >
+                  Cliente selecionado: <strong>{selectedClient.client.name}</strong> — os dados serão vinculados.
+                </p>
+              )}
 
               <div>
                 <h3 className="mb-2 text-lg">Endereço de entrega</h3>

@@ -9,6 +9,7 @@ export type OrderCraeteForm = {
   company_observation: string;
   order_items: OrderItemForm[];
   address: Partial<Address>;
+  client_id?: string;
 };
 
 export function useMutationOrderAnonymous() {

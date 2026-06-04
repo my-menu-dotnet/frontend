@@ -13,6 +13,10 @@ enum QUERY_KEY {
   ORDER = "infiniteOrder",
   ORDER_USER = "orderUser",
   KANBAN_ORDER = "kanbanOrder",
+  CLIENTS = "clients",
+  CLIENT = "client",
+  CLIENT_SEARCH = "clientSearch",
+  UPDATE_CREATE_CLIENT = "updateCreateClient",
 }
 
 export default QUERY_KEY;
