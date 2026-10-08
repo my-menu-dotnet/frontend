@@ -1,8 +1,6 @@
-"use client";
-
 import Block from "@/components/Block";
 import { CompleteOrderAnalytics } from "@/types/api/analytics/OrderAnalytics";
-import { Skeleton } from "@nextui-org/react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { FiTrendingUp, FiTrendingDown, FiMinus } from "react-icons/fi";
 
 type AnalyticsInsightsProps = {
@@ -20,7 +18,7 @@ export default function AnalyticsInsights({
     return (
       <Block className={`${className}`}>
         <Skeleton className="h-6 w-1/3 mb-4" />
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {[...Array(3)].map((_, i) => (
             <div key={i} className="flex items-start gap-3">
               <Skeleton className="h-6 w-6 rounded-full" />
@@ -38,10 +36,10 @@ export default function AnalyticsInsights({
   if (!data) {
     return (
       <Block className={className}>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <h3 className="text-lg font-semibold text-foreground mb-4">
           Insights Automáticos
         </h3>
-        <p className="text-gray-500 text-center py-8">
+        <p className="text-muted-foreground text-center py-8">
           Carregue os dados para ver insights automáticos
         </p>
       </Block>
@@ -50,7 +48,6 @@ export default function AnalyticsInsights({
 
   const insights = [];
 
-  // Calculate insights
   const totalSales = data.item_stats.reduce((sum, item) => sum + item.total_ordered, 0);
   const topItem = data.item_stats[0];
   const recentDays = data.daily_stats.slice(-7);
@@ -60,7 +57,6 @@ export default function AnalyticsInsights({
     ? olderDays.reduce((sum, day) => sum + day.total_orders, 0) / olderDays.length 
     : avgRecent;
 
-  // Top item insight
   if (topItem) {
     const percentage = ((topItem.total_ordered / totalSales) * 100).toFixed(1);
     insights.push({
@@ -71,7 +67,6 @@ export default function AnalyticsInsights({
     });
   }
 
-  // Trend insight
   const trendDiff = ((avgRecent - avgOlder) / avgOlder) * 100;
   if (Math.abs(trendDiff) > 5) {
     const isGrowing = trendDiff > 0;
@@ -92,7 +87,6 @@ export default function AnalyticsInsights({
     });
   }
 
-  // Performance insight
   const topItems = data.item_stats.slice(0, 3);
   const top3Sales = topItems.reduce((sum, item) => sum + item.total_ordered, 0);
   const top3Percentage = ((top3Sales / totalSales) * 100).toFixed(1);
@@ -117,13 +111,13 @@ export default function AnalyticsInsights({
       case "info":
         return "border-l-blue-500";
       default:
-        return "border-l-gray-500";
+        return "border-l-muted";
     }
   };
 
   return (
     <Block className={className}>
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <h3 className="text-lg font-semibold text-foreground mb-4">
         Insights Automáticos
       </h3>
       
@@ -131,14 +125,14 @@ export default function AnalyticsInsights({
         {insights.map((insight, index) => (
           <div
             key={index}
-            className={`mb-4 flex items-start gap-3 p-3 border-l-4 bg-gray-50 rounded-r-lg ${getInsightBorderColor(insight.type)}`}
+            className={`mb-4 flex items-start gap-3 p-3 border-l-4 bg-muted rounded-r-lg ${getInsightBorderColor(insight.type)}`}
           >
             <div className="mt-0.5">{insight.icon}</div>
             <div className="flex-1">
-              <h4 className="font-medium text-gray-900 mb-1">
+              <h4 className="font-medium text-foreground mb-1">
                 {insight.title}
               </h4>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 {insight.description}
               </p>
             </div>

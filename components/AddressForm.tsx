@@ -48,16 +48,11 @@ export default function AddressForm({ control }: AddressFormProps) {
                 selectedKeys={[field.value]}
                 {...field}
               >
-                <>
-                  <SelectItem value="" isDisabled>
-                    Selecione o estado
+                {states.map((state) => (
+                  <SelectItem key={state.key} value={state.key}>
+                    {state.label}
                   </SelectItem>
-                  {states.map((state) => (
-                    <SelectItem key={state.key} value={state.key}>
-                      {state.label}
-                    </SelectItem>
-                  ))}
-                </>
+                ))}
               </Select>
             )}
           />

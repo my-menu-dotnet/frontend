@@ -3,7 +3,11 @@ import useOrders from "@/hooks/queries/order/useOrders";
 import { Order } from "@/types/api/order/Order";
 import { orderStatusColor, orderStatusMask } from "@/utils/order";
 import { currency } from "@/utils/text";
-import { Tooltip, User } from "@nextui-org/react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
@@ -25,17 +29,17 @@ export default function OrderTable() {
         cell: ({ row }) => {
           return (
             <div>
-              <Tooltip
-                content={orderStatusMask(row.original.status)}
-                className={`${orderStatusColor(
-                  row.original.status
-                )} text-white`}
-              >
-                <div
-                  className={`${orderStatusColor(
-                    row.original.status
-                  )} w-2 h-2 rounded-full`}
-                ></div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className={`${orderStatusColor(
+                      row.original.status
+                    )} w-2 h-2 rounded-full`}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {orderStatusMask(row.original.status)}
+                </TooltipContent>
               </Tooltip>
             </div>
           );
@@ -48,10 +52,14 @@ export default function OrderTable() {
       {
         header: "Cliente",
         cell: ({ row }) => (
-          <User
-            name={row.original.user_name}
-            description={row.original.user?.email}
-          />
+          <div>
+            <p className="text-sm font-medium">{row.original.user_name}</p>
+            {row.original.user?.email && (
+              <p className="text-xs text-muted-foreground">
+                {row.original.user.email}
+              </p>
+            )}
+          </div>
         ),
       },
       {
@@ -70,13 +78,12 @@ export default function OrderTable() {
         cell: ({ row }) => (
           <div className="flex items-center justify-center">
             <Button
-              onPress={() => {
+              onClick={() => {
                 setSelected(row.original);
               }}
-              isIconOnly
-              variant="light"
+              variant="ghost"
               color="warning"
-              size="sm"
+              className="h-8 w-8 p-0"
             >
               <TiChevronRight size={16} />
             </Button>

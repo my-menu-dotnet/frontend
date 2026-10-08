@@ -16,8 +16,12 @@ import { Food } from "@/types/api/Food";
 import { bannerRedirectMasks, bannerTypeMasks } from "@/utils/lists";
 import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Tooltip } from "@nextui-org/react";
-import { useRouter } from "next/navigation";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useNavigate } from "@tanstack/react-router";
 import {
   forwardRef,
   UIEventHandler,
@@ -33,22 +37,24 @@ type BannerForm = {
   title: string;
   description?: string;
   image_id: string;
-  category_id: string;
-  food_id: string;
-  redirect: BannerRedirect;
+  category_id?: string;
+  food_id?: string;
+  redirect?: BannerRedirect;
   type: BannerType;
-  url: string;
+  url?: string;
   active: boolean;
 };
 
-const schema = Yup.object().shape({
+const schema: Yup.ObjectSchema<BannerForm> = Yup.object().shape({
   title: Yup.string().required(),
   description: Yup.string().optional(),
   image_id: Yup.string().required(),
   category_id: Yup.string().optional(),
   food_id: Yup.string().optional(),
-  redirect: Yup.string().optional(),
-  type: Yup.string().required(),
+  redirect: Yup.string<BannerRedirect>()
+    .oneOf(["URL", "CATEGORY", "FOOD"])
+    .optional(),
+  type: Yup.string<BannerType>().oneOf(["MOBILE", "DESKTOP"]).required(),
   url: Yup.string().optional(),
   active: Yup.boolean().required(),
 });
@@ -63,7 +69,7 @@ export type BannerFormRef = UseFormReturn<BannerForm>;
 const BannerForm = forwardRef<BannerFormRef, BannerFormProps>(
   ({ onSuccess, banner }, ref) => {
     const [deleteOpen, setDeleteOpen] = useState(false);
-    const router = useRouter();
+    const navigate = useNavigate();
     const { mutateAsync, isPending } = useUpdateCreateBanner<BannerForm>();
     const { refetch } = useBanners();
 
@@ -108,7 +114,7 @@ const BannerForm = forwardRef<BannerFormRef, BannerFormProps>(
       });
 
       res.then(() => {
-        refetch().then(() => router.push("/dashboard/banners"));
+        refetch().then(() => navigate({ to: "/dashboard/banners" }));
       });
     };
 
@@ -126,7 +132,7 @@ const BannerForm = forwardRef<BannerFormRef, BannerFormProps>(
             control={control}
             render={({ field, fieldState }) => (
               <Input
-                isRequired
+                required
                 label="Título"
                 placeholder="Digite o título"
                 errorMessage={fieldState.error?.message}
@@ -153,16 +159,10 @@ const BannerForm = forwardRef<BannerFormRef, BannerFormProps>(
               <Select
                 data-test="select-redirect"
                 className="w-full"
-                label="Redirecionar"
                 placeholder="Selecione um redirecionamento"
-                variant="bordered"
-                classNames={{
-                  trigger: "border-1 rounded-lg",
-                  listboxWrapper: "border-1 rounded-lg",
-                }}
-                selectedKeys={[field.value]}
                 errorMessage={fieldState.error?.message}
-                {...field}
+                value={field.value ?? ""}
+                onValueChange={field.onChange}
               >
                 {Object.keys(bannerRedirectMasks).map((key) => (
                   <SelectItem
@@ -170,6 +170,7 @@ const BannerForm = forwardRef<BannerFormRef, BannerFormProps>(
                       bannerRedirectMasks[key as BannerRedirect]
                     }`}
                     key={key}
+                    value={key}
                   >
                     {bannerRedirectMasks[key as BannerRedirect]}
                   </SelectItem>
@@ -201,17 +202,11 @@ const BannerForm = forwardRef<BannerFormRef, BannerFormProps>(
                 <Select
                   data-test="select-type"
                   className="w-full"
-                  label="Tipo"
                   placeholder="Selecione um tipo"
-                  variant="bordered"
-                  classNames={{
-                    trigger: "border-1 rounded-lg",
-                    listboxWrapper: "border-1 rounded-lg",
-                  }}
-                  selectedKeys={[field.value]}
-                  isRequired
+                  required
                   errorMessage={fieldState.error?.message}
-                  {...field}
+                  value={field.value ?? ""}
+                  onValueChange={field.onChange}
                 >
                   {Object.keys(bannerTypeMasks).map((key) => (
                     <SelectItem
@@ -219,26 +214,28 @@ const BannerForm = forwardRef<BannerFormRef, BannerFormProps>(
                         bannerTypeMasks[key as BannerType]
                       }`}
                       key={key}
+                      value={key}
                     >
                       {bannerTypeMasks[key as BannerType]}
                     </SelectItem>
                   ))}
                 </Select>
-                <Tooltip
-                  content={
-                    <>
-                      <p>
-                        DESKTOP: O banner desktop deve ter a proporção de 16:9
-                        (1920x1080, 1280x720, 854x480, 640x360)
-                      </p>
-                      <p>MOBILE: </p>
-                    </>
-                  }
-                >
-                  <IoInformationCircleOutline
-                    size={25}
-                    className="text-gray-400"
-                  />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <IoInformationCircleOutline
+                        size={25}
+                        className="text-muted-foreground cursor-pointer"
+                      />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      DESKTOP: O banner desktop deve ter a proporção de 16:9
+                      (1920x1080, 1280x720, 854x480, 640x360)
+                    </p>
+                    <p>MOBILE: </p>
+                  </TooltipContent>
                 </Tooltip>
               </div>
             )}
@@ -247,13 +244,11 @@ const BannerForm = forwardRef<BannerFormRef, BannerFormProps>(
             name="image_id"
             control={control}
             render={({ field, fieldState }) => (
-              <>
-                <ImagePicker
-                  fileStorage={banner?.image}
-                  onFileChange={(file) => field.onChange(file.id)}
-                  errorMessage={fieldState.error?.message}
-                />
-              </>
+              <ImagePicker
+                fileStorage={banner?.image}
+                onFileChange={(file) => field.onChange(file.id)}
+                errorMessage={fieldState.error?.message}
+              />
             )}
           />
           <div className="w-full flex justify-between">
@@ -268,15 +263,15 @@ const BannerForm = forwardRef<BannerFormRef, BannerFormProps>(
                   color="danger"
                   text="Remover"
                   type="button"
-                  variant="light"
-                  onPress={() => setDeleteOpen(true)}
+                  variant="ghost"
+                  onClick={() => setDeleteOpen(true)}
                 />
               )}
               <Button
                 data-test="input-submit"
                 text="Enviar"
                 type="submit"
-                isLoading={isPending}
+                disabled={isPending}
               />
             </div>
           </div>
@@ -306,7 +301,7 @@ const FoodSelect = ({ control }: { control: Control<BannerForm, unknown> }) => {
     [foods]
   );
 
-  const handleScroll: UIEventHandler<HTMLSelectElement> = (e) => {
+  const handleScroll: UIEventHandler<HTMLDivElement> = (e) => {
     if (
       e.currentTarget.scrollHeight - e.currentTarget.scrollTop ===
       e.currentTarget.clientHeight
@@ -323,18 +318,10 @@ const FoodSelect = ({ control }: { control: Control<BannerForm, unknown> }) => {
         <Select
           data-test="select-food"
           className="w-full"
-          label="Produto"
           placeholder="Selecione um produto"
-          variant="bordered"
-          classNames={{
-            trigger: "border-1 rounded-lg",
-            listboxWrapper: "border-1 rounded-lg",
-          }}
-          selectedKeys={[field.value]}
-          isInvalid={Boolean(fieldState.error)}
           errorMessage={fieldState.error?.message}
-          isLoading={isFetching}
-          onScrollCapture={handleScroll}
+          value={field.value ?? ""}
+          onValueChange={field.onChange}
         >
           {foodsMap?.map((food) => (
             <SelectItem key={food.id} value={food.id}>
@@ -362,24 +349,17 @@ const CategorySelect = ({
         <Select
           data-test="select-category"
           className="w-full"
-          label="Categoria"
           placeholder="Selecione uma categoria"
-          variant="bordered"
-          classNames={{
-            trigger: "border-1 rounded-lg",
-            listboxWrapper: "border-1 rounded-lg",
-          }}
-          selectedKeys={[field.value]}
-          isInvalid={Boolean(fieldState.error)}
           errorMessage={fieldState.error?.message}
-          isLoading={!categories}
-          {...field}
+          value={field.value ?? ""}
+          onValueChange={field.onChange}
         >
           {categories! &&
             Object.keys(categories).map((key) => (
               <SelectItem
                 data-test={`select-item-${categories[key]}`}
                 key={key}
+                value={key}
               >
                 {categories[key]}
               </SelectItem>

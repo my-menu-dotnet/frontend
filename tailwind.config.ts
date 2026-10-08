@@ -1,63 +1,96 @@
 import type { Config } from "tailwindcss";
-const { nextui } = require("@nextui-org/react");
 
 export default {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
-      colors: {},
+      colors: {
+        border: "oklch(var(--border) / <alpha-value>)",
+        input: "oklch(var(--input) / <alpha-value>)",
+        ring: "oklch(var(--ring) / <alpha-value>)",
+        background: "oklch(var(--background) / <alpha-value>)",
+        foreground: "oklch(var(--foreground) / <alpha-value>)",
+        primary: {
+          DEFAULT: "oklch(var(--primary) / <alpha-value>)",
+          foreground: "oklch(var(--primary-foreground) / <alpha-value>)",
+        },
+        secondary: {
+          DEFAULT: "oklch(var(--secondary) / <alpha-value>)",
+          foreground: "oklch(var(--secondary-foreground) / <alpha-value>)",
+        },
+        destructive: {
+          DEFAULT: "oklch(var(--destructive) / <alpha-value>)",
+          foreground: "oklch(var(--destructive-foreground) / <alpha-value>)",
+        },
+        muted: {
+          DEFAULT: "oklch(var(--muted) / <alpha-value>)",
+          foreground: "oklch(var(--muted-foreground) / <alpha-value>)",
+        },
+        accent: {
+          DEFAULT: "oklch(var(--accent) / <alpha-value>)",
+          foreground: "oklch(var(--accent-foreground) / <alpha-value>)",
+        },
+        popover: {
+          DEFAULT: "oklch(var(--popover) / <alpha-value>)",
+          foreground: "oklch(var(--popover-foreground) / <alpha-value>)",
+        },
+        card: {
+          DEFAULT: "oklch(var(--card) / <alpha-value>)",
+          foreground: "oklch(var(--card-foreground) / <alpha-value>)",
+        },
+        sidebar: {
+          DEFAULT: "oklch(var(--sidebar) / <alpha-value>)",
+          foreground: "oklch(var(--sidebar-foreground) / <alpha-value>)",
+          primary: "oklch(var(--sidebar-primary) / <alpha-value>)",
+          "primary-foreground":
+            "oklch(var(--sidebar-primary-foreground) / <alpha-value>)",
+          accent: "oklch(var(--sidebar-accent) / <alpha-value>)",
+          "accent-foreground":
+            "oklch(var(--sidebar-accent-foreground) / <alpha-value>)",
+          border: "oklch(var(--sidebar-border) / <alpha-value>)",
+          ring: "oklch(var(--sidebar-ring) / <alpha-value>)",
+        },
+        chart: {
+          1: "oklch(var(--chart-1) / <alpha-value>)",
+          2: "oklch(var(--chart-2) / <alpha-value>)",
+          3: "oklch(var(--chart-3) / <alpha-value>)",
+          4: "oklch(var(--chart-4) / <alpha-value>)",
+          5: "oklch(var(--chart-5) / <alpha-value>)",
+        },
+        brand: {
+          DEFAULT: "#FFC303",
+          foreground: "#ffffff",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      fontFamily: {
+        sans: [
+          "Montserrat Variable",
+          "Montserrat",
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif",
+        ],
+        heading: [
+          "Montserrat Variable",
+          "Montserrat",
+          "system-ui",
+          "sans-serif",
+        ],
+      },
     },
   },
   darkMode: "class",
-  plugins: [
-    nextui({
-      addCommonColors: true,
-      dark: true,
-      icons: true,
-      themes: {
-        light: {
-          colors: {
-            background: "#f9f9f9",
-            foreground: {
-              DEFAULT: "#171717",
-              400: "#4a4a4a",
-            },
-            primary: "#ffcf00",
-            "primary-foreground": {
-              DEFAULT: "white",
-            },
-            "success-foreground": {
-              DEFAULT: "white",
-            },
-            "warning-foreground": {
-              DEFAULT: "white",
-            },
-          },
-        },
-        dark: {
-          colors: {
-            background: "#0a0a0a",
-            foreground: {
-              DEFAULT: "#ededed",
-            },
-            primary: "#FFC303",
-            "primary-foreground": {
-              DEFAULT: "white",
-            },
-            "success-foreground": {
-              DEFAULT: "white",
-            },
-            "warning-foreground": {
-              DEFAULT: "white",
-            },
-          },
-        },
-      },
-    }),
-  ],
+  plugins: [],
 } satisfies Config;

@@ -1,29 +1,40 @@
 import Button from "@/components/Button";
 import Input from "@/components/Input";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import useCategory from "@/hooks/queries/useCategory";
 import api from "@/services/api";
 import { Category, CategoryStatus } from "@/types/api/Category";
 import { status } from "@/utils/lists";
 import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-} from "@nextui-org/react";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
+type EditTarget =
+  | null
+  | { mode: "new" }
+  | { mode: "edit"; category: Category };
+
 type CategoryModalProps = {
-  newCategory: Category | null;
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  target: EditTarget;
+  onClose: () => void;
 };
 
 type CategoryForm = {
@@ -31,28 +42,33 @@ type CategoryForm = {
   status: CategoryStatus;
 };
 
-const schema = Yup.object().shape({
+const schema: Yup.ObjectSchema<CategoryForm> = Yup.object().shape({
   name: Yup.string().required(),
-  status: Yup.string().required(),
+  status: Yup.string<CategoryStatus>().oneOf(["ACTIVE", "INACTIVE"]).required(),
 });
 
-const CategoryModal = ({ open, setOpen, newCategory }: CategoryModalProps) => {
+const CategoryModal = ({ target, onClose }: CategoryModalProps) => {
+  const isOpen = target !== null;
+  const editingCategory = target?.mode === "edit" ? target.category : null;
+  const isEditing = editingCategory !== null;
+
   const { refetch } = useCategory();
   const { control, handleSubmit, setValue, reset } = useForm<CategoryForm>({
     resolver: yupResolver(schema),
+    defaultValues: { name: "", status: "ACTIVE" },
   });
 
   const { mutateAsync } = useMutation({
     mutationKey: ["update-create-category"],
     mutationFn: async (data: CategoryForm) => {
-      if (newCategory?.id) {
-        return api.put(`/category/${newCategory.id}`, data);
+      if (isEditing) {
+        return api.put(`/category/${editingCategory.id}`, data);
       }
       return api.post("/category", data);
     },
     onSuccess: async () => {
       await refetch();
-      setOpen(false);
+      onClose();
     },
   });
 
@@ -66,84 +82,103 @@ const CategoryModal = ({ open, setOpen, newCategory }: CategoryModalProps) => {
   };
 
   useEffect(() => {
-    if (newCategory) {
-      const { name, status } = newCategory;
-      setValue("name", name);
-      setValue("status", status);
-    } else {
-      reset();
+    if (target?.mode === "edit") {
+      setValue("name", target.category.name);
+      setValue("status", target.category.status);
+    } else if (target?.mode === "new") {
+      reset({ name: "", status: "ACTIVE" });
     }
-  }, [newCategory]);
+    // target changes drive the form re-init; reset is stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target]);
 
   return (
-    <Modal isOpen={open} onClose={() => setOpen(false)}>
-      <ModalContent>
-        {(onClose) => (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSubmit(handleCategory)();
-            }}
-          >
-            <ModalHeader>Category</ModalHeader>
-            <ModalBody>
-              <Controller
-                control={control}
-                name="name"
-                render={({ field, fieldState }) => (
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {isEditing ? "Editar categoria" : "Nova categoria"}
+          </DialogTitle>
+        </DialogHeader>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit(handleCategory)();
+          }}
+        >
+          <FieldGroup>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={Boolean(fieldState.error)}>
+                  <FieldLabel htmlFor="category-name">Nome</FieldLabel>
                   <Input
+                    id="category-name"
                     data-test="input-name"
-                    label="Nome"
                     placeholder="Nome da categoria"
                     errorMessage={fieldState.error?.message}
                     {...field}
                   />
-                )}
-              />
-              <Controller
-                control={control}
-                name="status"
-                render={({ field, fieldState }) => (
-                  <Select
-                    data-test="select-status"
-                    className="w-full"
-                    label="Status"
-                    placeholder="Selecione um status"
-                    variant="bordered"
-                    classNames={{
-                      trigger: "border-1 rounded-lg",
-                      listboxWrapper: "border-1 rounded-lg",
+                </Field>
+              )}
+            />
+            <Controller
+              control={control}
+              name="status"
+              render={({ field, fieldState }) => (
+                <Field
+                  data-invalid={Boolean(fieldState.error)}
+                  className="gap-2"
+                >
+                  <FieldLabel>Status</FieldLabel>
+                  <ToggleGroup
+                    type="single"
+                    value={field.value}
+                    onValueChange={(v) => {
+                      if (v) field.onChange(v);
                     }}
-                    selectedKeys={[field.value]}
-                    isInvalid={Boolean(fieldState.error)}
-                    errorMessage={fieldState.error?.message}
-                    {...field}
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
                   >
                     {status.map((s) => (
-                      <SelectItem
-                        data-test={`select-item-${s.key}`}
+                      <ToggleGroupItem
                         key={s.key}
+                        value={s.key}
+                        data-test={`select-item-${s.key}`}
+                        className="flex-1 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
                       >
                         {s.label}
-                      </SelectItem>
+                      </ToggleGroupItem>
                     ))}
-                  </Select>
-                )}
-              />
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                color="default"
-                variant="light"
-                onPress={onClose}
-                text="Cancelar"
-              />
-              <Button data-test="input-submit" text="Enviar" type="submit" />
-            </ModalFooter>
-          </form>
-        )}
-      </ModalContent>
-    </Modal>
+                  </ToggleGroup>
+                  {fieldState.error && (
+                    <p className="text-sm text-destructive">
+                      {fieldState.error.message}
+                    </p>
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onPress={onClose}
+              text="Cancelar"
+              type="button"
+            />
+            <Button data-test="input-submit" text="Salvar" type="submit" />
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

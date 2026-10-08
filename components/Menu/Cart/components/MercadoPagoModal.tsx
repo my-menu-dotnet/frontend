@@ -1,11 +1,14 @@
-import { Modal, ModalBody } from "@nextui-org/react";
-import { BsCart3 } from "react-icons/bs";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 
 export default function MercadoPagoModal() {
   return (
-    <Modal>
-      <ModalBody>
-      </ModalBody>
-    </Modal>
+    <Dialog open>
+      <DialogContent>
+        {/* Reserved for future Mercado Pago wallet integration */}
+      </DialogContent>
+    </Dialog>
   );
 }

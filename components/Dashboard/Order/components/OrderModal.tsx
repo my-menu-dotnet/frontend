@@ -1,15 +1,15 @@
 import Button from "@/components/Button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { usePrint } from "@/hooks/usePrint";
 import api from "@/services/api";
 import { Order } from "@/types/api/order/Order";
-import {
-  Divider,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@nextui-org/react";
 import { useMutation } from "@tanstack/react-query";
 import { FaPrint } from "react-icons/fa";
 
@@ -34,14 +34,16 @@ export default function OrderModal({
   };
 
   return (
-    <Modal isOpen={!!order} onClose={onClose} size="2xl">
-      <ModalContent>
+    <Dialog open={!!order} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="max-w-2xl">
         {order && (
           <>
-            <ModalHeader>
-              Pedido #{String(order.order_number).padStart(3, "0")}
-            </ModalHeader>
-            <ModalBody>
+            <DialogHeader>
+              <DialogTitle>
+                Pedido #{String(order.order_number).padStart(3, "0")}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
               <div>
                 <h2>Cliente</h2>
                 <p>Nome: {order.user_name}</p>
@@ -49,7 +51,7 @@ export default function OrderModal({
                 <p>Tel.:{order.user?.phone}</p>
               </div>
 
-              <Divider />
+              <Separator />
 
               <div>
                 <h2>Endereço</h2>
@@ -59,7 +61,7 @@ export default function OrderModal({
                 </p>
               </div>
 
-              <Divider />
+              <Separator />
 
               <div>
                 <h2>Itens</h2>
@@ -87,17 +89,17 @@ export default function OrderModal({
                   </div>
                 ))}
               </div>
-            </ModalBody>
+            </div>
 
-            <ModalFooter>
+            <DialogFooter>
               <div className="w-full flex justify-between items-center">
                 <div>
                   {order.status === "ACCEPTED" ||
                     (order.status === "CREATED" && (
                       <Button
                         text="Remover"
-                        className="bg-danger text-white px-4 py-2 rounded-md"
-                        onPress={handleDelete}
+                        className="bg-red-500 text-white px-4 py-2 rounded-md"
+                        onClick={handleDelete}
                       />
                     ))}
                 </div>
@@ -105,7 +107,7 @@ export default function OrderModal({
                   <Button
                     text="Imprimir"
                     className="bg-primary text-white px-4 py-2 rounded-md"
-                    onPress={() => {
+                    onClick={() => {
                       print(order);
                     }}
                   >
@@ -113,10 +115,10 @@ export default function OrderModal({
                   </Button>
                 </div>
               </div>
-            </ModalFooter>
+            </DialogFooter>
           </>
         )}
-      </ModalContent>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }

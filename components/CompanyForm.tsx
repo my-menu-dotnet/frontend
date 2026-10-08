@@ -9,6 +9,7 @@ import Button from "./Button";
 import AddressForm from "./AddressForm";
 import { AddressRequest } from "@/types/api/Address";
 import Yup from "@/validators/Yup";
+import { addressValidation } from "@/validators/Yup/address";
 import FormItem from "./FormItem";
 import ColorPicker from "./ColorPicker";
 import useUser from "@/hooks/queries/useUser";
@@ -35,7 +36,7 @@ const schema = Yup.object().shape({
   email: Yup.string().email().required(),
   phone: Yup.string().required(),
   image_id: Yup.string().required(),
-  address: Yup.object().address(),
+  address: addressValidation(),
 });
 
 export default function CompanyForm() {

@@ -1,5 +1,4 @@
 import * as Yup from "yup";
-import "@/validators/Yup/address";
 import "@/validators/Yup/password";
 import "@/validators/Yup/fullName";
 import "@/validators/Yup/cpf";

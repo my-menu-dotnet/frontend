@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation } from "@tanstack/react-router";
 import { MenuItem } from "react-pro-sidebar";
 
 type ItemProps = {
@@ -11,15 +10,15 @@ type ItemProps = {
 };
 
 const Item = ({ title, to, icon }: ItemProps) => {
-  const pathName = usePathname();
-  const active = pathName === to;
+  const { pathname } = useLocation();
+  const active = pathname === to;
 
   return (
     <MenuItem
       active={active}
       className="text-gray-400"
       icon={icon}
-      component={<Link href={to} />}
+      component={<Link to={to}>{title}</Link>}
     >
       {title}
     </MenuItem>

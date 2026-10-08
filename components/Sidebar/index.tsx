@@ -6,7 +6,6 @@ import Singout from "./Singout";
 import Item from "./Item";
 import SubItem from "./SubItem";
 import menus from "@/utils/menus";
-import Image from "next/image";
 import Logo from "@/assets/logo.svg";
 import { useEffect, useState } from "react";
 
@@ -25,7 +24,13 @@ export default function Sidebar() {
       className="h-full rounded-r-2xl shadow-lg !fixed bg-white z-50"
     >
       <div className="flex items-center justify-center h-16 mb-8 mt-6">
-        <Image src={Logo} alt="Logo" width={50} height={50} priority />
+        <img
+          src={Logo}
+          alt="Logo"
+          width={50}
+          height={50}
+          className="object-contain"
+        />
       </div>
       <Menu>
         {menus.map((item, index) => {

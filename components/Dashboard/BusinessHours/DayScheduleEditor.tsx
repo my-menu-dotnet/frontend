@@ -1,8 +1,6 @@
-"use client";
-
+import Switch from "@/components/Switch";
+import { Input } from "@/components/ui/input";
 import { BusinessHours, DayOfWeek } from "@/types/api/BusinessHours";
-import { Switch, TimeInput } from "@nextui-org/react";
-import { Time } from "@internationalized/date";
 import { useMemo } from "react";
 
 type DayScheduleEditorProps = {
@@ -13,7 +11,7 @@ type DayScheduleEditorProps = {
 
 const dayNames: Record<DayOfWeek, string> = {
   MONDAY: "Segunda-feira",
-  TUESDAY: "Terça-feira", 
+  TUESDAY: "Terça-feira",
   WEDNESDAY: "Quarta-feira",
   THURSDAY: "Quinta-feira",
   FRIDAY: "Sexta-feira",
@@ -29,99 +27,82 @@ export default function DayScheduleEditor({
   const isOpen = !businessHours?.is_closed;
 
   const openingTime = useMemo(() => {
-    if (businessHours?.opening_time) {
-      const [hours, minutes] = businessHours.opening_time.split(':');
-      return new Time(parseInt(hours), parseInt(minutes));
-    }
-    return new Time(8, 0); // Default 08:00
+    return businessHours?.opening_time || "08:00:00";
   }, [businessHours?.opening_time]);
 
   const closingTime = useMemo(() => {
-    if (businessHours?.closing_time) {
-      const [hours, minutes] = businessHours.closing_time.split(':');
-      return new Time(parseInt(hours), parseInt(minutes));
-    }
-    return new Time(18, 0); // Default 18:00
+    return businessHours?.closing_time || "18:00:00";
   }, [businessHours?.closing_time]);
 
-  const handleToggleOpen = (isSelected: boolean) => {
+  const handleToggleOpen = (open: boolean) => {
     onChange(dayOfWeek, {
       day_of_week: dayOfWeek,
-      is_closed: !isSelected,
-      opening_time: isSelected ? formatTime(openingTime) : undefined,
-      closing_time: isSelected ? formatTime(closingTime) : undefined,
+      is_closed: !open,
+      opening_time: open ? openingTime : undefined,
+      closing_time: open ? closingTime : undefined,
     });
   };
 
-  const handleOpeningTimeChange = (time: Time | null) => {
-    if (!time) return;
-    onChange(dayOfWeek, {
-      day_of_week: dayOfWeek,
-      is_closed: false,
-      opening_time: formatTime(time),
-      closing_time: formatTime(closingTime),
-    });
-  };
-
-  const handleClosingTimeChange = (time: Time | null) => {
-    if (!time) return;
+  const handleOpeningTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(dayOfWeek, {
       day_of_week: dayOfWeek,
       is_closed: false,
-      opening_time: formatTime(openingTime),
-      closing_time: formatTime(time),
+      opening_time: e.target.value + ":00",
+      closing_time: closingTime,
     });
   };
 
-  const formatTime = (time: Time): string => {
-    return `${time.hour.toString().padStart(2, '0')}:${time.minute.toString().padStart(2, '0')}:00`;
+  const handleClosingTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(dayOfWeek, {
+      day_of_week: dayOfWeek,
+      is_closed: false,
+      opening_time: openingTime,
+      closing_time: e.target.value + ":00",
+    });
   };
 
   return (
-    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+    <div className="flex items-center justify-between p-4 border border-muted rounded-lg">
       <div className="flex items-center gap-4 flex-1">
         <div className="w-32">
-          <span className="font-medium text-gray-900">
+          <span className="font-medium text-foreground">
             {dayNames[dayOfWeek]}
           </span>
         </div>
-        
+
         <Switch
-          isSelected={isOpen}
-          onValueChange={handleToggleOpen}
-          color="primary"
+          checked={isOpen}
+          onCheckedChange={handleToggleOpen}
           size="sm"
         />
-        
+
         {isOpen && (
           <div className="flex items-center gap-3 ml-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Abertura:</span>
-              <TimeInput
-                value={openingTime}
+              <span className="text-sm text-muted-foreground">Abertura:</span>
+              <Input
+                type="time"
+                value={openingTime.slice(0, 5)}
                 onChange={handleOpeningTimeChange}
-                size="sm"
                 className="w-28"
-                hourCycle={24}
               />
             </div>
-            
+
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Fechamento:</span>
-              <TimeInput
-                value={closingTime}
+              <span className="text-sm text-muted-foreground">Fechamento:</span>
+              <Input
+                type="time"
+                value={closingTime.slice(0, 5)}
                 onChange={handleClosingTimeChange}
-                size="sm"
                 className="w-28"
-                hourCycle={24}
               />
             </div>
           </div>
         )}
       </div>
-      
+
       {!isOpen && (
-        <span className="text-sm text-gray-500 font-medium">Fechado</span>
+        <span className="text-sm text-muted-foreground font-medium">Fechado</span>
       )}
     </div>
   );

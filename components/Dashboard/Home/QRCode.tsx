@@ -1,13 +1,9 @@
-"use client";
-
 import Block from "@/components/Block";
 import useUser from "@/hooks/queries/useUser";
-import { Skeleton } from "@nextui-org/react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useMemo, useState } from "react";
 import { QRCode as QRCodeGen } from "react-qrcode-logo";
-import { QRCodeConfig } from "@/app/dashboard/qrcode/page";
-import { getQRCodeConfig, QRCodeDefault } from "@/utils/QRCode";
-import Link from "next/link";
+import { getQRCodeConfig, QRCodeConfig, QRCodeDefault } from "@/utils/QRCode";
 import { FiExternalLink } from "react-icons/fi";
 
 export default function QRCode() {
@@ -15,7 +11,7 @@ export default function QRCode() {
   const [qrConfig, setQrConfig] = useState<QRCodeConfig>();
 
   const menuUrl = useMemo(
-    () => `${process.env.NEXT_PUBLIC_FRONTEND_URL}/menu/${company?.url}?access_way=QR_CODE`,
+    () => `${import.meta.env.VITE_FRONTEND_URL}/menu/${company?.url}?access_way=QR_CODE`,
     [company?.url]
   );
 
@@ -27,10 +23,11 @@ export default function QRCode() {
   return !isLoading && company && qrConfig ? (
     <div className="">
       <Block className="h-80 flex flex-col items-center px-2">
-        <Link
+        <a
           href={menuUrl}
           target="_blank"
-          className="w-full max-w-[200px] border-2 border-gray-300 rounded-md bg-gray-50 px-2 py-1 flex flex-row items-center gap-2 cursor-pointer"
+          rel="noreferrer"
+          className="w-full max-w-[200px] border-2 border-muted rounded-md bg-muted px-2 py-1 flex flex-row items-center gap-2 cursor-pointer"
         >
           <span className="truncate overflow-hidden whitespace-nowrap">
             {menuUrl}
@@ -38,7 +35,7 @@ export default function QRCode() {
           <div className="min-w-5">
             <FiExternalLink />
           </div>
-        </Link>
+        </a>
         <div className="flex flex-col items-center">
           <QRCodeGen
             value={menuUrl}
@@ -55,12 +52,12 @@ export default function QRCode() {
             eyeRadius={qrConfig?.eyeRadius}
             eyeColor={qrConfig?.eyeColor}
           />
-          <Link
-            className="text-gray-500 text-center hover:text-gray-400 transition-colors"
+          <a
             href="/dashboard/qrcode"
+            className="text-muted-foreground text-center hover:text-muted transition-colors"
           >
             Personalize seu QR Code
-          </Link>
+          </a>
         </div>
       </Block>
     </div>

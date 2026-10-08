@@ -6,7 +6,6 @@ import ItemCategoryModal from "./components/ItemCategoryModal";
 import { FiEdit } from "react-icons/fi";
 import { FoodItem as IFoodItem } from "@/types/api/food/FoodItem";
 import ItemModal from "./components/ItemModa";
-import Image from "next/image";
 import { currency } from "@/utils/text";
 import DraggableList from "@/components/DraggableList";
 import { MdDragIndicator } from "react-icons/md";
@@ -57,7 +56,7 @@ export default function FoodItem({ food }: FoodItemProps) {
           <div className="mb-4" key={category.id}>
             <div
               onClick={() => handleClickCategory(category)}
-              className="bg-gray-50 hover:bg-gray-100 transition-background py-4 flex gap-2 items-center rounded-md px-4 text-gray-800 cursor-pointer"
+              className="bg-muted hover:bg-muted/70 transition-background py-4 flex gap-2 items-center rounded-md px-4 text-foreground cursor-pointer"
             >
               <div {...provided.dragHandleProps}>
                 <MdDragIndicator />
@@ -70,7 +69,7 @@ export default function FoodItem({ food }: FoodItemProps) {
                   </p>
                   <p>{category.description}</p>
                 </div>
-                <FiEdit size={20} className="text-gray-400" />
+                <FiEdit size={20} className="text-muted-foreground" />
               </div>
             </div>
             <div className="ml-4 mt-2">
@@ -81,7 +80,7 @@ export default function FoodItem({ food }: FoodItemProps) {
       />
       <div
         onClick={() => handleClickCategory()}
-        className="border rounded-md w-full h-12 flex gap-2 justify-center items-center text-gray-400 hover:bg-gray-50 cursor-pointer transition-colors"
+        className="border rounded-md w-full h-12 flex gap-2 justify-center items-center text-muted-foreground hover:bg-muted cursor-pointer transition-colors"
       >
         <FiPlus size={20} />
         <p>Adicionar categoria</p>

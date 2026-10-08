@@ -1,13 +1,10 @@
-"use client";
-
 import Block from "@/components/Block";
 import { ItemStats } from "@/types/api/analytics/OrderAnalytics";
-import { Skeleton } from "@nextui-org/react";
-import dynamic from "next/dynamic";
-import { ApexOptions } from "apexcharts";
+import { Skeleton } from "@/components/ui/skeleton";
+import { lazy, Suspense } from "react";
+import { ApexOptions, ApexFormatterOpts } from "apexcharts";
 
-// Importação dinâmica para evitar problemas de SSR
-const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+const Chart = lazy(() => import("react-apexcharts"));
 
 type TopItemsChartProps = {
   data: ItemStats[];
@@ -24,7 +21,7 @@ export default function TopItemsChart({
     return (
       <Block className={`h-80 ${className}`}>
         <Skeleton className="h-6 w-1/2 mb-6" />
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="flex items-center gap-4">
               <Skeleton className="h-4 w-1/3" />
@@ -37,7 +34,6 @@ export default function TopItemsChart({
     );
   }
 
-  // Preparar dados para o ApexCharts
   const chartData = {
     series: [
       {
@@ -83,7 +79,6 @@ export default function TopItemsChart({
     },
     xaxis: {
       categories: data.map((item) => {
-        // Truncar nomes longos
         return item.item_title.length > 20 
           ? `${item.item_title.substring(0, 20)}...`
           : item.item_title;
@@ -134,8 +129,9 @@ export default function TopItemsChart({
         fontFamily: "inherit",
       },
       y: {
-        formatter: (value: number, { dataPointIndex }) => {
-          const itemName = data[dataPointIndex]?.item_title || "";
+        formatter: (value: number, opts?: ApexFormatterOpts) => {
+          const idx = opts?.dataPointIndex;
+          const itemName = (idx !== undefined ? data[idx]?.item_title : "") || "";
           return `${value} pedidos - ${itemName}`;
         },
       },
@@ -162,26 +158,28 @@ export default function TopItemsChart({
   return (
     <Block className={`h-80 ${className}`}>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-semibold text-foreground">
           Itens Mais Vendidos
         </h3>
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-muted-foreground">
           {data.length} {data.length === 1 ? "item" : "itens"}
         </span>
       </div>
 
       {data.length === 0 ? (
-        <div className="flex items-center justify-center h-40 text-gray-500">
+        <div className="flex items-center justify-center h-40 text-muted-foreground">
           <p>Nenhum dado disponível para o período selecionado</p>
         </div>
       ) : (
         <div className="h-60">
-          <Chart
-            options={chartOptions}
-            series={chartData.series}
-            type="bar"
-            height="100%"
-          />
+          <Suspense fallback={<Skeleton className="h-full w-full" />}>
+            <Chart
+              options={chartOptions}
+              series={chartData.series}
+              type="bar"
+              height="100%"
+            />
+          </Suspense>
         </div>
       )}
     </Block>

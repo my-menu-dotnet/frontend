@@ -1,6 +1,7 @@
 
 .ps-menuitem-root.ps-active {
-  @apply bg-primary/10 text-primary;
+  background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+  color: var(--primary);
 }
 
 .ps-menuitem-root.ps-active::after {
@@ -15,5 +16,5 @@
   border-bottom-left-radius: 20px;
   transform: translateY(-50%);
 
-  @apply bg-primary;
+  background-color: var(--primary);
 }

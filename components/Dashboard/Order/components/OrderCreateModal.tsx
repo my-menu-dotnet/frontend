@@ -1,10 +1,19 @@
 import Button from "@/components/Button";
-import ClientAutocomplete from "@/components/Dashboard/Client/ClientAutocomplete";
+import ClientCombobox from "@/components/Dashboard/Client/ClientCombobox";
+import ClientFormModal from "@/components/Dashboard/Client/ClientFormModal";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
 import SelectItem from "@/components/SelectItem";
 import SimpleFoodItem from "@/components/SimpleFoodItem";
 import Textarea from "@/components/Textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import QUERY_KEY from "@/constants/queryKey";
 import { useMutationOrderAnonymous } from "@/hooks/mutate/useMutationOrderAnonymous";
 import useCategory from "@/hooks/queries/useCategory";
@@ -18,7 +27,6 @@ import { states } from "@/utils/lists";
 import { currency } from "@/utils/text";
 import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinner } from "@nextui-org/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -33,7 +41,7 @@ type OrderCreateModalProps = {
 
 type OrderCreateForm = {
   userName: string;
-  companyObservation: string;
+  companyObservation?: string;
   address: AddressRequest;
 };
 
@@ -48,16 +56,19 @@ type FoodLoaderProps = {
   onClose: () => void;
 };
 
-const schema = Yup.object().shape({
+const schema: Yup.ObjectSchema<OrderCreateForm> = Yup.object().shape({
   userName: Yup.string().required(),
   companyObservation: Yup.string().optional(),
   address: Yup.object().shape({
-    zip_code: Yup.string().required(),
-    state: Yup.string().required(),
-    city: Yup.string().required(),
-    neighborhood: Yup.string().required(),
-    street: Yup.string().required(),
-    number: Yup.string().required(),
+    zip_code: Yup.string()
+      .transform((v) => (v ? String(v).replace(/\D/g, "") : v))
+      .required("CEP é obrigatório")
+      .test("cep-digits", "CEP inválido", (v) => !v || v.length === 8),
+    state: Yup.string().required("Estado é obrigatório"),
+    city: Yup.string().required("Cidade é obrigatória"),
+    neighborhood: Yup.string().required("Bairro é obrigatório"),
+    street: Yup.string().required("Rua é obrigatória"),
+    number: Yup.string().required("Número é obrigatório"),
     complement: Yup.string().optional(),
   }),
 });
@@ -76,7 +87,10 @@ const defaultValues: OrderCreateForm = {
   },
 };
 
-export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalProps) {
+export default function OrderCreateModal({
+  isOpen,
+  onClose,
+}: OrderCreateModalProps) {
   const queryClient = useQueryClient();
   const { data: categories } = useCategory();
   const { mutateAsync, isPending } = useMutationOrderAnonymous();
@@ -88,11 +102,14 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
     client: null,
     addressSnapshotTaken: false,
   });
+  const [createClientOpen, setCreateClientOpen] = useState(false);
+  const [newClientPrefillName, setNewClientPrefillName] = useState("");
 
-  const { control, handleSubmit, reset, setValue, watch } = useForm<OrderCreateForm>({
-    resolver: yupResolver(schema),
-    defaultValues,
-  });
+  const { control, handleSubmit, reset, setValue, watch } =
+    useForm<OrderCreateForm>({
+      resolver: yupResolver(schema),
+      defaultValues,
+    });
 
   const userName = watch("userName");
 
@@ -103,6 +120,8 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
     setConfiguringFood(undefined);
     setSelectedFoodId(undefined);
     setSelectedClient({ client: null, addressSnapshotTaken: false });
+    setCreateClientOpen(false);
+    setNewClientPrefillName("");
     onClose();
   };
 
@@ -132,7 +151,7 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
         }
 
         return item;
-      })
+      }),
     );
   };
 
@@ -149,7 +168,7 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
 
           return item;
         })
-        .filter((item) => item.quantity > 0)
+        .filter((item) => item.quantity > 0),
     );
   };
 
@@ -207,11 +226,23 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
     setValue("userName", name, { shouldValidate: true });
   };
 
+  const handleCreateNewClient = (prefilledName: string) => {
+    setNewClientPrefillName(prefilledName);
+    setCreateClientOpen(true);
+  };
+
+  const handleClientCreated = (client: Client) => {
+    handleNameChange(client.name);
+    handleClientSelected(client);
+  };
+
   return (
     <>
-      <Modal isOpen={isOpen} onClose={handleClose} size="4xl" scrollBehavior="inside">
-        <ModalContent className="max-h-[80vh]">
-          <ModalHeader data-test="manual-order-modal">Novo pedido manual</ModalHeader>
+      <Dialog open={isOpen} onOpenChange={(isOpen) => !isOpen && handleClose()}>
+        <DialogContent className="sm:max-w-6xl w-full max-h-[80vh] overflow-y-auto">
+          <DialogHeader data-test="manual-order-modal">
+            <DialogTitle>Novo pedido manual</DialogTitle>
+          </DialogHeader>
           <form
             onSubmit={(event) => {
               event.preventDefault();
@@ -219,26 +250,29 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
             }}
             className="flex flex-1 flex-col min-h-0"
           >
-            <ModalBody>
+            <div className="space-y-4 py-4">
               <Controller
                 name="userName"
                 control={control}
                 render={({ fieldState }) => (
-                  <ClientAutocomplete
+                  <ClientCombobox
                     value={userName}
                     onNameChange={handleNameChange}
                     onClientSelected={handleClientSelected}
                     isInvalid={Boolean(fieldState.error)}
                     errorMessage={fieldState.error?.message}
+                    onCreateNew={handleCreateNewClient}
                   />
                 )}
               />
               {selectedClient.client && (
                 <p
-                  className="text-xs text-gray-500 -mt-2"
+                  className="text-xs text-muted-foreground -mt-2"
                   data-test="selected-client-hint"
                 >
-                  Cliente selecionado: <strong>{selectedClient.client.name}</strong> — os dados serão vinculados.
+                  Cliente selecionado:{" "}
+                  <strong>{selectedClient.client.name}</strong> — os dados serão
+                  vinculados.
                 </p>
               )}
 
@@ -275,16 +309,11 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
                         data-test="select-state"
                         {...field}
                       >
-                        <>
-                          <SelectItem value="" isDisabled>
-                            Selecione o estado
+                        {states.map((state) => (
+                          <SelectItem key={state.key} value={state.key}>
+                            {state.label}
                           </SelectItem>
-                          {states.map((state) => (
-                            <SelectItem key={state.key} value={state.key}>
-                              {state.label}
-                            </SelectItem>
-                          ))}
-                        </>
+                        ))}
                       </Select>
                     )}
                   />
@@ -364,20 +393,21 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
                 </div>
               </div>
 
-              <Divider />
+              <Separator />
 
               <div>
                 <div className="mb-3 flex items-center justify-between gap-4">
                   <div>
                     <h3 className="text-lg">Itens do pedido</h3>
-                    <p className="text-sm text-gray-400">
-                      Adicione produtos feitos por telefone, balcão ou presencialmente.
+                    <p className="text-sm text-muted-foreground">
+                      Adicione produtos feitos por telefone, balcão ou
+                      presencialmente.
                     </p>
                   </div>
                   <Button
                     text="Adicionar item"
                     type="button"
-                    onPress={() => setPickingFood(true)}
+                    onClick={() => setPickingFood(true)}
                     data-test="add-item-button"
                   />
                 </div>
@@ -392,7 +422,9 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
                               <SimpleFoodItem
                                 title={item.title}
                                 price={item.price}
-                                description={item.observation || item.description}
+                                description={
+                                  item.observation || item.description
+                                }
                                 discount={item.discount}
                                 image={item.image}
                                 onClickAdd={() => addItemUnity(item.id)}
@@ -404,9 +436,9 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
                             <Button
                               text="Remover"
                               type="button"
-                              variant="light"
+                              variant="ghost"
                               color="danger"
-                              onPress={() => removeItem(item.id)}
+                              onClick={() => removeItem(item.id)}
                             />
                           </div>
                           {item.items.length > 0 && (
@@ -428,7 +460,7 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
                       ))}
                     </div>
                   ) : (
-                    <div className="flex h-36 items-center justify-center text-center text-gray-400">
+                    <div className="flex h-36 items-center justify-center text-center text-muted-foreground">
                       Nenhum item adicionado.
                     </div>
                   )}
@@ -454,14 +486,14 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
                   />
                 )}
               />
-            </ModalBody>
-            <ModalFooter>
+            </div>
+            <DialogFooter>
               <Button
                 text="Cancelar"
                 type="button"
                 color="default"
-                variant="flat"
-                onPress={handleClose}
+                variant="ghost"
+                onClick={handleClose}
                 data-test="button-cancel-order"
               />
               <Button
@@ -471,10 +503,10 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
                 isDisabled={isPending}
                 data-test="button-submit-order"
               />
-            </ModalFooter>
+            </DialogFooter>
           </form>
-        </ModalContent>
-      </Modal>
+        </DialogContent>
+      </Dialog>
 
       {pickingFood && (
         <OrderCreateItemPicker
@@ -499,6 +531,13 @@ export default function OrderCreateModal({ isOpen, onClose }: OrderCreateModalPr
           onAdd={addItem}
         />
       )}
+
+      <ClientFormModal
+        isOpen={createClientOpen}
+        prefillName={newClientPrefillName}
+        onClose={() => setCreateClientOpen(false)}
+        onCreated={handleClientCreated}
+      />
     </>
   );
 }
@@ -513,14 +552,20 @@ function FoodLoader({ foodId, onLoad, onClose }: FoodLoaderProps) {
   }, [food, onLoad]);
 
   return (
-    <Modal isOpen onClose={onClose} size="sm">
-      <ModalContent>
-        <ModalBody className="flex items-center justify-center py-8">
-          <Spinner />
-          <span className="text-sm text-gray-400">Carregando produto...</span>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+    <Dialog open onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="max-w-sm">
+        <div className="flex flex-col items-center justify-center py-8 gap-3">
+          <div
+            className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary"
+            role="status"
+            aria-label="Carregando produto"
+          />
+          <span className="text-sm text-muted-foreground">
+            Carregando produto...
+          </span>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -541,7 +586,7 @@ const calcItemsTotal = (items: FoodOrder[]) => {
   return items.reduce((acc, item) => {
     const subItemsTotal = item.items.reduce(
       (subAcc, subItem) => subAcc + subItem.price * subItem.quantity,
-      0
+      0,
     );
 
     return acc + (item.price + subItemsTotal) * item.quantity;

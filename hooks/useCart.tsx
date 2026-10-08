@@ -1,7 +1,7 @@
 "use client";
 
 import { Discounts } from "@/types/api/Discounts";
-import { useParams } from "next/navigation";
+import { useParams } from "@tanstack/react-router";
 import React, {
   createContext,
   useContext,
@@ -35,8 +35,11 @@ export type FoodOrder = {
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<FoodOrder[]>([]);
-  const params = useParams();
-  const menuId = params.id;
+  // useParams is called to remain compatible with the old behavior of
+  // reading `params.id` here; the menu id is used by the route level.
+  // We only need to ensure this hook runs so route params are available.
+  const _params = useParams({ strict: false }) as { id?: string };
+  const menuId = _params.id;
 
   const addItem = (item: FoodOrder) => {
     setItems([...items, item]);
@@ -96,7 +99,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    console.log(items);
     localStorage.setItem(`cart`, JSON.stringify(items));
   }, [items]);
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import api from "@/services/api";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import useSendVerifyEmail from "@/hooks/queries/useSendVerifyEmail";
@@ -30,7 +30,7 @@ type VerificationCodeProps = {
 export default function VerificationCode({ type }: VerificationCodeProps) {
   const counterRef = useRef<CounterRef>(null);
   const inputsRef = useRef<HTMLInputElement[]>([]);
-  const router = useRouter();
+  const navigate = useNavigate();
   const { error, refetch } = useSendVerifyEmail(type);
   const { refetch: refetchUser } = useUser();
   const [allowResend, setAllowResend] = useState(false);
@@ -95,7 +95,7 @@ export default function VerificationCode({ type }: VerificationCodeProps) {
     if (!error) return;
 
     if (error.response?.status === 409) {
-      router.push("/dashboard");
+      navigate({ to: "/dashboard" });
       return;
     }
 
@@ -103,20 +103,20 @@ export default function VerificationCode({ type }: VerificationCodeProps) {
       type: "error",
       icon: () => "😓",
     });
-  }, [error]);
+  }, [error, navigate]);
 
   useEffect(() => {
-    window.addEventListener("keydown", (e) => {
+    const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
         handleSubmit();
       }
-    });
-
+    };
+    window.addEventListener("keydown", onKeyDown);
     window.addEventListener("paste", handlePaste);
 
     return () => {
-      window.removeEventListener("keydown", () => {});
-      window.removeEventListener("paste", () => {});
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("paste", handlePaste);
     };
   }, []);
 

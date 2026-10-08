@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Input from "./Input";
-import { InputProps } from "@nextui-org/react";
+import { InputProps } from "@/components/Input";
 
 type ColorPickerProps = InputProps & {
   label: string;
@@ -24,8 +24,8 @@ export default function ColorPicker({
         label={label}
         placeholder={placeholder}
         onClick={() => colorRef.current?.click()}
-        isReadOnly
-        isDisabled={disabled}
+        readOnly
+        disabled={disabled}
         {...props}
         value={props.value}
         endContent={

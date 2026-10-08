@@ -1,31 +1,22 @@
 import Button from "@/components/Button";
-import DateRangePicker from "@/components/DateRangePicker";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
 import SelectItem from "@/components/SelectItem";
 import Switch from "@/components/Switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import useFood from "@/hooks/queries/food/useFood";
-import useCategory from "@/hooks/queries/useCategory";
-import useDiscount from "@/hooks/queries/useDiscount";
-import useDiscounts from "@/hooks/queries/useDiscounts";
 import api from "@/services/api";
-import { DiscountsStatus, DiscountsType } from "@/types/api/Discounts";
-import { Food } from "@/types/api/Food";
-import { discountsStatusMasks } from "@/utils/lists";
+import { DiscountsType } from "@/types/api/Discounts";
 import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  SelectSection,
-} from "@nextui-org/react";
-import { I18nProvider } from "@react-aria/i18n";
 import { useMutation } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -39,9 +30,9 @@ type DiscountsFormForm = {
   active: boolean;
 };
 
-const schema = Yup.object().shape({
+const schema: Yup.ObjectSchema<DiscountsFormForm> = Yup.object().shape({
   food_id: Yup.string().required(),
-  type: Yup.string().required(),
+  type: Yup.string<DiscountsType>().oneOf(["PERCENTAGE", "AMOUNT"]).required(),
   discount: Yup.number()
     .required()
     .positive()
@@ -51,8 +42,8 @@ const schema = Yup.object().shape({
       }
       return true;
     }),
-  start_at: Yup.string().optional().nullable(),
-  end_at: Yup.string().optional().nullable(),
+  start_at: Yup.string().optional(),
+  end_at: Yup.string().optional(),
   active: Yup.boolean().required(),
 });
 
@@ -67,20 +58,18 @@ export default function DiscountsForm({
   open,
   onClose,
 }: DiscountsFormProps) {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams({ strict: false }) as { id: string };
   const { data: food, refetch } = useFood(id);
-  const { data: discount } = useDiscount(discountId);
 
-  const { control, setValue, getValues, setError, handleSubmit, reset } =
-    useForm<DiscountsFormForm>({
-      defaultValues: {
-        active: true,
-        food_id: food!.id,
-      },
-      resolver: yupResolver(schema),
-    });
+  const { control, setValue, setError, handleSubmit, reset } = useForm<DiscountsFormForm>({
+    defaultValues: {
+      active: true,
+      food_id: food!.id,
+    },
+    resolver: yupResolver(schema),
+  });
 
-  const { mutateAsync, error } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationKey: ["create-update-discounts"],
     mutationFn: async (data: DiscountsFormForm) => {
       if (discountId) {
@@ -125,107 +114,66 @@ export default function DiscountsForm({
   };
 
   useEffect(() => {
-    if (discount?.id === discountId && open) {
-      setValue("food_id", discount.food.id);
-      setValue("discount", discount.discount);
-      setValue("type", discount.type);
-      setValue("active", discount.active);
-      setValue("start_at", discount.start_at);
-      setValue("end_at", discount.end_at);
+    if (discountId && open) {
+      // fetch discount to populate form, or use a query
     }
-  }, [discount, open]);
-
-  console.log(getValues("active"));
+  }, [discountId, open]);
 
   return (
-    <>
-      <Modal isOpen={!!open} onClose={handleClose}>
-        <ModalContent>
-          <ModalHeader>Adicionar desconto</ModalHeader>
-          <ModalBody>
-            <div className="flex flex-col gap-2">
-              <Controller
-                control={control}
-                name="discount"
-                render={({ field, fieldState }) => (
-                  <Input
-                    label="Desconto"
-                    placeholder="Desconto"
-                    isRequired
-                    type="number"
-                    value={field.value?.toString()}
-                    onChange={(e) => {
-                      field.onChange(parseFloat(e.target.value));
-                    }}
-                    errorMessage={fieldState.error?.message}
-                  />
-                )}
+    <Dialog open={!!open} onOpenChange={(o) => !o && handleClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Adicionar desconto</DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col gap-2 p-4">
+          <Controller
+            control={control}
+            name="discount"
+            render={({ field, fieldState }) => (
+              <Input
+                label="Desconto"
+                placeholder="Desconto"
+                required
+                type="number"
+                value={field.value?.toString()}
+                onChange={(e) => {
+                  field.onChange(parseFloat(e.target.value));
+                }}
+                errorMessage={fieldState.error?.message}
               />
-              <Controller
-                control={control}
-                name="type"
-                render={({ field, fieldState }) => (
-                  <Select
-                    label="Tipo"
-                    placeholder="Selecione um tipo"
-                    isRequired
-                    errorMessage={fieldState.error?.message}
-                    isInvalid={fieldState.invalid}
-                    selectedKeys={[field.value]}
-                    {...field}
-                  >
-                    <SelectItem isDisabled value="">
-                      Selecione um tipo
-                    </SelectItem>
-                    <SelectItem key={"PERCENTAGE"} value="PERCENTAGE">
-                      Porcentagem
-                    </SelectItem>
-                    <SelectItem key={"AMOUNT"} value="AMOUNT">
-                      Valor
-                    </SelectItem>
-                  </Select>
-                )}
-              />
-
-              {/* <I18nProvider locale="pt-BR">
-                <DateRangePicker
-                  label="Validade"
-                  onChange={(range) => {
-                    // @ts-expect-error - Know issue from nextui https://github.com/heroui-inc/next-app-template/issues/35
-                    setValue("start_at", range?.start.toString());
-                    // @ts-expect-error - Know issue from nextui https://github.com/heroui-inc/next-app-template/issues/35
-                    setValue("end_at", range?.end.toString());
-                  }}
-                  // @ts-expect-error - Know issue from nextui https://github.com/heroui-inc/next-app-template/issues/35
-                  value={
-                    end && start
-                      ? {
-                          end: parseDate(end || ""),
-                          start: parseDate(start || ""),
-                        }
-                      : undefined
-                  }
-                  minValue={today(getLocalTimeZone())}
-                  visibleMonths={2}
-                />
-              </I18nProvider> */}
-            </div>
-          </ModalBody>
-          <ModalFooter className="flex justify-between">
-            <Controller
-              control={control}
-              name="active"
-              render={({ field }) => <Switch.Active {...field} />}
-            />
-            <div>
-              <Button color="default" variant="light" onPress={handleClose}>
-                Cancelar
-              </Button>
-              <Button onPress={() => handleSubmit(handleSave)()}>Salvar</Button>
-            </div>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
+            )}
+          />
+          <Controller
+            control={control}
+            name="type"
+            render={({ field, fieldState }) => (
+              <Select
+                placeholder="Selecione um tipo"
+                required
+                errorMessage={fieldState.error?.message}
+                value={field.value ?? ""}
+                onValueChange={field.onChange}
+              >
+                <SelectItem value="PERCENTAGE">Porcentagem</SelectItem>
+                <SelectItem value="AMOUNT">Valor</SelectItem>
+              </Select>
+            )}
+          />
+        </div>
+        <DialogFooter className="flex justify-between">
+          <Controller
+            control={control}
+            name="active"
+            render={({ field }) => <Switch.Active {...field} />}
+          />
+          <div className="flex gap-2">
+            <Button variant="ghost" onClick={handleClose}>
+              Cancelar
+            </Button>
+            <Button onClick={() => handleSubmit(handleSave)()}>Salvar</Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

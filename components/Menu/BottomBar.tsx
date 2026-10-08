@@ -2,7 +2,7 @@
 
 import useOrdersUser from "@/hooks/queries/order/useOrdersUser";
 import { useCart } from "@/hooks/useCart";
-import { useParams, useRouter } from "next/navigation";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { BsCart3 } from "react-icons/bs";
 import { FaRegUser } from "react-icons/fa";
@@ -16,8 +16,8 @@ export default function BottomBar() {
   const { data: orders } = useOrdersUser();
   const { company } = useMenuCompany();
   const { isOpen, status } = useBusinessStatus(company.business_hours);
-  const router = useRouter();
-  const params = useParams();
+  const navigate = useNavigate();
+  const params = useParams({ strict: false }) as { id?: string };
   const menuId = params.id;
 
   const handleCartClick = () => {
@@ -25,11 +25,11 @@ export default function BottomBar() {
       toast.error(`Não é possível fazer pedidos agora. ${status}.`);
       return;
     }
-    router.push(`/menu/${menuId}/cart`);
+    navigate({ to: `/menu/${menuId}/cart` });
   };
 
   const handleProfilClick = () => {
-    router.push(`/menu/${menuId}/profile`);
+    navigate({ to: `/menu/${menuId}/profile` });
   };
 
   const hasCreatedOrder = useMemo(() => {

@@ -2,7 +2,10 @@
 
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Sidebar/Header";
-import { Drawer, DrawerContent } from "@nextui-org/react";
+import {
+  Sheet,
+  SheetContent,
+} from "@/components/ui/sheet";
 import { useEffect, useState } from "react";
 
 export default function DashboardLayout({
@@ -22,15 +25,11 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen flex flex-row flex-nowrap bg-[#F1F1F1]">
       {isMobile ? (
-        <Drawer
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          placement="left"
-        >
-          <DrawerContent className="w-[80px]">
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetContent side="left" className="w-[80px] p-0">
             <Sidebar />
-          </DrawerContent>
-        </Drawer>
+          </SheetContent>
+        </Sheet>
       ) : (
         <Sidebar />
       )}

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import FoodDefault from "@/assets/default-food.jpg";
 import { currency } from "@/utils/text";
 import { GoPlus } from "react-icons/go";
@@ -36,13 +35,12 @@ export default function SimpleFoodItem({
 }: SimpleFoodItemProps) {
   return (
     <div className="flex items-center gap-2 h-24">
-      <Image
+      <img
         src={image || FoodDefault}
         alt="Imagem do item"
         className="object-contain"
         width={60}
         height={60}
-        quality={100}
       />
       <div className="flex-1 w-full flex flex-col justify-between py-1">
         <div className="">

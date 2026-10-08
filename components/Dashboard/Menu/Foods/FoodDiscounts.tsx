@@ -1,10 +1,16 @@
 import Table from "@/components/Table";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Discounts } from "@/types/api/Discounts";
 import { Food } from "@/types/api/Food";
 import { calculateDiscount } from "@/utils/discount";
 import { discountsStatusColors, discountsStatusMasks } from "@/utils/lists";
 import { currency } from "@/utils/text";
-import { Chip, Tooltip, User } from "@nextui-org/react";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { useMemo } from "react";
@@ -15,6 +21,13 @@ type FoodDiscountsProps = {
   food: Food | null;
 };
 
+const statusColorClass: Record<string, string> = {
+  success: "bg-green-500",
+  warning: "bg-yellow-500",
+  danger: "bg-red-500",
+  default: "bg-muted-foreground",
+};
+
 export default function FoodDiscounts({ food }: FoodDiscountsProps) {
   const columns = useMemo<ColumnDef<Discounts, unknown>[]>(
     () => [
@@ -22,17 +35,20 @@ export default function FoodDiscounts({ food }: FoodDiscountsProps) {
         id: "status",
         maxSize: 35,
         cell: ({ row }) => {
+          const color =
+            statusColorClass[discountsStatusColors[row.original.status]] ||
+            "bg-muted";
           return (
             <div className="flex items-center justify-center">
-              <Tooltip
-                color={discountsStatusColors[row.original.status]}
-                content={discountsStatusMasks[row.original.status]}
-              >
-                <div
-                  className={`flex justify-center items-center rounded-full w-2 h-2 bg-${
-                    discountsStatusColors[row.original.status]
-                  }`}
-                />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className={`flex justify-center items-center rounded-full w-2 h-2 ${color}`}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {discountsStatusMasks[row.original.status]}
+                </TooltipContent>
               </Tooltip>
             </div>
           );
@@ -42,19 +58,20 @@ export default function FoodDiscounts({ food }: FoodDiscountsProps) {
         header: "Produto",
         cell: () => (
           <div className="flex items-center gap-4">
-            <User
-              avatarProps={{
-                radius: "full",
-                src: food?.image?.url,
-              }}
-              name={food?.name}
-              description={food?.description}
-              classNames={{
-                description: "line-clamp-1",
-              }}
-            >
-              {food?.description}
-            </User>
+            <div className="flex items-center gap-2">
+              <Avatar className="rounded-full">
+                <AvatarImage src={food?.image?.url} />
+                <AvatarFallback>
+                  {food?.name?.[0]?.toUpperCase() ?? "?"}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-sm font-medium">{food?.name}</p>
+                <p className="text-xs text-muted-foreground line-clamp-1">
+                  {food?.description}
+                </p>
+              </div>
+            </div>
           </div>
         ),
       },
@@ -62,25 +79,35 @@ export default function FoodDiscounts({ food }: FoodDiscountsProps) {
         header: "Valor total",
         cell: () =>
           food?.price && (
-            <Tooltip content="Valor total do produto sem desconto">
-              <Chip size="sm" variant="flat">
-                <p className="ml-1">{currency(food?.price)}</p>
-              </Chip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="secondary" className="cursor-default">
+                  <span className="ml-1">{currency(food?.price)}</span>
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                Valor total do produto sem desconto
+              </TooltipContent>
             </Tooltip>
           ),
       },
       {
         header: "Desconto",
         cell: ({ row }) => (
-          <Tooltip content="Valor ou porcentagem de desconto aplicado ao produto">
-            <Chip size="sm" variant="flat">
-              <p className="ml-1">
-                {row.original.type === "AMOUNT" &&
-                  currency(row.original.discount)}
-                {row.original.type === "PERCENTAGE" &&
-                  `${row.original.discount}%`}
-              </p>
-            </Chip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="secondary" className="cursor-default">
+                <span className="ml-1">
+                  {row.original.type === "AMOUNT" &&
+                    currency(row.original.discount)}
+                  {row.original.type === "PERCENTAGE" &&
+                    `${row.original.discount}%`}
+                </span>
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              Valor ou porcentagem de desconto aplicado ao produto
+            </TooltipContent>
           </Tooltip>
         ),
       },
@@ -88,37 +115,44 @@ export default function FoodDiscounts({ food }: FoodDiscountsProps) {
         header: "Valor final",
         cell: ({ row }) =>
           food && (
-            <Tooltip content="Valor final do produto com desconto">
-              <Chip size="sm" variant="flat" color="warning">
-                <p className="ml-1">
-                  {currency(calculateDiscount(food, row.original))}
-                </p>
-              </Chip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge className="bg-yellow-500 text-white cursor-default">
+                  <span className="ml-1">
+                    {currency(calculateDiscount(food, row.original))}
+                  </span>
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                Valor final do produto com desconto
+              </TooltipContent>
             </Tooltip>
           ),
       },
       {
         header: "Tipo",
-        cell: ({ row }) => (
-          <Tooltip
-            color={row.original.type === "PERCENTAGE" ? "danger" : "success"}
-            content={`Tipo de desconto aplicado: ${
-              row.original.type === "PERCENTAGE" ? "Porcentagem" : "Valor"
-            }`}
-          >
-            <Chip
-              size="sm"
-              variant="flat"
-              color={row.original.type === "PERCENTAGE" ? "danger" : "success"}
-            >
-              {row.original.type === "PERCENTAGE" ? (
-                <FiPercent />
-              ) : (
-                <MdAttachMoney />
-              )}
-            </Chip>
-          </Tooltip>
-        ),
+        cell: ({ row }) => {
+          const isPercentage = row.original.type === "PERCENTAGE";
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge
+                  className={`${
+                    isPercentage
+                      ? "bg-red-500 text-white"
+                      : "bg-green-500 text-white"
+                  }`}
+                >
+                  {isPercentage ? <FiPercent /> : <MdAttachMoney />}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                Tipo de desconto aplicado:{" "}
+                {isPercentage ? "Porcentagem" : "Valor"}
+              </TooltipContent>
+            </Tooltip>
+          );
+        },
       },
       {
         header: "Válido de",

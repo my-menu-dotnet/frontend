@@ -7,7 +7,7 @@ import { MdPayment } from "react-icons/md";
 import { Children, useEffect } from "react";
 import "../css/steps.css";
 import { useCartStep } from "../hooks/useCarStep";
-import { useParams } from "next/navigation";
+import { useParams } from "@tanstack/react-router";
 import api from "@/services/api";
 
 type CartStepsProps = {
@@ -15,8 +15,8 @@ type CartStepsProps = {
 };
 
 export default function CartSteps({ children }: CartStepsProps) {
-  const params = useParams();
-  const menuId = params.id as string;
+  const params = useParams({ strict: false }) as { id?: string };
+  const menuId = (params.id as string) ?? "";
   const { step } = useCartStep();
 
   const childrenArray = Children.toArray(children);
@@ -29,29 +29,29 @@ export default function CartSteps({ children }: CartStepsProps) {
     <>
       <section className="px-4 min-h-screen">
         <div className="max-w-4xl mx-auto">
-          <div className="flex w-full items-center justify-center mb-12 text-gray-400">
+          <div className="flex w-full items-center justify-center mb-12 text-muted-foreground">
             <Step
-              icon={<BsCart3 size={24} className="text-gray-400" />}
+              icon={<BsCart3 size={24} className="text-muted-foreground" />}
               selected={step === 0}
             >
               Carrinho
             </Step>
             <Step
-              icon={<MdOutlineEmail size={24} className="text-gray-400" />}
+              icon={<MdOutlineEmail size={24} className="text-muted-foreground" />}
               selected={step === 1}
             >
               E-mail
             </Step>
             <Step
               icon={
-                <HiOutlineLocationMarker size={24} className="text-gray-400" />
+                <HiOutlineLocationMarker size={24} className="text-muted-foreground" />
               }
               selected={step === 2}
             >
               Endereço
             </Step>
             <Step
-              icon={<MdPayment size={24} className="text-gray-400" />}
+              icon={<MdPayment size={24} className="text-muted-foreground" />}
               selected={step === 3}
             >
               Pagamento

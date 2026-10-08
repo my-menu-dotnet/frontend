@@ -1,7 +1,5 @@
-"use client";
-
 import Block from "@/components/Block";
-import { Skeleton } from "@nextui-org/react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ReactNode } from "react";
 
 type StatCardProps = {
@@ -35,13 +33,13 @@ export default function StatCard({
     <Block className={`h-32 flex flex-col justify-between ${className}`}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm text-gray-600 font-medium">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-2">
+          <p className="text-sm text-muted-foreground font-medium">{title}</p>
+          <p className="text-2xl font-bold text-foreground mt-2">
             {typeof value === "number" ? value.toLocaleString("pt-BR") : value}
           </p>
         </div>
         {icon && (
-          <div className="text-2xl text-gray-400 ml-4">{icon}</div>
+          <div className="text-2xl text-muted-foreground ml-4">{icon}</div>
         )}
       </div>
       
@@ -54,7 +52,7 @@ export default function StatCard({
           >
             {growth >= 0 ? "+" : ""}{growth.toFixed(1)}%
           </span>
-          <span className="text-sm text-gray-500 ml-2">vs. período anterior</span>
+          <span className="text-sm text-muted-foreground ml-2">vs. período anterior</span>
         </div>
       )}
     </Block>

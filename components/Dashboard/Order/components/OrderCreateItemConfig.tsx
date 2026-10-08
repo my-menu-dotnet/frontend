@@ -1,17 +1,23 @@
 import Button from "@/components/Button";
 import SimpleFoodItem from "@/components/SimpleFoodItem";
 import Textarea from "@/components/Textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { FoodOrder } from "@/hooks/useCart";
 import { Food } from "@/types/api/Food";
 import { FoodItem } from "@/types/api/food/FoodItem";
 import { FoodItemCategory } from "@/types/api/food/FoodItemCategory";
 import { currency } from "@/utils/text";
-import { Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@nextui-org/react";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { BiMinus } from "react-icons/bi";
 import { GoPlus } from "react-icons/go";
 import { toast } from "react-toastify";
-import { v4 } from "uuid";
 
 type OrderCreateItemConfigProps = {
   food: Food;
@@ -31,7 +37,7 @@ export default function OrderCreateItemConfig({
 
   const addSubItem = (item: FoodItem) => {
     const defaultItem = {
-      id: v4(),
+      id: crypto.randomUUID(),
       itemId: item.id,
       image: item.image?.url || "",
       title: item.title,
@@ -119,29 +125,32 @@ export default function OrderCreateItemConfig({
   }, [food]);
 
   return (
-    <Modal isOpen={Boolean(food)} onClose={onClose} size="4xl" className="max-h-[80vh]">
-      <ModalContent>
-        <ModalHeader data-test="item-config-modal">
+    <Dialog
+      open={Boolean(food)}
+      onOpenChange={(isOpen) => !isOpen && onClose()}
+    >
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader data-test="item-config-modal">
           <div>
             <h2 className="text-xl">{food.name}</h2>
-            <p className="text-sm text-gray-400">{food.description}</p>
+            <p className="text-sm text-muted-foreground">{food.description}</p>
           </div>
-        </ModalHeader>
-        <ModalBody className="overflow-auto">
-          <div className="flex items-center justify-between rounded-lg border border-divider p-4">
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="flex items-center justify-between rounded-lg border p-4">
             <div>
-              <p className="text-sm text-gray-400">Quantidade</p>
-              <p className="font-semibold">{currentItem.quantity} unidade(s)</p>
+              <p className="text-sm text-muted-foreground">Quantidade</p>
+              <p className="font-semibold">
+                {currentItem.quantity} unidade(s)
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <Button
-                isIconOnly
-                variant="flat"
-                color="default"
-                size="sm"
+                variant="outline"
+                className="h-8 w-8 p-0"
                 type="button"
-                onPress={() => changeQuantity(-1)}
-                isDisabled={currentItem.quantity <= 1}
+                onClick={() => changeQuantity(-1)}
+                disabled={currentItem.quantity <= 1}
               >
                 <BiMinus />
               </Button>
@@ -149,12 +158,10 @@ export default function OrderCreateItemConfig({
                 {currentItem.quantity}
               </span>
               <Button
-                isIconOnly
-                variant="flat"
-                color="default"
-                size="sm"
+                variant="outline"
+                className="h-8 w-8 p-0"
                 type="button"
-                onPress={() => changeQuantity(1)}
+                onClick={() => changeQuantity(1)}
               >
                 <GoPlus />
               </Button>
@@ -163,7 +170,7 @@ export default function OrderCreateItemConfig({
 
           {food.item_categories.length > 0 && (
             <>
-              <Divider />
+              <Separator />
               {food.item_categories.map(
                 (category) =>
                   category.food_items.length > 0 && (
@@ -172,11 +179,11 @@ export default function OrderCreateItemConfig({
                         <div className="mb-2 flex items-center justify-between">
                           <div>
                             <h3 className="text-lg">{category.title}</h3>
-                            <p className="text-sm text-gray-400">
+                            <p className="text-sm text-muted-foreground">
                               {category.description}
                             </p>
                           </div>
-                          <div className="text-md text-gray-400">
+                          <div className="text-md text-muted-foreground">
                             {getTotalSelectedByCategory(category, currentItem)}/
                             {category.max_items}
                           </div>
@@ -203,11 +210,14 @@ export default function OrderCreateItemConfig({
                                 onClickRemove={() => removeSubItem(item.id)}
                                 total={
                                   currentItem.items.find(
-                                    (selectedItem) => selectedItem.itemId === item.id
+                                    (selectedItem) =>
+                                      selectedItem.itemId === item.id
                                   )?.quantity || 0
                                 }
                               />
-                              {index < category.food_items.length - 1 && <Divider />}
+                              {index < category.food_items.length - 1 && (
+                                <Separator />
+                              )}
                             </Fragment>
                           ))}
                         </div>
@@ -224,20 +234,25 @@ export default function OrderCreateItemConfig({
             ref={textAreaRef}
             data-test="input-item-observation"
           />
-        </ModalBody>
-        <ModalFooter>
+        </div>
+        <DialogFooter>
           <div className="flex w-full flex-row items-center justify-between">
             <p>Total: {currency(calcTotal(currentItem))}</p>
-            <Button text="Adicionar" onPress={handleAdd} type="button" data-test="button-confirm-item" />
+            <Button
+              text="Adicionar"
+              onClick={handleAdd}
+              type="button"
+              data-test="button-confirm-item"
+            />
           </div>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
 const createFoodOrder = (food: Food): FoodOrder => ({
-  id: v4(),
+  id: crypto.randomUUID(),
   itemId: food.id,
   quantity: 1,
   image: food.image?.url || "",

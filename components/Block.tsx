@@ -1,51 +1,85 @@
-"use client";
+import * as React from "react";
+import {
+  Tabs as ShadcnTabs,
+  TabsList as ShadcnTabsList,
+  TabsTrigger as ShadcnTabsTrigger,
+  TabsContent as ShadcnTabsContent,
+} from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
-import { Tabs, TabsProps } from "@nextui-org/react";
-import { DetailedHTMLProps, HTMLAttributes } from "react";
+type ShadcnTabsProps = React.ComponentProps<typeof ShadcnTabs>;
+type TabsPropsInherited = {
+  /** Controlled active tab value. */
+  value?: string;
+  /** Handler called when the active tab changes. */
+  onValueChange?: (value: string) => void;
+  /** Uncontrolled initial active tab value. */
+  defaultValue?: string;
+  /** Hero-UI alias for `value`. */
+  selectedKey?: string;
+  /** Hero-UI alias for `onValueChange`. */
+  onSelectionChange?: (key: string) => void;
+  /** Custom className for the underlying <Tabs> root. */
+  className?: string;
+  /** Vertical/horizontal orientation passthrough. */
+  orientation?: "horizontal" | "vertical";
+};
 
-type BlockProps = DetailedHTMLProps<
-  HTMLAttributes<HTMLDivElement>,
-  HTMLDivElement
-> & {
+export type BlockProps = React.HTMLAttributes<HTMLDivElement> & {
   children: React.ReactNode;
-  className?: HTMLAttributes<HTMLDivElement>["className"];
+  className?: string;
+  /** Optional Tabs markup to render at the top of the block. */
   tabs?: React.ReactNode;
-  tabsProps?: TabsProps;
+  /** Props passed to the underlying shadcn Tabs. */
+  tabsProps?: TabsPropsInherited;
 };
 
 export default function Block({
   children,
-  className = "",
+  className,
   tabs,
   tabsProps,
   ...rest
 }: BlockProps) {
+  const {
+    value: controlledValue,
+    onValueChange,
+    defaultValue,
+    selectedKey,
+    onSelectionChange,
+    className: tabsClassName,
+    orientation,
+    ...tabsRest
+  } = tabsProps ?? {};
+
+  const resolvedValue = controlledValue ?? selectedKey;
+  const handleChange = (v: string) => {
+    onValueChange?.(v);
+    onSelectionChange?.(v);
+  };
+
   return (
     <div
-      className={`bg-white border border-gray-200 rounded-xl w-full ${
-        !tabs ? "p-6" : "pb-4"
-      } ${className}`}
+      className={cn(
+        "bg-card text-card-foreground border border-border rounded-xl w-full",
+        !tabs ? "p-6" : "pb-4",
+        className,
+      )}
       {...rest}
     >
       {tabs ? (
         <>
-          <Tabs
-            aria-label="Options"
-            classNames={{
-              tabList:
-                "gap-6 w-full relative rounded-none p-0 border-b border-divider",
-              base: "w-full",
-              cursor: "w-full bg-primary",
-              tab: "max-w-fit px-0 h-14",
-              tabContent: "group-data-[selected=true]:text-primary",
-            }}
-            color="primary"
-            variant="underlined"
-            {...tabsProps}
+          <ShadcnTabs
+            value={resolvedValue}
+            onValueChange={handleChange}
+            defaultValue={defaultValue}
+            orientation={orientation as ShadcnTabsProps["orientation"]}
+            className={cn("w-full", tabsClassName)}
+            {...tabsRest}
           >
             {tabs}
-          </Tabs>
-          <div className={"px-6 mt-4"}>{children}</div>
+          </ShadcnTabs>
+          <div className="px-6 mt-4">{children}</div>
         </>
       ) : (
         children
@@ -53,3 +87,8 @@ export default function Block({
     </div>
   );
 }
+
+export const Tabs = ShadcnTabs;
+export const TabsList = ShadcnTabsList;
+export const TabsTrigger = ShadcnTabsTrigger;
+export const TabsContent = ShadcnTabsContent;

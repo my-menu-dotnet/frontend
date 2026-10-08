@@ -1,13 +1,10 @@
-"use client";
-
 import Block from "@/components/Block";
 import { DailyStats } from "@/types/api/analytics/OrderAnalytics";
-import { Skeleton } from "@nextui-org/react";
-import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+import { lazy, Suspense } from "react";
 import { ApexOptions } from "apexcharts";
 
-// Importação dinâmica para evitar problemas de SSR
-const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+const Chart = lazy(() => import("react-apexcharts"));
 
 type DailyOrdersChartProps = {
   data: DailyStats[];
@@ -37,7 +34,6 @@ export default function DailyOrdersChart({
     });
   };
 
-  // Preparar dados para o ApexCharts
   const chartData = {
     series: [
       {
@@ -164,26 +160,28 @@ export default function DailyOrdersChart({
   return (
     <Block className={`h-80 ${className}`}>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-semibold text-foreground">
           Pedidos Diários (Último Mês)
         </h3>
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-muted-foreground">
           Total: {totalOrders} pedidos
         </span>
       </div>
 
       {data.length === 0 ? (
-        <div className="flex items-center justify-center h-48 text-gray-500">
+        <div className="flex items-center justify-center h-48 text-muted-foreground">
           <p>Nenhum dado disponível para o período</p>
         </div>
       ) : (
         <div className="h-60">
-          <Chart
-            options={chartOptions}
-            series={chartData.series}
-            type="area"
-            height="100%"
-          />
+          <Suspense fallback={<Skeleton className="h-full w-full" />}>
+            <Chart
+              options={chartOptions}
+              series={chartData.series}
+              type="area"
+              height="100%"
+            />
+          </Suspense>
         </div>
       )}
     </Block>

@@ -1,10 +1,14 @@
 import Button from "@/components/Button";
 import DeleteConfirmation from "@/components/DeleteConfirmation";
 import Table from "@/components/Table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import useDeleteClient from "@/hooks/mutate/useDeleteClient";
 import useClients from "@/hooks/queries/client/useClients";
 import { Client } from "@/types/api/Client";
-import { Tooltip } from "@nextui-org/react";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { useMemo, useState } from "react";
@@ -26,7 +30,7 @@ export default function ClientTable() {
           <div>
             <p className="font-semibold">{row.original.name}</p>
             {row.original.email && (
-              <p className="text-xs text-gray-500">{row.original.email}</p>
+              <p className="text-xs text-muted-foreground">{row.original.email}</p>
             )}
           </div>
         ),
@@ -43,7 +47,7 @@ export default function ClientTable() {
         header: "Cidade/UF",
         cell: ({ row }) => {
           const a = row.original.address;
-          if (!a?.city && !a?.state) return <span className="text-gray-400">-</span>;
+          if (!a?.city && !a?.state) return <span className="text-muted-foreground">-</span>;
           return <span>{`${a?.city ?? ""}/${a?.state ?? ""}`}</span>;
         },
       },
@@ -57,23 +61,31 @@ export default function ClientTable() {
         maxSize: 50,
         cell: ({ row }) => (
           <div className="relative flex items-center justify-end gap-4">
-            <Tooltip content="Editar cliente">
-              <span
-                data-test={`client-edit-${row.original.id}`}
-                className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                onClick={() => setEditingClient(row.original)}
-              >
-                <CiEdit size={22} />
-              </span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  data-test={`client-edit-${row.original.id}`}
+                  className="text-lg text-muted-foreground cursor-pointer active:opacity-50"
+                  onClick={() => setEditingClient(row.original)}
+                >
+                  <CiEdit size={22} />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Editar cliente</TooltipContent>
             </Tooltip>
-            <Tooltip color="danger" content="Excluir cliente">
-              <span
-                data-test={`client-delete-${row.original.id}`}
-                className="text-lg text-danger cursor-pointer active:opacity-50"
-                onClick={() => setDeletingClient(row.original)}
-              >
-                <MdOutlineDelete size={22} />
-              </span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  data-test={`client-delete-${row.original.id}`}
+                  className="text-lg text-destructive cursor-pointer active:opacity-50"
+                  onClick={() => setDeletingClient(row.original)}
+                >
+                  <MdOutlineDelete size={22} />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="bg-destructive text-white">
+                Excluir cliente
+              </TooltipContent>
             </Tooltip>
           </div>
         ),
@@ -121,7 +133,7 @@ export default function ClientTable() {
         onConfirm={handleConfirmDelete}
       />
       {isDeleting && (
-        <div className="text-xs text-gray-400 text-center mt-2">Removendo...</div>
+        <div className="text-xs text-muted-foreground text-center mt-2">Removendo...</div>
       )}
       <div className="hidden">
         <Button text="" />
