@@ -20,7 +20,9 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as CustomAxiosRequestConfig;
 
-    if (error.response?.status !== 401) {
+    // Worker module state is shared across requests. Session refresh and its
+    // retry queue belong only to the browser that owns the session cookies.
+    if (typeof window === "undefined" || error.response?.status !== 401) {
       return Promise.reject(error);
     }
 

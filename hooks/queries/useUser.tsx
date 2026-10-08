@@ -1,9 +1,10 @@
 import api from "@/services/api";
 import { User } from "@/types/api/User";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { isMissingCompanyError } from "@/utils/auth";
 
 type UseUserType = () => UseQueryResult<User | null, Error> & {
-  company: User["company"] | undefined;
+  company: NonNullable<User["company"]> | undefined;
 };
 
 const useUser: UseUserType = () => {
@@ -18,7 +19,9 @@ const useUser: UseUserType = () => {
 
   return {
     ...query,
-    company: query.data?.company,
+    company: isMissingCompanyError(query.error)
+      ? undefined
+      : query.data?.company ?? undefined,
   };
 };
 

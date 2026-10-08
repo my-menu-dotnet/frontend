@@ -13,14 +13,16 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import useSearchClients from "@/hooks/queries/client/useSearchClients";
+import { Button } from "@/components/ui/button";
 import { Client } from "@/types/api/Client";
 import { Loader2Icon } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 type ClientComboboxProps = {
   value: string;
   onNameChange: (name: string) => void;
   onClientSelected: (client: Client | null) => void;
+  onCreateNew?: (prefilledName: string) => void;
   isInvalid?: boolean;
   errorMessage?: string;
 };
@@ -29,12 +31,19 @@ export default function ClientCombobox({
   value,
   onNameChange,
   onClientSelected,
+  onCreateNew,
   isInvalid,
   errorMessage,
 }: ClientComboboxProps) {
   const [inputValue, setInputValue] = useState(value || "");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [open, setOpen] = useState(false);
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
+  const inputRef = useCallback((input: HTMLInputElement | null) => {
+    // Keep the popup inside a containing Radix dialog's focus and pointer scope.
+    setPortalContainer(input?.closest<HTMLElement>('[role="dialog"]') ?? null);
+  }, []);
 
   useEffect(() => {
     setInputValue(value || "");
@@ -63,18 +72,18 @@ export default function ClientCombobox({
     newVal: string,
     eventDetails?: { reason?: string }
   ) => {
-    setInputValue(newVal);
-
     // Só propaga para o form quando é digitação do usuário ou seleção de item.
     // Bloqueia 'focus-out' (blur) para não limpar o formulário.
     if (
       eventDetails?.reason &&
       eventDetails.reason !== "input-change" &&
-      eventDetails.reason !== "item-press"
+      eventDetails.reason !== "item-press" &&
+      eventDetails.reason !== "clear-press"
     ) {
       return;
     }
 
+    setInputValue(newVal);
     onNameChange(newVal);
     if (selectedClient && newVal !== selectedClient.name) {
       setSelectedClient(null);
@@ -111,12 +120,14 @@ export default function ClientCombobox({
           value={selectedClient}
           onValueChange={handleValueChange}
           inputValue={inputValue}
+          open={open}
+          onOpenChange={setOpen}
           onInputValueChange={handleInputValueChange}
           itemToStringLabel={(client: Client) => client.name}
           itemToStringValue={(client: Client) => client.id}
-          modal
         >
           <ComboboxInput
+            ref={inputRef}
             id="client-combobox-input"
             placeholder="Digite o nome do cliente"
             showTrigger
@@ -125,7 +136,7 @@ export default function ClientCombobox({
             data-test="input-customer-name"
           />
 
-          <ComboboxContent>
+          <ComboboxContent container={portalContainer ?? undefined}>
             {isFetching && displayItems.length === 0 && (
               <div className="flex items-center gap-2 p-3 text-sm text-muted-foreground">
                 <Loader2Icon className="size-4 animate-spin" />
@@ -133,16 +144,17 @@ export default function ClientCombobox({
               </div>
             )}
 
-            <ComboboxEmpty data-test="client-combobox-empty">
+            {!isFetching && <ComboboxEmpty data-test="client-combobox-empty">
               {queryLength >= 2
                 ? "Nenhum cliente encontrado"
                 : "Digite ao menos 2 caracteres para buscar"}
-            </ComboboxEmpty>
+            </ComboboxEmpty>}
 
             <ComboboxList>
               {(client: Client) => (
                 <ComboboxItem
                   key={client.id}
+                  value={client}
                   data-test={`client-suggestion-${client.id}`}
                 >
                   <div className="flex min-w-0 flex-col gap-0.5">
@@ -156,6 +168,19 @@ export default function ClientCombobox({
                 </ComboboxItem>
               )}
             </ComboboxList>
+            {onCreateNew && !selectedClient && inputValue.trim().length >= 2 && (
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => {
+                  setOpen(false);
+                  onCreateNew(inputValue.trim());
+                }}
+              >
+                Cadastrar "{inputValue.trim()}"
+              </Button>
+            )}
           </ComboboxContent>
         </Combobox>
 

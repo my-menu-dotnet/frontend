@@ -1,7 +1,9 @@
 # Development Stage
-FROM node:20-alpine AS development
+FROM node:22-alpine AS development
 
 WORKDIR /app
+
+ENV BUILD_TARGET=node
 
 COPY package*.json ./
 
@@ -14,7 +16,7 @@ EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
 # Builder Stage
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -24,11 +26,11 @@ RUN npm ci --legacy-peer-deps
 
 COPY . .
 
-RUN npm run build
+RUN npm run build:node
 
 # Production Stage
 
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 WORKDIR /app
 
@@ -38,11 +40,7 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/package-lock.json ./package-lock.json
 
 # Install only production dependencies
-# `tailwindcss` is a devDep in package.json (build-time only), but @heroui/theme
-# imports it at runtime for the Tailwind v4 theme system, so it must be present
-# in node_modules at runtime.
 RUN npm ci --legacy-peer-deps --omit=dev
-RUN npm install --legacy-peer-deps tailwindcss@^3.4.17 --no-save
 
 # Set the environment variables (if needed)
 ENV NODE_ENV=production
