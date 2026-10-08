@@ -1,312 +1,96 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { useState } from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactNode } from "react";
+import { delay, http, HttpResponse } from "msw";
+import { server } from "@/src/test/msw/server";
+import api from "@/services/api";
+import type { Client } from "@/types/api/Client";
 import ClientCombobox from "./ClientCombobox";
-import { Client } from "@/types/api/Client";
 
-// Mock the useSearchClients hook
-vi.mock("@/hooks/queries/client/useSearchClients", () => ({
-  default: vi.fn(),
-}));
-
-import useSearchClients from "@/hooks/queries/client/useSearchClients";
-
-const mockClient1: Client = {
-  id: "cli-1",
-  name: "João Silva",
-  email: "joao@example.com",
-  phone: "11999999999",
-  cpf: "12345678900",
-  address: {
-    id: "addr-1",
-    street: "Rua das Flores",
-    number: "123",
-    complement: "Apto 45",
-    neighborhood: "Centro",
-    city: "São Paulo",
-    state: "SP",
-    zip_code: "01310100",
-  },
-  created_at: "2024-01-01T00:00:00Z",
-  updated_at: "2024-01-01T00:00:00Z",
+const client: Client = {
+  id: "cli-1", name: "João Silva", phone: "11999999999", email: "joao@example.com",
+  cpf: "12345678900", created_at: "2024-01-01", updated_at: "2024-01-01",
+  address: { id: "addr-1", street: "Rua das Flores", number: "123", complement: "",
+    neighborhood: "Centro", city: "São Paulo", state: "SP", zip_code: "01310100" },
 };
+const searchUrl = "https://api.my-menu.net/client/search";
+const previousAdapter = api.defaults.adapter;
+beforeEach(() => { api.defaults.adapter = "fetch"; });
+afterEach(() => { api.defaults.adapter = previousAdapter; });
 
-const mockClient2: Client = {
-  id: "cli-2",
-  name: "Maria Santos",
-  email: "maria@example.com",
-  phone: "11888888888",
-  cpf: "98765432100",
-  address: {
-    id: "addr-2",
-    street: "Avenida Paulista",
-    number: "1000",
-    complement: "",
-    neighborhood: "Bela Vista",
-    city: "São Paulo",
-    state: "SP",
-    zip_code: "01311000",
-  },
-  created_at: "2024-01-02T00:00:00Z",
-  updated_at: "2024-01-02T00:00:00Z",
-};
-
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false, gcTime: 0 },
-    },
-  });
-  return ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-};
-
-const renderCombobox = (
-  props: Partial<{
-    value: string;
-    onNameChange: (name: string) => void;
-    onClientSelected: (client: Client | null) => void;
-    onCreateNew: (prefilledName: string) => void;
-    isInvalid: boolean;
-    errorMessage: string;
-  }> = {}
-) => {
-  const defaultProps = {
-    value: "",
-    onNameChange: vi.fn(),
-    onClientSelected: vi.fn(),
-    onCreateNew: vi.fn(),
-    isInvalid: false,
-    errorMessage: undefined,
-    ...props,
-  };
-
-  return render(<ClientCombobox {...defaultProps} />, { wrapper: createWrapper() });
-};
+function setup(options: { value?: string; onCreateNew?: (name: string) => void } = {}) {
+  const selected = vi.fn();
+  function Form() {
+    const [name, setName] = useState(options.value ?? "");
+    return <ClientCombobox value={name} onNameChange={setName}
+      onClientSelected={selected} onCreateNew={options.onCreateNew} />;
+  }
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+  render(<QueryClientProvider client={queryClient}><Form /></QueryClientProvider>);
+  return { user: userEvent.setup(), input: screen.getByRole("combobox", { name: "Nome do cliente" }), selected };
+}
 
 describe("ClientCombobox", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    (useSearchClients as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      data: [],
-      isFetching: false,
-    });
+  it("searches and delivers the selected client to the order form", async () => {
+    const searches: string[] = [];
+    server.use(http.get(searchUrl, ({ request }) => {
+      searches.push(new URL(request.url).searchParams.get("name") ?? "");
+      return HttpResponse.json([client]);
+    }));
+    const { user, input, selected } = setup();
+    await user.type(input, "Jo");
+    await user.click(await screen.findByRole("option", { name: /João Silva/ }));
+    expect(searches).toEqual(["Jo"]);
+    expect(selected).toHaveBeenCalledWith(client);
+    expect(input).toHaveValue("João Silva");
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    await user.type(input, "x");
+    expect(selected).toHaveBeenLastCalledWith(null);
+    expect(input).toHaveValue("João Silvax");
   });
 
-  afterEach(() => {
-    vi.resetAllMocks();
+  it("creates a client with the trimmed typed name and closes suggestions", async () => {
+    server.use(http.get(searchUrl, () => HttpResponse.json([])));
+    const create = vi.fn();
+    const { user, input } = setup({ onCreateNew: create });
+    await user.type(input, "  Ana Nova  ");
+    await user.click(await screen.findByRole("button", { name: /Cadastrar.*Ana Nova/ }));
+    expect(create).toHaveBeenCalledExactlyOnceWith("Ana Nova");
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
   });
 
-  describe("S1: Select existing client from search results", () => {
-    it("should call onClientSelected with full Client object when clicking a suggestion", async () => {
-      const onClientSelected = vi.fn();
-      const onNameChange = vi.fn();
-
-      (useSearchClients as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        data: [mockClient1, mockClient2],
-        isFetching: false,
-      });
-
-      renderCombobox({ onNameChange, onClientSelected });
-
-      const input = screen.getByPlaceholderText("Digite o nome do cliente");
-      await userEvent.type(input, "jo");
-
-      await waitFor(() => {
-        expect(useSearchClients).toHaveBeenCalledWith("jo");
-      });
-
-      const suggestion = screen.getByTestId("client-suggestion-cli-1");
-      await userEvent.click(suggestion);
-
-      expect(onClientSelected).toHaveBeenCalledWith(mockClient1);
-      expect(onNameChange).toHaveBeenCalledWith("João Silva");
-      expect(input).toHaveValue("João Silva");
-    });
-
-    it("should close the combobox after selecting a client", async () => {
-      const onClientSelected = vi.fn();
-
-      (useSearchClients as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        data: [mockClient1],
-        isFetching: false,
-      });
-
-      renderCombobox({ onClientSelected });
-
-      const input = screen.getByPlaceholderText("Digite o nome do cliente");
-      await userEvent.type(input, "jo");
-      await waitFor(() => expect(useSearchClients).toHaveBeenCalledWith("jo"));
-
-      const suggestion = screen.getByTestId("client-suggestion-cli-1");
-      await userEvent.click(suggestion);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId("client-suggestion-cli-1")).not.toBeInTheDocument();
-      });
-    });
+  it("keeps a freely typed name when the input loses focus", async () => {
+    server.use(http.get(searchUrl, () => HttpResponse.json([])));
+    const { user, input } = setup();
+    await user.type(input, "Ana");
+    await screen.findByText("Nenhum cliente encontrado");
+    await user.tab();
+    expect(input).toHaveValue("Ana");
+    expect(screen.queryByRole("button", { name: /Cadastrar/ })).not.toBeInTheDocument();
   });
 
-  describe("S2: Create new client button", () => {
-    it("should call onCreateNew with trimmed input value and keep input value", async () => {
-      const onCreateNew = vi.fn();
-      const onNameChange = vi.fn();
-
-      (useSearchClients as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        data: [],
-        isFetching: false,
-      });
-
-      renderCombobox({ onCreateNew, onNameChange });
-
-      const input = screen.getByPlaceholderText("Digite o nome do cliente");
-      await userEvent.type(input, "Maria");
-
-      const createButton = screen.getByTestId("client-combobox-create-new");
-      await userEvent.click(createButton);
-
-      expect(onCreateNew).toHaveBeenCalledWith("Maria");
-      expect(input).toHaveValue("Maria");
-      expect(onNameChange).not.toHaveBeenCalled();
-    });
-
-    it("should show create new button only when query length >= 2 and onCreateNew provided", async () => {
-      const onCreateNew = vi.fn();
-
-      (useSearchClients as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        data: [],
-        isFetching: false,
-      });
-
-      renderCombobox({ onCreateNew });
-
-      const input = screen.getByPlaceholderText("Digite o nome do cliente");
-
-      await userEvent.type(input, "M");
-      expect(screen.queryByTestId("client-combobox-create-new")).not.toBeInTheDocument();
-
-      await userEvent.type(input, "a");
-      await waitFor(() => {
-        expect(screen.getByTestId("client-combobox-create-new")).toBeInTheDocument();
-      });
-    });
-
-    it("should not show create new button when onCreateNew is not provided", () => {
-      (useSearchClients as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        data: [],
-        isFetching: false,
-      });
-
-      renderCombobox({ onCreateNew: undefined });
-
-      const input = screen.getByPlaceholderText("Digite o nome do cliente");
-      fireEvent.change(input, { target: { value: "Maria" } });
-
-      expect(screen.queryByTestId("client-combobox-create-new")).not.toBeInTheDocument();
-    });
+  it("shows loading until the search finishes, then the empty result", async () => {
+    server.use(http.get(searchUrl, async () => {
+      await delay(400);
+      return HttpResponse.json([]);
+    }));
+    const { user, input } = setup();
+    await user.type(input, "An");
+    expect(await screen.findByText("Buscando clientes...")).toBeInTheDocument();
+    expect(screen.queryByText("Nenhum cliente encontrado")).not.toBeInTheDocument();
+    expect(await screen.findByText("Nenhum cliente encontrado")).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText("Buscando clientes...")).not.toBeInTheDocument());
   });
 
-  describe("S3: Popover width matches input width", () => {
-    it("should render combobox content with anchor width matching input", () => {
-      (useSearchClients as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        data: [mockClient1],
-        isFetching: false,
-      });
-
-      renderCombobox({});
-
-      const input = screen.getByPlaceholderText("Digite o nome do cliente");
-      fireEvent.focus(input);
-
-      const comboboxContent = screen.getByTestId("client-combobox-content");
-      expect(comboboxContent).toHaveStyle({ width: "var(--anchor-width)" });
-    });
-  });
-
-  describe("Additional: Input value synchronization", () => {
-    it("should sync internal input with external value prop changes", () => {
-      const { rerender } = renderCombobox({ value: "Initial" });
-
-      const input = screen.getByPlaceholderText("Digite o nome do cliente");
-      expect(input).toHaveValue("Initial");
-
-      rerender(<ClientCombobox value="Updated" onNameChange={vi.fn()} onClientSelected={vi.fn()} />);
-
-      expect(input).toHaveValue("Updated");
-    });
-
-    it("should clear selected client when user types different name after selection", async () => {
-      const onClientSelected = vi.fn();
-      const onNameChange = vi.fn();
-
-      (useSearchClients as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        data: [mockClient1],
-        isFetching: false,
-      });
-
-      renderCombobox({ onClientSelected, onNameChange });
-
-      const input = screen.getByPlaceholderText("Digite o nome do cliente");
-      await userEvent.type(input, "jo");
-      await waitFor(() => expect(useSearchClients).toHaveBeenCalledWith("jo"));
-
-      const suggestion = screen.getByTestId("client-suggestion-cli-1");
-      await userEvent.click(suggestion);
-
-      await userEvent.clear(input);
-      await userEvent.type(input, "Different name");
-
-      expect(onClientSelected).toHaveBeenLastCalledWith(null);
-    });
-  });
-
-  describe("Loading and empty states", () => {
-    it("should show loading indicator while fetching", () => {
-      (useSearchClients as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        data: [],
-        isFetching: true,
-      });
-
-      renderCombobox({});
-
-      const input = screen.getByPlaceholderText("Digite o nome do cliente");
-      fireEvent.change(input, { target: { value: "jo" } });
-
-      expect(screen.getByTestId("client-combobox-loading")).toBeInTheDocument();
-      expect(screen.getByText("Buscando clientes...")).toBeInTheDocument();
-    });
-
-    it("should show empty message when no results and query >= 2 chars", () => {
-      (useSearchClients as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        data: [],
-        isFetching: false,
-      });
-
-      renderCombobox({});
-
-      const input = screen.getByPlaceholderText("Digite o nome do cliente");
-      fireEvent.change(input, { target: { value: "jo" } });
-
-      expect(screen.getByTestId("client-combobox-empty")).toBeInTheDocument();
-      expect(screen.getByText("Nenhum cliente encontrado")).toBeInTheDocument();
-    });
-
-    it("should show hint when query < 2 chars", () => {
-      (useSearchClients as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-        data: [],
-        isFetching: false,
-      });
-
-      renderCombobox({});
-
-      const input = screen.getByPlaceholderText("Digite o nome do cliente");
-      fireEvent.change(input, { target: { value: "j" } });
-
-      expect(screen.getByTestId("client-combobox-empty")).toBeInTheDocument();
-      expect(screen.getByText("Digite ao menos 2 caracteres para buscar")).toBeInTheDocument();
-    });
+  it("does not search or offer creation for a one-character name", async () => {
+    const requests = vi.fn();
+    server.use(http.get(searchUrl, () => { requests(); return HttpResponse.json([]); }));
+    const { user, input } = setup({ onCreateNew: vi.fn() });
+    await user.type(input, "A");
+    expect(await screen.findByText("Digite ao menos 2 caracteres para buscar")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Cadastrar/ })).not.toBeInTheDocument();
+    expect(requests).not.toHaveBeenCalled();
   });
 });
