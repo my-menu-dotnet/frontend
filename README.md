@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# My Menu frontend
 
-## Getting Started
+React 19, TanStack Start e shadcn/ui. O build padrão executa o SSR e as funções de servidor no Cloudflare Workers, com assets estáticos gerados pelo Vite. O backend continua em `https://api.my-menu.net`.
 
-First, run the development server:
+## Desenvolvimento
 
-```bash
+Use Node.js 22.12 ou superior.
+
+```sh
+npm ci --legacy-peer-deps
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`npm run dev` executa o servidor no runtime local da Cloudflare (`workerd`). As variáveis `VITE_API_URL` e `VITE_FRONTEND_URL` são públicas e incorporadas ao build. `.env.production` contém apenas os endpoints públicos de produção. Nunca coloque tokens ou outros segredos em variáveis `VITE_*`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Validação
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```sh
+npm run typecheck
+npm run lint
+npm test
+npm run test:workers
+npm run deploy:dry-run
+```
 
-## Learn More
+`test:workers` compila o projeto, inicia `vite preview` no `workerd` e verifica HTML SSR, assets, hidratação, navegação e seleção/cadastro de cliente no pedido manual. A API do navegador é interceptada; esses testes não criam registros no backend. A página inicial pode fazer sua consulta pública de leitura durante o SSR. Para instalar o navegador, use `npx playwright install chromium`.
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy no Cloudflare Workers
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+O `wrangler.jsonc` usa o Worker **my-app**, preserva seu domínio **my-menu.net** e habilita logs de observabilidade. A integração oficial do Vite gera `dist/server/wrangler.json`, junto ao código do Worker e aos assets. O Wrangler detecta essa configuração gerada; não publique o entrypoint TypeScript sem compilar primeiro.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Forneça `CLOUDFLARE_API_TOKEN` no ambiente do processo, a partir do arquivo externo de credenciais ou do secret do CI. Se necessário, forneça também `CLOUDFLARE_ACCOUNT_ID`. Esses valores não pertencem ao repositório.
 
-## Deploy on Vercel
+```sh
+npm run deploy:dry-run
+npm run deploy
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Após o deploy, confira `https://my-menu.net/`, `/auth`, um cardápio existente e os assets referenciados no HTML. O endereço `workers.dev` serve para conferir o Worker; o domínio de produção deve ser usado para cookies, CORS, Google OAuth e QR Codes.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Para testar o build localmente:
+
+```sh
+npm run build
+npm run preview
+```
+
+## Execução alternativa em Node.js / Docker
+
+A opção Node.js continua disponível e gera artefatos diferentes do build do Worker:
+
+```sh
+npm run build:node
+npm start
+```
+
+O Dockerfile utiliza Node.js 22 e `build:node`. Não execute `npm start` sobre os artefatos do build padrão de Workers.

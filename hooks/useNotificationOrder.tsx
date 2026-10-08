@@ -8,7 +8,7 @@ import React, {
   useEffect,
 } from "react";
 import useUser from "./queries/useUser";
-import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
 import { toast } from "react-toastify";
 import { Order } from "@/types/api/order/Order";
 import { currency } from "@/utils/text";
@@ -30,196 +30,70 @@ const playOrderSound = () => {
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-/**
- * Minimal WebSocket subscription helper used in place of `@stomp/stompjs`
- * (which was removed from the project). We open a plain WebSocket and parse
- * STOMP frames by hand. Only the message types we care about (`MESSAGE`,
- * `CONNECTED`, `ERROR`) are recognised — enough for the notification panel.
- */
-type StompFrame = {
-  command: string;
-  headers: Record<string, string>;
-  body: string;
-};
-
-function parseFrame(raw: string): StompFrame | null {
-  if (!raw) return null;
-  const normalized = raw.replace(/\0/g, "");
-  const index = normalized.indexOf("\n\n");
-  if (index === -1) return null;
-  const head = normalized.slice(0, index);
-  const body = normalized.slice(index + 2);
-  const [command, ...headerLines] = head.split("\n");
-  const headers: Record<string, string> = {};
-  for (const line of headerLines) {
-    const colonIndex = line.indexOf(":");
-    if (colonIndex > -1) {
-      headers[line.slice(0, colonIndex).trim()] = line
-        .slice(colonIndex + 1)
-        .trim();
-    }
-  }
-  return { command, headers, body };
-}
-
 export const NotificationOrderProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const { data: user } = useUser();
   const [newOrder, setNewOrder] = useState<Order>();
 
+  const tenantId = user?.company?.id;
+
   useEffect(() => {
-    if (!user?.company?.id) {
-      console.error("Dados do tenant não disponíveis");
-      return;
-    }
-    const tenantId = user.company.id;
+    setNewOrder(undefined);
+    if (!tenantId) return;
 
     let cancelled = false;
-    let socket: WebSocket | null = null;
-    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-    let pingTimer: ReturnType<typeof setInterval> | null = null;
-    let subscribed = false;
+    let client: Client | undefined;
 
-    const connect = () => {
+    // SockJS is a browser transport. Keep it out of Worker module evaluation.
+    void import("sockjs-client").then(({ default: SockJS }) => {
       if (cancelled) return;
-      try {
-        // SockJS provides a fallback for browsers/proxies that don't speak raw
-        // websockets. The `sockjs-client` package is still installed because
-        // the backend exposes a SockJS endpoint.
-        const sock = new SockJS(`${API_URL}/ws`) as unknown as {
-          onopen: ((ev: Event) => void) | null;
-          onmessage: ((ev: { data: string }) => void) | null;
-          onclose: ((ev: CloseEvent) => void) | null;
-          onerror: ((ev: Event) => void) | null;
-          close: () => void;
-        };
-        socket = sock as unknown as WebSocket;
-
-        const sendFrame = (command: string, headers: Record<string, string>, body = "") => {
-          const headerStr = Object.entries(headers)
-            .map(([k, v]) => `${k}:${v}`)
-            .join("\n");
-          sock.onmessage?.call(sock, {
-            data: `${command}\n${headerStr}\n\n${body}\0`,
-          } as unknown as MessageEvent);
-        };
-
-        const subscribeToTopic = (topic: string) => {
-          if (subscribed) return;
-          subscribed = true;
-          sendFrame("SUBSCRIBE", {
-            id: `sub-${topic}`,
-            destination: topic,
-          });
-        };
-
-        sock.onopen = () => {
-          // Send STOMP CONNECT
-          sock.onmessage?.call(sock, {
-            data: `CONNECT\naccept-version:1.2\nhost:${API_URL}\nheart-beat:10000,10000\n\n\0`,
-          } as unknown as MessageEvent);
-
-          pingTimer = setInterval(() => {
-            sock.onmessage?.call(sock, {
-              data: `\0`,
-            } as unknown as MessageEvent);
-          }, 10000);
-
-          // Subscribe to the tenant's order topic
-          subscribeToTopic(`/topic/orders/${tenantId}`);
-        };
-
-        const originalOnMessage = sock.onmessage;
-        sock.onmessage = (event: { data: string }) => {
-          const data = typeof event.data === "string" ? event.data : "";
-          const frame = parseFrame(data);
-          if (!frame) {
-            originalOnMessage?.call(sock, event);
-            return;
-          }
-
-          if (frame.command === "CONNECTED") {
-            toast.success("Notificações de pedidos ativadas");
-            return;
-          }
-
-          if (frame.command === "MESSAGE") {
+      client = new Client({
+        webSocketFactory: () => new SockJS(`${API_URL}/ws`),
+        reconnectDelay: 5000,
+        heartbeatIncoming: 10000,
+        heartbeatOutgoing: 10000,
+        onConnect: () => {
+          if (cancelled) return;
+          client!.subscribe(`/topic/orders/${tenantId}`, (message) => {
+            if (cancelled) return;
             try {
-              const orderData = JSON.parse(frame.body) as Order;
-              console.log("Nova ordem recebida:", orderData);
-
+              const orderData = JSON.parse(message.body) as Order;
               playOrderSound();
-
               toast(
                 <div>
                   <h1 className="font-semibold">Nova ordem recebida</h1>
-                  <p>
-                    Pedido: <strong>{orderData.order_number}</strong>
-                  </p>
-                  <p>
-                    Cliente: <strong>{orderData.user_name}</strong>
-                  </p>
-                  <p>
-                    Valor: <strong>{currency(orderData.total_price)}</strong>
-                  </p>
+                  <p>Pedido: <strong>{orderData.order_number}</strong></p>
+                  <p>Cliente: <strong>{orderData.user_name}</strong></p>
+                  <p>Valor: <strong>{currency(orderData.total_price)}</strong></p>
                 </div>,
-                {
-                  type: "info",
-                  autoClose: 20000,
-                },
+                { type: "info", autoClose: 20000 },
               );
-
               setNewOrder(orderData);
-            } catch (err) {
-              console.error("Erro ao processar mensagem:", err);
+            } catch (error) {
+              console.error("Erro ao processar mensagem de pedido:", error);
             }
-            return;
-          }
-
-          if (frame.command === "ERROR") {
-            toast.error("Erro ao conectar ao sistema de notificações", {
-              autoClose: false,
-            });
-            console.error("Erro do broker: " + (frame.headers["message"] ?? ""));
-            console.error("Detalhes: " + frame.body);
-            return;
-          }
-        };
-
-        const handleClose = () => {
-          if (pingTimer) clearInterval(pingTimer);
+          });
+          // The backend registers this session before broadcasting tenant orders.
+          client!.subscribe("/app/orders", () => {});
+          toast.success("Notificações de pedidos ativadas");
+        },
+        onStompError: () => {
           if (!cancelled) {
-            reconnectTimer = setTimeout(connect, 5000);
+            toast.error("Erro ao conectar ao sistema de notificações", { autoClose: false });
           }
-        };
-
-        const originalOnClose = sock.onclose;
-        sock.onclose = (event: CloseEvent) => {
-          handleClose();
-          originalOnClose?.call(sock, event);
-        };
-      } catch (err) {
-        console.error("Falha ao conectar WebSocket:", err);
-        if (!cancelled) {
-          reconnectTimer = setTimeout(connect, 5000);
-        }
-      }
-    };
-
-    connect();
+        },
+      });
+      client.activate();
+    }).catch((error) => {
+      if (!cancelled) console.error("Falha ao carregar notificações:", error);
+    });
 
     return () => {
       cancelled = true;
-      if (reconnectTimer) clearTimeout(reconnectTimer);
-      if (pingTimer) clearInterval(pingTimer);
-      try {
-        socket?.close();
-      } catch (err) {
-        console.error("Erro ao fechar WebSocket:", err);
-      }
+      void client?.deactivate({ force: true });
     };
-  }, [user]);
+  }, [tenantId]);
 
   return (
     <NotificationOrderContext.Provider value={{ newOrder }}>
