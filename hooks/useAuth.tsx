@@ -1,7 +1,6 @@
 import {
   createContext,
   ReactNode,
-  useCallback,
   useContext,
   useEffect,
 } from "react";
@@ -16,6 +15,7 @@ import useUser from "./queries/useUser";
 import Cookies from "js-cookie";
 import { AxiosError, AxiosResponse } from "axios";
 import { User } from "@/types/api/User";
+import { isMissingCompanyError } from "@/utils/auth";
 
 type CredentialResponse = {
   credential: string;
@@ -62,7 +62,8 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { data: user, refetch: refetchUser, isLoading: isLoadingUser } = useUser();
+  const { data: user, error: userError, isLoading: isLoadingUser } = useUser();
+  const requiresCompany = isMissingCompanyError(userError) || Boolean(user && !user.company);
   const navigate = useNavigate();
   const location = useLocation();
   const pathName = location.pathname;
@@ -75,7 +76,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   >({
     mutationFn: (credential: CredentialResponse) =>
       api.post("/v1/oauth/google", credential),
-    onSuccess: () => refetchUser(),
+    onSuccess: async ({ data: authenticatedUser }) => {
+      // Cancel a pre-login /user request before replacing its cache with the
+      // authoritative user returned by Google login (company can be null).
+      await queryClient.cancelQueries({ queryKey: ["user"], exact: true });
+      queryClient.setQueryData(["user"], authenticatedUser);
+    },
   });
 
   const logout = useMutation<AxiosResponse<unknown>, AxiosError<unknown>, void>(
@@ -88,8 +94,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   );
 
-  const handleRedirect = useCallback(async () => {
+  useEffect(() => {
     if (isLoadingUser) {
+      return;
+    }
+
+    if (
+      requiresCompany &&
+      (pathName.startsWith("/dashboard") || pathName === "/auth" || pathName === "/auth/")
+    ) {
+      navigate({ to: "/auth/company", replace: true });
       return;
     }
 
@@ -98,20 +112,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    if (user && !user.company && pathName.startsWith("/dashboard")) {
-      navigate({ to: "/auth/company", replace: true });
-      return;
-    }
-
-    if (user?.company && pathName.startsWith("/auth")) {
+    if (!requiresCompany && user?.company && pathName.startsWith("/auth")) {
       navigate({ to: "/dashboard", replace: true });
       return;
     }
-  }, [pathName, navigate, user]);
-
-  useEffect(() => {
-    handleRedirect();
-  }, [handleRedirect]);
+  }, [isLoadingUser, pathName, navigate, user, requiresCompany]);
 
   return (
     <AuthContext.Provider value={{ loginGoogle, logout }}>
