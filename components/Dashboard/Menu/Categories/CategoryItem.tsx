@@ -1,15 +1,24 @@
 import { Category } from "@/types/api/Category";
 import { DraggableProvided } from "@hello-pangea/dnd";
-import { Tooltip } from "@nextui-org/react";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { LuPencil } from "react-icons/lu";
 import { RxHamburgerMenu } from "react-icons/rx";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type CategoryItemProps = {
   category: Category;
   onClickEdit: () => void;
   onClickDelete: () => void;
   provided: DraggableProvided;
+};
+
+const statusColorClass: Record<string, string> = {
+  ACTIVE: "bg-green-500",
+  INACTIVE: "bg-red-500",
 };
 
 const CategoryItem = ({
@@ -28,12 +37,15 @@ const CategoryItem = ({
       <div {...provided.dragHandleProps}>
         <RxHamburgerMenu />
       </div>
-      <Tooltip content={category.status === "ACTIVE" ? "Ativo" : "Inativo"}>
-        <div
-          className={`w-3 h-3 rounded-full ${
-            category.status === "ACTIVE" ? "bg-success" : "bg-danger"
-          }`}
-        />
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            className={`w-3 h-3 rounded-full ${statusColorClass[category.status] ?? "bg-gray-400"}`}
+          />
+        </TooltipTrigger>
+        <TooltipContent>
+          {category.status === "ACTIVE" ? "Ativo" : "Inativo"}
+        </TooltipContent>
       </Tooltip>
       <div className="flex-1">{category.name}</div>
       <div
@@ -46,9 +58,9 @@ const CategoryItem = ({
       <div
         data-test="button-category-delete"
         onClick={onClickDelete}
-        className="hover:bg-danger-50 p-2 rounded-full cursor-pointer"
+        className="hover:bg-red-50 p-2 rounded-full cursor-pointer"
       >
-        <FaRegTrashCan className="text-danger" />
+        <FaRegTrashCan className="text-red-500" />
       </div>
     </div>
   );

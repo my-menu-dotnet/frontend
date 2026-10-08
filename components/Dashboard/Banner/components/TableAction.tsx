@@ -1,5 +1,4 @@
-import Button from "@/components/Button";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { HiChevronDoubleRight } from "react-icons/hi";
 
 type TableActionProps = {
@@ -7,16 +6,19 @@ type TableActionProps = {
 };
 
 export default function TableAction({ formId }: TableActionProps) {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleClick = () => {
-    router.push(`/dashboard/banners/${formId}`);
+    navigate({ to: `/dashboard/banners/${formId}` });
   };
 
   return (
     <div className="w-full flex justify-end">
-      <div className="cursor-pointer hover:bg-gray-200 p-1 rounded-md transition-background" onClick={handleClick}>
-        <HiChevronDoubleRight size={20} className="text-gray-500" />
+      <div
+        className="cursor-pointer hover:bg-muted p-1 rounded-md transition-background"
+        onClick={handleClick}
+      >
+        <HiChevronDoubleRight size={20} className="text-muted-foreground" />
       </div>
     </div>
   );

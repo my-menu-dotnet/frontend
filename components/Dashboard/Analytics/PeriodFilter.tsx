@@ -1,6 +1,4 @@
-"use client";
-
-import { Button } from "@nextui-org/react";
+import Button from "@/components/Button";
 
 type PeriodFilterProps = {
   selectedPeriod: number;
@@ -26,9 +24,8 @@ export default function PeriodFilter({
         <Button
           key={period.value}
           size="sm"
-          variant={selectedPeriod === period.value ? "solid" : "bordered"}
-          color={selectedPeriod === period.value ? "primary" : "default"}
-          onPress={() => onPeriodChange(period.value)}
+          variant={selectedPeriod === period.value ? "default" : "outline"}
+          onClick={() => onPeriodChange(period.value)}
           className="min-w-16"
         >
           {period.label}

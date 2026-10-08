@@ -41,7 +41,6 @@ export const PrintProvider = ({ children }: { children: ReactNode }) => {
   const [port, setPort] = useState<any>();
 
   const grantPermissionToUsePrinter = async () => {
-    // @ts-expect-error - Next dont has support
     const port = await window.navigator.serial.requestPort();
     await port.open({ baudRate: 9600 });
 

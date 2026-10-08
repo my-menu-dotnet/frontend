@@ -1,28 +1,30 @@
 import Button from "@/components/Button";
 import ImagePicker from "@/components/ImagePicker";
 import Input from "@/components/Input";
-import Switch from "@/components/Switch";
 import Textarea from "@/components/Textarea";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import StatusToggle, { StatusValue } from "@/components/StatusToggle";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import useCategory from "@/hooks/queries/useCategory";
 import useCategorySelect from "@/hooks/queries/useCategorySelect";
 import api from "@/services/api";
 import { Food, FoodStatus } from "@/types/api/Food";
 import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-} from "@nextui-org/react";
-import {
-  useIsMutating,
-  useMutation,
-  useMutationState,
-} from "@tanstack/react-query";
+import { useIsMutating, useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -44,13 +46,13 @@ export type FoodModalForm = {
   halal?: boolean;
 };
 
-const schema = Yup.object().shape({
+const schema: Yup.ObjectSchema<FoodModalForm> = Yup.object().shape({
   name: Yup.string().required(),
   description: Yup.string().required(),
   price: Yup.number().optional(),
   image_id: Yup.string().optional(),
   category_id: Yup.string().required(),
-  status: Yup.string().required(),
+  status: Yup.string<FoodStatus>().oneOf(["ACTIVE", "INACTIVE"]).required(),
   lactose_free: Yup.boolean().optional(),
   gluten_free: Yup.boolean().optional(),
   vegan: Yup.boolean().optional(),
@@ -126,12 +128,13 @@ export default function FoodModal({
         vegan,
         vegetarian,
         halal,
+        category,
       } = food;
       setValue("name", name);
       setValue("description", description);
       setValue("price", price);
       setValue("status", status || "ACTIVE");
-      setValue("category_id", category_id || "");
+      setValue("category_id", category_id || category.id || "");
       setValue("image_id", image?.id);
       setValue("lactose_free", lactose_free);
       setValue("gluten_free", gluten_free);
@@ -139,142 +142,172 @@ export default function FoodModal({
       setValue("vegetarian", vegetarian);
       setValue("halal", halal);
     }
-  }, [food]);
+  }, [food, category_id]);
 
   return (
-    <Modal isOpen={open} onClose={handleClose} size="4xl">
-      <ModalContent data-test="food-modal">
-        <ModalHeader>Produto</ModalHeader>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{food?.id ? "Editar produto" : "Novo produto"}</DialogTitle>
+        </DialogHeader>
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit(handleFood)();
           }}
         >
-          <ModalBody>
+          <FieldGroup className="gap-4 max-h-[60vh] overflow-y-auto pr-1">
             <Controller
               control={control}
               name="name"
               render={({ field, fieldState }) => (
-                <Input
-                  label="Nome"
-                  data-test="input-name"
-                  placeholder="Nome do produto"
-                  errorMessage={fieldState.error?.message}
-                  {...field}
-                />
+                <Field data-invalid={Boolean(fieldState.error)}>
+                  <FieldLabel htmlFor="food-name">Nome</FieldLabel>
+                  <Input
+                    id="food-name"
+                    data-test="input-name"
+                    placeholder="Nome do produto"
+                    errorMessage={fieldState.error?.message}
+                    {...field}
+                  />
+                </Field>
               )}
             />
             <Controller
               control={control}
               name="description"
               render={({ field, fieldState }) => (
-                <Textarea
-                  label="Descrição"
-                  data-test="input-description"
-                  placeholder="Descrição do produto"
-                  errorMessage={fieldState.error?.message}
-                  {...field}
-                />
+                <Field data-invalid={Boolean(fieldState.error)}>
+                  <FieldLabel htmlFor="food-description">Descrição</FieldLabel>
+                  <Textarea
+                    id="food-description"
+                    data-test="input-description"
+                    placeholder="Descrição do produto"
+                    errorMessage={fieldState.error?.message}
+                    {...field}
+                  />
+                </Field>
               )}
             />
-            <Controller
-              control={control}
-              name="price"
-              render={({ field, fieldState }) => (
-                <Input
-                  label="Preço"
-                  data-test="input-price"
-                  placeholder="Preço do produto"
-                  errorMessage={fieldState.error?.message}
-                  type="number"
-                  value={field.value?.toString()}
-                  startContent={
-                    <div className="pointer-events-none flex items-center">
-                      <span className="text-default-400 text-small">R$</span>
-                    </div>
-                  }
-                  onChange={(e) => {
-                    field.onChange(parseFloat(e.target.value));
-                  }}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="category_id"
-              render={({ field, fieldState }) => (
-                <Select
-                  data-test="select-category"
-                  className="w-full"
-                  label="Categoria"
-                  placeholder="Selecione uma categoria"
-                  variant="bordered"
-                  classNames={{
-                    trigger: "border-1 rounded-lg",
-                    listboxWrapper: "border-1 rounded-lg",
-                  }}
-                  selectedKeys={[field.value]}
-                  isInvalid={Boolean(fieldState.error)}
-                  errorMessage={fieldState.error?.message}
-                  isLoading={!categories}
-                  {...field}
-                >
-                  {categories! &&
-                    Object.keys(categories).map((key) => (
-                      <SelectItem
-                        data-test={`select-item-${categories[key]}`}
-                        key={key}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Controller
+                control={control}
+                name="price"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={Boolean(fieldState.error)}>
+                    <FieldLabel htmlFor="food-price">Preço</FieldLabel>
+                    <InputGroup>
+                      <InputGroupAddon align="inline-start">
+                        <span className="text-muted-foreground text-sm">R$</span>
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        id="food-price"
+                        data-test="input-price"
+                        placeholder="0,00"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={
+                          field.value === undefined || field.value === null
+                            ? ""
+                            : String(field.value)
+                        }
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          field.onChange(v === "" ? undefined : parseFloat(v));
+                        }}
+                        aria-invalid={Boolean(fieldState.error)}
+                      />
+                    </InputGroup>
+                    {fieldState.error?.message && (
+                      <p className="text-sm text-destructive">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="category_id"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={Boolean(fieldState.error)}>
+                    <FieldLabel htmlFor="food-category">Categoria</FieldLabel>
+                    <Select
+                      value={field.value ?? ""}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        id="food-category"
+                        data-test="select-category"
+                        className="w-full"
+                        aria-invalid={Boolean(fieldState.error)}
                       >
-                        {categories[key]}
-                      </SelectItem>
-                    ))}
-                </Select>
-              )}
-            />
+                        <SelectValue placeholder="Selecione uma categoria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories &&
+                          Object.keys(categories).map((key) => (
+                            <SelectItem
+                              data-test={`select-item-${categories[key]}`}
+                              key={key}
+                              value={key}
+                            >
+                              {categories[key]}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error?.message && (
+                      <p className="text-sm text-destructive">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
             <Controller
               control={control}
               name="image_id"
-              render={({ field, fieldState }) => (
+              render={({ field }) => (
                 <ImagePicker
                   fileStorage={food?.image}
                   onFileChange={(file) => {
                     field.onChange(file.id);
                   }}
-                  errorMessage={fieldState.error?.message}
                 />
               )}
             />
             <FoodCategories control={control} />
             <FoodDiscounts food={food} />
-          </ModalBody>
-          <ModalFooter>
-            <div className="w-full flex justify-between">
-              <Controller
-                control={control}
-                name="status"
-                render={({ field }) => <Switch.Status {...field} />}
-              />
-
-              <div>
-                <Button
-                  color="default"
-                  variant="light"
-                  onPress={handleClose}
-                  text="Cancelar"
-                  type="button"
+            <Controller
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <StatusToggle
+                  value={field.value as StatusValue}
+                  onChange={(v) => field.onChange(v)}
                 />
-                <Button
-                  data-test="input-submit"
-                  text="Enviar"
-                  type="submit"
-                  isLoading={!!isLoadingFile || isLoadingFood}
-                />
-              </div>
-            </div>
-          </ModalFooter>
+              )}
+            />
+          </FieldGroup>
+          <div className="mt-6 flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onPress={handleClose}
+              text="Cancelar"
+              type="button"
+            />
+            <Button
+              data-test="input-submit"
+              text="Salvar"
+              type="submit"
+              isLoading={!!isLoadingFile || isLoadingFood}
+            />
+          </div>
         </form>
-      </ModalContent>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }

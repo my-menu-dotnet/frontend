@@ -1,11 +1,9 @@
-"use client";
-
 import useCompanyAccess from "@/hooks/queries/analytics/useCompanyAccess";
 import { BsCalendar2Week } from "react-icons/bs";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { PiLightning } from "react-icons/pi";
 import Block from "../../Block";
-import { Skeleton } from "@nextui-org/react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function GrowthRate() {
   const { data: companyAccess, isLoading } = useCompanyAccess();
@@ -43,7 +41,7 @@ export function GrowthRate() {
               {masks[key].icon}
             </div>
             <div className="flex flex-col gap-2">
-              <p className="text-sm text-gray-400">{masks[key].title}</p>
+              <p className="text-sm text-muted-foreground">{masks[key].title}</p>
               <div className="text-xl flex flex-row items-center gap-2">
                 {value.total_access}
                 {value.growth_percentage < 0 ? (
@@ -52,7 +50,7 @@ export function GrowthRate() {
                   <FiChevronUp className="text-green-500" />
                 )}
               </div>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 {value.growth_percentage.toFixed(1)}%
               </p>
             </div>

@@ -1,11 +1,8 @@
-"use client";
-
 import Block from "@/components/Block";
 import Button from "@/components/Button";
 import useUser from "@/hooks/queries/useUser";
 import { usePrint } from "@/hooks/usePrint";
-import { Skeleton } from "@nextui-org/react";
-import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MdOutlineAlternateEmail } from "react-icons/md";
 import { SlScreenSmartphone } from "react-icons/sl";
 
@@ -23,7 +20,7 @@ export function Welcome() {
         <Block className="h-80 flex flex-row justify-between">
           <div className="flex-1 text-sm md:text-medium overflow-hidden">
             <h1 className="text-xl font-semibold">Bem vindo, {user?.name}</h1>
-            <h2 className="text-gray-400">
+            <h2 className="text-muted-foreground">
               Acompanhe o progresso de acesso da sua empresa, {company?.name}
             </h2>
             <div className="flex flex-col items-start mt-4">
@@ -35,24 +32,21 @@ export function Welcome() {
               </ContactComponent>
 
               {company?.address && (
-                <p className="flex flex-row gap-1 mt-6 line-clamp-1 whitespace-break-spaces text-gray-400">
+                <p className="flex flex-row gap-1 mt-6 line-clamp-1 whitespace-break-spaces text-muted-foreground">
                   {company.address.street}, {company.address.number}
                   {company.address.complement &&
                     `, ${company.address.complement}`}{" "}
                   - {company.address.city}, {company.address.state}
                 </p>
               )}
-              <Button className="mt-4" onPress={handleClick}>Imprimir</Button>
+              <Button className="mt-4" onClick={handleClick}>Imprimir</Button>
             </div>
           </div>
           <div className="max-w-[400px]">
-            <Image
+            <img
               alt="Home"
-              height={0}
-              width={0}
               src={"/images/kitchen-delivery.jpg"}
-              className="w-full object-contain hidden lg:block"
-              unoptimized={true}
+              className="w-full h-full object-contain hidden lg:block"
             />
           </div>
         </Block>

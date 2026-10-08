@@ -1,11 +1,11 @@
 import api from "@/services/api";
 import { Company } from "@/types/api/Company";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "react-toastify";
 
 export default function useUpdateCreateCompany<T>(company?: Company) {
-  const router = useRouter();
+  const navigate = useNavigate();
   return useMutation({
     mutationKey: ["update-create-company"],
     mutationFn: async (data: T) => {
@@ -20,7 +20,7 @@ export default function useUpdateCreateCompany<T>(company?: Company) {
     },
     onSuccess: () => {
       if (!company?.id) {
-        router.push("/auth/company/verify-email");
+        navigate({ to: "/auth/company/verify-email" });
       }
       toast.success("Empresa salva com sucesso");
     },

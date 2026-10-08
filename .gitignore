@@ -13,9 +13,16 @@
 # testing
 /coverage
 
-# next.js
+# next.js (legacy)
 /.next/
 /out/
+
+# tanstack start / vite
+/.output/
+/.nitro/
+/.tanstack/
+/dist/
+/.vite/
 
 # production
 /build
@@ -38,5 +45,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+src/routeTree.gen.ts
+
+# opencode state
+.omo/
 
 certificates

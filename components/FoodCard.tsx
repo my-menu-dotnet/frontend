@@ -1,5 +1,4 @@
 import { Food } from "@/types/api/Food";
-import Image from "next/image";
 import Price from "./Price";
 import { HTMLAttributes } from "react";
 import FoodDefault from "@/assets/default-food.jpg";
@@ -38,12 +37,12 @@ export default function FoodCard({
         />
       </div>
       <div className="h-full max-w-[40%]">
-        <Image
+        <img
           src={food.image?.url || FoodDefault}
           alt={food.name}
           width={200}
           height={200}
-          className="object-cover rounded-md h-full"
+          className="object-cover rounded-md h-full w-full"
         />
       </div>
     </li>

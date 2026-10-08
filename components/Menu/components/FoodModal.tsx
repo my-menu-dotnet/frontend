@@ -1,14 +1,17 @@
 import { Food } from "@/types/api/Food";
 import {
-  Divider,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import {
   Tooltip,
-} from "@nextui-org/react";
-import Image from "next/image";
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import FoodDefault from "@/assets/default-food.jpg";
 import { currency } from "@/utils/text";
 import GlutenFree from "@/components/icons/GlutenFree";
@@ -23,9 +26,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { FoodOrder, useCart } from "@/hooks/useCart";
 import { FoodItem } from "@/types/api/food/FoodItem";
 import SimpleFoodItem from "@/components/SimpleFoodItem";
-import { v4 } from "uuid";
 import Textarea from "@/components/Textarea";
-import { Category } from "@/types/api/Category";
 import { FoodItemCategory } from "@/types/api/food/FoodItemCategory";
 import { toast } from "react-toastify";
 import { BusinessHours } from "@/types/api/BusinessHours";
@@ -38,11 +39,11 @@ type FoodModalProps = {
 };
 
 export default function FoodModal({ food, onClose, businessHours = [] }: FoodModalProps) {
-  const { addItem, items } = useCart();
+  const { addItem } = useCart();
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const { isOpen, status } = useBusinessStatus(businessHours);
   const [currentItem, setCurrentItem] = useState<FoodOrder>({
-    id: v4(),
+    id: crypto.randomUUID(),
     itemId: food?.id || "",
     quantity: 1,
     image: food?.image?.url || "",
@@ -55,7 +56,7 @@ export default function FoodModal({ food, onClose, businessHours = [] }: FoodMod
 
   const addSubItem = (item: FoodItem) => {
     const defaultItem = {
-      id: v4(),
+      id: crypto.randomUUID(),
       itemId: item.id,
       image: item.image?.url || "",
       title: item.title,
@@ -65,13 +66,11 @@ export default function FoodModal({ food, onClose, businessHours = [] }: FoodMod
     };
 
     setCurrentItem((state) => {
-      // Check if item already exists in the array
       const existingItemIndex = state.items.findIndex(
         (i) => i.itemId === item.id
       );
 
       if (existingItemIndex >= 0) {
-        // Item exists, update its quantity
         const updatedItems = [...state.items];
         updatedItems[existingItemIndex] = {
           ...updatedItems[existingItemIndex],
@@ -82,7 +81,6 @@ export default function FoodModal({ food, onClose, businessHours = [] }: FoodMod
           items: updatedItems,
         };
       } else {
-        // Item doesn't exist, add it to the array
         return {
           ...state,
           items: [...state.items, defaultItem],
@@ -107,13 +105,11 @@ export default function FoodModal({ food, onClose, businessHours = [] }: FoodMod
   };
 
   const handleAddToCart = () => {
-    // Check if restaurant is open
     if (!isOpen) {
       toast.error(`Não é possível fazer pedidos agora. ${status}.`);
       return;
     }
 
-    // Validate minimum items for each category
     const invalidCategories = food?.item_categories
       .filter((category) => {
         const totalSelected = getTotalSelectedByCategory(category, currentItem);
@@ -122,7 +118,6 @@ export default function FoodModal({ food, onClose, businessHours = [] }: FoodMod
       .map((category) => category.title);
 
     if (invalidCategories && invalidCategories.length > 0) {
-      // Show error message for categories that don't meet minimum requirements
       toast.error(
         `A categoria(s) ${invalidCategories.join(
           ", "
@@ -139,7 +134,7 @@ export default function FoodModal({ food, onClose, businessHours = [] }: FoodMod
   useEffect(() => {
     if (food) {
       setCurrentItem({
-        id: v4(),
+        id: crypto.randomUUID(),
         itemId: food.id,
         quantity: 1,
         image: food.image?.url || "",
@@ -153,52 +148,74 @@ export default function FoodModal({ food, onClose, businessHours = [] }: FoodMod
   }, [food]);
 
   return (
-    <Modal
-      isOpen={!!food}
-      onClose={onClose}
-      size="4xl"
-      className="max-h-[80vh]"
+    <Dialog
+      open={!!food}
+      onOpenChange={(isOpen) => !isOpen && onClose()}
     >
-      <ModalContent>
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         {food && (
           <>
-            <ModalHeader></ModalHeader>
-            <ModalBody className="overflow-auto">
+            <DialogHeader>
+              <DialogTitle>{food.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
               <div className="flex flex-col gap-4">
                 <div className="w-full flex justify-center">
-                  <Image
+                  <img
                     src={food.image?.url || FoodDefault}
                     width={300}
                     height={300}
                     alt={food.name}
-                    className="rounded-md w-full max-w-[250px]"
+                    className="rounded-md w-full max-w-[250px] object-cover"
                   />
                 </div>
                 <div className="w-full flex flex-col justify-between">
                   <div>
                     <h2 className="text-xl">{food.name}</h2>
-                    <p className="text-gray-500 text-sm">{food.description}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {food.description}
+                    </p>
 
                     <div className="flex justify-between items-center mt-4">
-                      <div className="flex text-gray-400 gap-2">
+                      <div className="flex text-muted-foreground gap-2">
                         {food.gluten_free && (
-                          <Tooltip content="Sem glúten">
-                            <GlutenFree width={24} height={24} />
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span>
+                                <GlutenFree width={24} height={24} />
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>Sem glúten</TooltipContent>
                           </Tooltip>
                         )}
                         {food.lactose_free && (
-                          <Tooltip content="Sem lactose">
-                            <LactoseFree width={24} height={24} />
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span>
+                                <LactoseFree width={24} height={24} />
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>Sem lactose</TooltipContent>
                           </Tooltip>
                         )}
                         {food.vegan && (
-                          <Tooltip content="Vegano">
-                            <Vegan width={24} height={24} />
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span>
+                                <Vegan width={24} height={24} />
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>Vegano</TooltipContent>
                           </Tooltip>
                         )}
                         {food.vegetarian && (
-                          <Tooltip content="Vegetariano">
-                            <Vegetarian width={24} height={24} />
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span>
+                                <Vegetarian width={24} height={24} />
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>Vegetariano</TooltipContent>
                           </Tooltip>
                         )}
                       </div>
@@ -216,7 +233,7 @@ export default function FoodModal({ food, onClose, businessHours = [] }: FoodMod
               </div>
               {food.item_categories.length > 0 && (
                 <>
-                  <Divider />
+                  <Separator />
                   {food.item_categories.map(
                     (category) =>
                       category.food_items.length > 0 && (
@@ -225,11 +242,11 @@ export default function FoodModal({ food, onClose, businessHours = [] }: FoodMod
                             <div className="mb-2 flex justify-between items-center">
                               <div>
                                 <h3 className="text-lg">{category.title}</h3>
-                                <p className="text-sm text-gray-400">
+                                <p className="text-sm text-muted-foreground">
                                   {category.description}
                                 </p>
                               </div>
-                              <div className="text-md text-gray-400">
+                              <div className="text-md text-muted-foreground">
                                 {getTotalSelectedByCategory(
                                   category,
                                   currentItem
@@ -264,7 +281,7 @@ export default function FoodModal({ food, onClose, businessHours = [] }: FoodMod
                                     }
                                   />
                                   {index < category.food_items.length - 1 && (
-                                    <Divider />
+                                    <Separator />
                                   )}
                                 </Fragment>
                               ))}
@@ -280,8 +297,8 @@ export default function FoodModal({ food, onClose, businessHours = [] }: FoodMod
                 placeholder="Ex: Sem cebola, ponto da carne, etc."
                 ref={textAreaRef}
               />
-            </ModalBody>
-            <ModalFooter>
+            </div>
+            <DialogFooter>
               <div className="flex flex-row justify-between items-center w-full">
                 <div>
                   {!isOpen && (
@@ -290,17 +307,17 @@ export default function FoodModal({ food, onClose, businessHours = [] }: FoodMod
                   <p>Total: {currency(calcTotal(currentItem))}</p>
                 </div>
                 <Button
-                  onPress={() => handleAddToCart()}
+                  onClick={() => handleAddToCart()}
                   text={isOpen ? "Adicionar ao carrinho" : "Estabelecimento fechado"}
                   isDisabled={!isOpen}
                   color={isOpen ? "primary" : "default"}
                 />
               </div>
-            </ModalFooter>
+            </DialogFooter>
           </>
         )}
-      </ModalContent>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }
 

@@ -1,5 +1,3 @@
-"use client";
-
 import {
   createContext,
   ReactNode,
@@ -7,7 +5,7 @@ import {
   useContext,
   useEffect,
 } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import api from "@/services/api";
 import {
   useMutation,
@@ -16,9 +14,16 @@ import {
 } from "@tanstack/react-query";
 import useUser from "./queries/useUser";
 import Cookies from "js-cookie";
-import { CredentialResponse } from "@react-oauth/google";
 import { AxiosError, AxiosResponse } from "axios";
 import { User } from "@/types/api/User";
+
+type CredentialResponse = {
+  credential: string;
+  clientId?: string;
+  select_by?: string;
+};
+
+export type { CredentialResponse };
 
 type AuthContextProps = {
   loginGoogle: UseMutationResult<
@@ -47,7 +52,7 @@ const AuthContext = createContext<AuthContextProps>({
 export function useAuth() {
   const value = useContext(AuthContext);
 
-  if (process.env.NODE_ENV !== "production") {
+  if (import.meta.env.DEV) {
     if (!value) {
       throw new Error("useSession must be wrapped in a <SessionProvider />");
     }
@@ -58,8 +63,9 @@ export function useAuth() {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { data: user, refetch: refetchUser, isLoading: isLoadingUser } = useUser();
-  const router = useRouter();
-  const pathName = usePathname();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const pathName = location.pathname;
   const queryClient = useQueryClient();
 
   const loginGoogle = useMutation<
@@ -86,22 +92,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (isLoadingUser) {
       return;
     }
-    
+
     if (!user && pathName.startsWith("/dashboard")) {
-      router.replace("/auth");
+      navigate({ to: "/auth", replace: true });
       return;
     }
 
     if (user && !user.company && pathName.startsWith("/dashboard")) {
-      router.replace("/auth/company");
+      navigate({ to: "/auth/company", replace: true });
       return;
     }
 
     if (user?.company && pathName.startsWith("/auth")) {
-      router.replace("/dashboard");
+      navigate({ to: "/dashboard", replace: true });
       return;
     }
-  }, [pathName, router, user]);
+  }, [pathName, navigate, user]);
 
   useEffect(() => {
     handleRedirect();

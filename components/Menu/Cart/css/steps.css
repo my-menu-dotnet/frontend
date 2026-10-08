@@ -33,24 +33,26 @@
 
 .step[data-active='true'] {
   div:first-child {
-    @apply border-primary bg-white;
+    border-color: var(--primary);
+    background-color: #ffffff;
 
     svg {
-      @apply text-primary;
+      color: var(--primary);
     }
   }
 
   p {
-    @apply text-primary font-semibold;
+    color: var(--primary);
+    font-weight: 600;
   }
 }
 
 .step[data-active='true']::after {
-  @apply bg-primary;
+  background-color: var(--primary);
 }
 
 .step[data-active='true']::before {
-  @apply bg-primary;
+  background-color: var(--primary);
 }
 
 .step::before {

@@ -1,12 +1,10 @@
-"use client";
-
 import useCompanyAccess from "@/hooks/queries/analytics/useCompanyAccess";
 import { Line } from "react-chartjs-2";
 
 import { Chart, registerables } from "chart.js";
 import Block from "../../Block";
 import { months } from "@/utils/lists";
-import { Skeleton } from "@nextui-org/react";
+import { Skeleton } from "@/components/ui/skeleton";
 Chart.register(...registerables);
 
 export default function LineAccessChart() {

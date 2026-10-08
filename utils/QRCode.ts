@@ -1,4 +1,16 @@
-import { QRCodeConfig } from "@/app/dashboard/qrcode/page";
+export type QRCodeConfig = {
+  ecLevel?: "L" | "M" | "Q" | "H";
+  bgColor?: string;
+  fgColor?: string;
+  logoImage?: boolean;
+  logoWidth?: number;
+  logoOpacity?: number;
+  removeQrCodeBehindLogo?: boolean;
+  logoPadding?: number;
+  qrStyle?: "squares" | "dots";
+  eyeRadius?: number;
+  eyeColor?: string;
+};
 
 export const saveQRCodeConfig = (config: QRCodeConfig) => {
   try {
@@ -12,7 +24,7 @@ export const saveQRCodeConfig = (config: QRCodeConfig) => {
 export const getQRCodeConfig = (): QRCodeConfig | null => {
   try {
     const configString = localStorage.getItem("qrCodeConfig");
-    return configString ? JSON.parse(configString) : null;
+    return configString ? (JSON.parse(configString) as QRCodeConfig) : null;
   } catch (error) {
     console.error("Error retrieving QR code config:", error);
     return null;

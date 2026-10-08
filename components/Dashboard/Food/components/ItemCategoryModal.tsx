@@ -2,20 +2,20 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Switch from "@/components/Switch";
 import Textarea from "@/components/Textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import useFood from "@/hooks/queries/food/useFood";
 import api from "@/services/api";
 import { FoodItemCategory } from "@/types/api/food/FoodItemCategory";
 import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@nextui-org/react";
 import { useMutation } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -48,7 +48,7 @@ export default function ItemCategoryModal({
   category,
   foodId,
 }: ItemCategoryModalProps) {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams({ strict: false }) as { id: string };
   const { refetch } = useFood(id);
 
   const { control, handleSubmit, setValue } = useForm<FoodItemCategoryForm>({
@@ -92,16 +92,18 @@ export default function ItemCategoryModal({
   }, [open, category, setValue]);
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit(handleItemCategory)();
-      }}
-    >
-      <Modal isOpen={open} onClose={handleClose} size="xl">
-        <ModalContent>
-          <ModalHeader>Adicionar categoria</ModalHeader>
-          <ModalBody>
+    <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Adicionar categoria</DialogTitle>
+        </DialogHeader>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit(handleItemCategory)();
+          }}
+        >
+          <div className="flex flex-col gap-3 p-4">
             <Controller
               name="title"
               control={control}
@@ -154,27 +156,28 @@ export default function ItemCategoryModal({
                 />
               )}
             />
-          </ModalBody>
-          <ModalFooter className="flex justify-between">
+          </div>
+          <DialogFooter className="flex justify-between">
             <Controller
               name="required"
               control={control}
               render={({ field }) => (
-                <Switch checked={field.value} onChange={field.onChange}>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                >
                   {field.value ? "Obrigatório" : "Opcional"}
                 </Switch>
               )}
             />
             <Button
               text="Adicionar"
-              className="bg-primary text-white px-4 py-2 rounded-md"
               type="submit"
-              onPress={() => handleSubmit(handleItemCategory)()}
-              isLoading={isPending}
+              disabled={isPending}
             />
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </form>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

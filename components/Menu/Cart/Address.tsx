@@ -16,7 +16,6 @@ import { useMutation } from "@tanstack/react-query";
 import api from "@/services/api";
 import useAddress from "@/hooks/queries/useAddress";
 import { useEffect, useState } from "react";
-import { Spinner } from "@nextui-org/react";
 
 type AddressForm = {
   zip_code: string;
@@ -25,16 +24,17 @@ type AddressForm = {
   neighborhood: string;
   street: string;
   number: string;
-  complement: string;
+  complement?: string;
 };
 
-const schema = Yup.object().shape({
+const schema: Yup.ObjectSchema<AddressForm> = Yup.object().shape({
   zip_code: Yup.string().required("CEP é obrigatório"),
   state: Yup.string().required("Estado é obrigatório"),
   city: Yup.string().required("Cidade é obrigatório"),
   neighborhood: Yup.string().required("Bairro é obrigatório"),
   street: Yup.string().required("Rua é obrigatório"),
   number: Yup.string().required("Número é obrigatório"),
+  complement: Yup.string().optional(),
 });
 
 export default function Address() {
@@ -88,12 +88,12 @@ export default function Address() {
   return (
     <>
       <Block>
-        <div className="flex items-center gap-2 mb-2 text-gray-400">
-          <HiOutlineLocationMarker size={24} className="text-gray-400" />
+        <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+          <HiOutlineLocationMarker size={24} className="text-muted-foreground" />
           <h1 className="text-lg">Preencha seu endereço</h1>
         </div>
 
-        <p className="mt-6 text-gray-400">
+        <p className="mt-6 text-muted-foreground">
           Preencha o formulário abaixo com o seu{" "}
           <span className="font-semibold">endereço de entrega</span>.
         </p>
@@ -112,9 +112,11 @@ export default function Address() {
                 mask="cep"
                 endContent={
                   isLoadingAddress && (
-                    <div>
-                      <Spinner size="sm" />
-                    </div>
+                    <div
+                      className="h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-primary"
+                      role="status"
+                      aria-label="Carregando CEP"
+                    />
                   )
                 }
                 {...field}
@@ -140,16 +142,11 @@ export default function Address() {
                 isDisabled={isLoadingAddress}
                 {...field}
               >
-                <>
-                  <SelectItem value="" isDisabled>
-                    Selecione o estado
+                {states.map((state) => (
+                  <SelectItem key={state.key} value={state.key}>
+                    {state.label}
                   </SelectItem>
-                  {states.map((state) => (
-                    <SelectItem key={state.key} value={state.key}>
-                      {state.label}
-                    </SelectItem>
-                  ))}
-                </>
+                ))}
               </Select>
             )}
           />

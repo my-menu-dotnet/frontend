@@ -1,13 +1,13 @@
 import Button from "@/components/Button";
 import Checkbox from "@/components/Checkbox";
 import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@nextui-org/react";
-import { useRouter } from "next/navigation";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 
 export default function PopupAlert() {
@@ -25,24 +25,24 @@ export default function PopupAlert() {
   }, []);
 
   return (
-    <Modal isOpen={open} onClose={() => setOpen(false)}>
-      <ModalContent>
-        <ModalHeader>Visualizaçao de produção</ModalHeader>
-        <ModalBody>
-          <p>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && setOpen(false)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Visualizaçao de produção</DialogTitle>
+          <DialogDescription>
             Essa visualização é apenas para{" "}
             <span className="font-bold">pedidos em andamento</span> e{" "}
             <span className="font-bold">concluídos no dia</span>. Para
             visualizar todos os pedidos, acesse a lista de pedidos.
-          </p>
-          <Checkbox className="mt-4" onChange={dontShowAgain}>
-            Não mostrar novamente
-          </Checkbox>
-        </ModalBody>
-        <ModalFooter>
-          <Button onPress={() => setOpen(false)}>Entendi</Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+          </DialogDescription>
+        </DialogHeader>
+        <Checkbox className="mt-4" onChange={dontShowAgain}>
+          Não mostrar novamente
+        </Checkbox>
+        <DialogFooter>
+          <Button onClick={() => setOpen(false)}>Entendi</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

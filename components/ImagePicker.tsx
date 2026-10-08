@@ -5,7 +5,6 @@ import api from "@/services/api";
 import { FileStorage } from "@/types/api/FileStorage";
 import { validateImageFileType } from "@/validators/file";
 import { useMutation } from "@tanstack/react-query";
-import Image from "next/image";
 import { HTMLProps, useEffect, useState } from "react";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { toast } from "react-toastify";
@@ -70,7 +69,7 @@ export default function ImagePicker({
         className="flex flex-col justify-center items-center w-full h-64 border rounded-xl cursor-pointer border-dashed border-gray-300 py-4"
       >
         {file?.url || url ? (
-          <Image
+          <img
             data-test="image-preview"
             src={file?.url || url || ""}
             width={400}

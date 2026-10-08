@@ -1,11 +1,9 @@
 "use client";
 
 import { Menu } from "@/types/api/Menu";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Banner as IBanner } from "@/types/api/Banner";
 import Banner from "../Banner";
-import Link from "next/link";
 
 type BannersProps = {
   menu: Menu;
@@ -36,7 +34,7 @@ export default function Banners({ menu }: BannersProps) {
         <Banner
           itemList={banners}
           renderItem={(banner) => (
-            <Link
+            <a
               key={banner.id}
               href={getHref(banner) || ""}
               target="_blank"
@@ -44,16 +42,13 @@ export default function Banners({ menu }: BannersProps) {
               className="block w-full relative"
             >
               <div className="relative w-full aspect-video md:aspect-[3/1]">
-                <Image
+                <img
                   src={banner.image.url}
                   alt={menu.company.name}
-                  fill
-                  quality={100}
-                  priority
-                  className="object-cover absolute inset-0 rounded-md"
+                  className="object-cover absolute inset-0 rounded-md w-full h-full"
                 />
               </div>
-            </Link>
+            </a>
           )}
         />
       </section>

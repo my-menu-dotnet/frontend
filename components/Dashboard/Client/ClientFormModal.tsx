@@ -1,40 +1,53 @@
+import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
 import SelectItem from "@/components/SelectItem";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import useUpdateCreateClient from "@/hooks/mutate/useUpdateCreateClient";
 import { Client, ClientRequest } from "@/types/api/Client";
 import { states } from "@/utils/lists";
 import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@nextui-org/react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import Button from "@/components/Button";
 
 type ClientFormModalProps = {
   isOpen: boolean;
   client?: Client;
+  /** Pre-fills the name field when opening for a new client. */
+  prefillName?: string;
   onClose: () => void;
+  /** Called with the new client after a successful create (not on edit). */
+  onCreated?: (client: Client) => void;
 };
 
 const schema = Yup.object().shape({
   name: Yup.string().required("Nome é obrigatório"),
   email: Yup.string().email("E-mail inválido").optional(),
-  phone: Yup.string().optional(),
-  cpf: Yup.string().optional(),
+  phone: Yup.string()
+    .transform((v) => (v ? String(v).replace(/\D/g, "") : v))
+    .test("phone-digits", "Telefone inválido", (v) => !v || v.length >= 10)
+    .optional(),
+  cpf: Yup.string()
+    .transform((v) => (v ? String(v).replace(/\D/g, "") : v))
+    .test("cpf-digits", "CPF inválido", (v) => !v || v.length === 11)
+    .optional(),
   street: Yup.string().optional(),
   number: Yup.string().optional(),
   complement: Yup.string().optional(),
   neighborhood: Yup.string().optional(),
   city: Yup.string().optional(),
   state: Yup.string().optional(),
-  zip_code: Yup.string().optional(),
+  zip_code: Yup.string()
+    .transform((v) => (v ? String(v).replace(/\D/g, "") : v))
+    .test("cep-digits", "CEP inválido", (v) => !v || v.length === 8)
+    .optional(),
 });
 
 type ClientFormShape = {
@@ -65,10 +78,16 @@ const defaultValues: ClientFormShape = {
   zip_code: "",
 };
 
+/** Strip non-digits from a masked value before sending to the API. */
+const stripMask = (value?: string) =>
+  value ? value.replace(/\D/g, "") : undefined;
+
 export default function ClientFormModal({
   isOpen,
   client,
+  prefillName,
   onClose,
+  onCreated,
 }: ClientFormModalProps) {
   const { mutateAsync, isPending } = useUpdateCreateClient();
   const isEditing = Boolean(client?.id);
@@ -82,7 +101,7 @@ export default function ClientFormModal({
     if (isOpen) {
       const a = client?.address;
       reset({
-        name: client?.name ?? "",
+        name: client?.name ?? prefillName ?? "",
         email: client?.email ?? "",
         phone: client?.phone ?? "",
         cpf: client?.cpf ?? "",
@@ -95,14 +114,14 @@ export default function ClientFormModal({
         zip_code: a?.zip_code ?? "",
       });
     }
-  }, [isOpen, client, reset]);
+  }, [isOpen, client, prefillName, reset]);
 
   const onSubmit = async (data: ClientFormShape) => {
     const payload: ClientRequest = {
       name: data.name,
       email: data.email || undefined,
-      phone: data.phone || undefined,
-      cpf: data.cpf || undefined,
+      phone: stripMask(data.phone),
+      cpf: stripMask(data.cpf),
     };
     if (data.street || data.city || data.state || data.zip_code) {
       payload.address = {
@@ -112,12 +131,15 @@ export default function ClientFormModal({
         neighborhood: data.neighborhood,
         city: data.city,
         state: data.state,
-        zip_code: data.zip_code,
+        zip_code: stripMask(data.zip_code),
       };
     }
 
     try {
-      await mutateAsync({ ...payload, id: client?.id });
+      const saved = await mutateAsync({ ...payload, id: client?.id });
+      if (!client?.id) {
+        onCreated?.(saved);
+      }
       onClose();
     } catch {
       // toast handled in hook
@@ -125,23 +147,20 @@ export default function ClientFormModal({
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size="3xl"
-      scrollBehavior="inside"
-    >
-      <ModalContent>
-        <ModalHeader>
-          {isEditing ? "Editar cliente" : "Adicionar cliente"}
-        </ModalHeader>
+    <Dialog open={isOpen} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>
+            {isEditing ? "Editar cliente" : "Adicionar cliente"}
+          </DialogTitle>
+        </DialogHeader>
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit(onSubmit)();
           }}
         >
-          <ModalBody className="gap-3">
+          <div className="flex flex-col gap-3 p-4">
             <Controller
               name="name"
               control={control}
@@ -149,7 +168,7 @@ export default function ClientFormModal({
                 <Input
                   label="Nome"
                   placeholder="Nome completo"
-                  isRequired
+                  required
                   errorMessage={fieldState.error?.message}
                   data-test="client-input-name"
                   {...field}
@@ -222,23 +241,17 @@ export default function ClientFormModal({
                   control={control}
                   render={({ field, fieldState }) => (
                     <Select
-                      label="Estado"
                       placeholder="Selecione o estado"
                       errorMessage={fieldState.error?.message}
-                      selectedKeys={field.value ? [field.value] : []}
+                      value={field.value ?? ""}
+                      onValueChange={field.onChange}
                       data-test="client-select-state"
-                      {...field}
                     >
-                      <>
-                        <SelectItem value="" isDisabled>
-                          Selecione o estado
+                      {states.map((s) => (
+                        <SelectItem key={s.key} value={s.key}>
+                          {s.label}
                         </SelectItem>
-                        {states.map((s) => (
-                          <SelectItem key={s.key} value={s.key}>
-                            {s.label}
-                          </SelectItem>
-                        ))}
-                      </>
+                      ))}
                     </Select>
                   )}
                 />
@@ -309,25 +322,25 @@ export default function ClientFormModal({
                 />
               </div>
             </div>
-          </ModalBody>
-          <ModalFooter>
+          </div>
+          <DialogFooter>
             <Button
               text="Cancelar"
               type="button"
               color="default"
-              variant="flat"
-              onPress={onClose}
+              variant="ghost"
+              onClick={onClose}
               data-test="client-button-cancel"
             />
             <Button
               text={isEditing ? "Salvar" : "Adicionar"}
               type="submit"
-              isLoading={isPending}
+              disabled={isPending}
               data-test="client-button-submit"
             />
-          </ModalFooter>
+          </DialogFooter>
         </form>
-      </ModalContent>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }

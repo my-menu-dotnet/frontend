@@ -5,7 +5,7 @@ interface CustomAxiosRequestConfig extends AxiosRequestConfig {
 }
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 });
 
@@ -68,13 +68,13 @@ api.interceptors.response.use(
 
 api.interceptors.request.use(
   (config) => {
-    if (typeof window !== 'undefined') {
-      const pathParts = window.location.pathname.split('/');
-      const companyIdIndex = pathParts.indexOf('menu') + 1;
+    if (typeof window !== "undefined") {
+      const pathParts = window.location.pathname.split("/");
+      const companyIdIndex = pathParts.indexOf("menu") + 1;
       const companyId = pathParts[companyIdIndex];
-      
+
       if (companyId) {
-        config.headers['X-Company-ID'] = companyId;
+        config.headers["X-Company-ID"] = companyId;
       }
     }
     return config;

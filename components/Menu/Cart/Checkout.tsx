@@ -3,27 +3,22 @@
 import Block from "@/components/Block";
 import SimpleFoodItem from "@/components/SimpleFoodItem";
 import { FoodOrder, useCart } from "@/hooks/useCart";
-import {
-  calcTotalDiscount,
-  calcTotalPrice,
-  calcTotalWithoutDiscount,
-} from "@/utils/calcTotalPrice";
+import { calcTotalPrice } from "@/utils/calcTotalPrice";
 import { currency } from "@/utils/text";
-import { Divider, Input } from "@nextui-org/react";
 import { MdPayment } from "react-icons/md";
-import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import useMutationOrder from "@/hooks/mutate/useMutationOrder";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { OrderItemForm } from "@/types/api/order/OrderItemForm";
 import Button from "@/components/Button";
 import { FaWhatsapp } from "react-icons/fa";
 import OrderOverview from "@/components/OrderOverview";
 import { useMenuCompany } from "@/hooks/useMenuCompany";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { useCartStep } from "./hooks/useCarStep";
 import { useMutationOrderAnonymous } from "@/hooks/mutate/useMutationOrderAnonymous";
 import useUser from "@/hooks/queries/useUser";
-// initMercadoPago(process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || "");
+import { Separator } from "@/components/ui/separator";
+import Input from "@/components/Input";
 
 export default function Checkout() {
   const nameRef = useRef<HTMLInputElement>(null);
@@ -33,7 +28,7 @@ export default function Checkout() {
   const { company } = useMenuCompany();
   const { mutateAsync } = useMutationOrder();
   const { mutateAsync: mutateAsyncAnon } = useMutationOrderAnonymous();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleRedirect = (orderNumber: number) => {
     const pedido = String(orderNumber).padStart(3, "0");
@@ -45,9 +40,9 @@ export default function Checkout() {
     });
 
     if (user) {
-      return router.push(`/menu/${company.url}/profile`);
+      return navigate({ to: `/menu/${company.url}/profile` });
     }
-    router.push(`/menu/${company.url}`);
+    navigate({ to: `/menu/${company.url}` });
   };
 
   const handleOrder = () => {
@@ -71,8 +66,8 @@ export default function Checkout() {
 
   return (
     <Block>
-      <div className="flex items-center gap-2 mb-2 text-gray-400">
-        <MdPayment size={24} className="fill-gray-400" />
+      <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+        <MdPayment size={24} className="fill-muted-foreground" />
         <h1 className="text-lg">Finalizar compra</h1>
       </div>
 
@@ -106,7 +101,7 @@ export default function Checkout() {
           </div>
         ))}
 
-      <Divider className="my-4" />
+      <Separator className="my-4" />
 
       <OrderOverview items={items} />
 
@@ -125,21 +120,13 @@ export default function Checkout() {
           startContent={<FaWhatsapp size={20} />}
           className="w-full"
           text="Finalizar compra"
-          onPress={handleOrder}
+          onClick={handleOrder}
         />
-        <p className="text-sm text-center text-gray-400 mt-2">
+        <p className="text-sm text-center text-muted-foreground mt-2">
           Ao cliclar em &quot;Finalizar compra&quot; você receberá o número do
           pedido e será redirecionado para o WhatsApp para finalizar a compra.
         </p>
       </div>
-
-      {/* {preference?.preference_id && (
-        <Wallet
-          initialization={{
-            preferenceId: preference?.preference_id,
-          }}
-        />
-      )} */}
     </Block>
   );
 }

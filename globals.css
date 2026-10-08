@@ -1,5 +1,13 @@
 @import "./public/css/price.css";
 @import "./assets/css/home-blob.css";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource/montserrat/400.css";
+@import "@fontsource/montserrat/500.css";
+@import "@fontsource/montserrat/600.css";
+@import "@fontsource/montserrat/700.css";
+@import "@fontsource/montserrat/800.css";
+@import "@fontsource/montserrat/900.css";
 
 @tailwind base;
 @tailwind components;
@@ -13,10 +21,130 @@ html {
   @apply antialiased;
 }
 
-.text-primary-foreground {
-  @apply text-white;
-}
-
 .ps-sidebar-container {
   background-color: unset !important;
+}
+
+@layer base {
+  .theme {
+    --font-heading: var(--font-sans);
+    --font-sans: "Montserrat", "Montserrat Variable", system-ui, sans-serif;
+  }
+  :root {
+    /* Brand: yellow primary #FFC303 ≈ oklch(0.854 0.179 95.5) */
+    --background: 0.99 0 0;
+    --foreground: 0.18 0 0;
+    --card: 1 0 0;
+    --card-foreground: 0.18 0 0;
+    --popover: 1 0 0;
+    --popover-foreground: 0.18 0 0;
+    --primary: 0.854 0.179 95.5;
+    --primary-foreground: 0.18 0 0;
+    --secondary: 0.96 0.01 95;
+    --secondary-foreground: 0.25 0.02 95;
+    --muted: 0.96 0.01 95;
+    --muted-foreground: 0.5 0.02 95;
+    --accent: 0.95 0.03 95;
+    --accent-foreground: 0.25 0.02 95;
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 0.97 0 0;
+    --border: 0.92 0.01 95;
+    --input: 0.92 0.01 95;
+    --ring: 0.854 0.179 95.5;
+    --chart-1: 0.854 0.179 95.5;
+    --chart-2: 0.6 0.18 260;
+    --chart-3: 0.5 0.18 145;
+    --chart-4: 0.55 0.22 25;
+    --chart-5: 0.45 0.18 320;
+    --radius: 0.625rem;
+    --sidebar: 0.985 0 0;
+    --sidebar-foreground: 0.18 0 0;
+    --sidebar-primary: 0.854 0.179 95.5;
+    --sidebar-primary-foreground: 0.18 0 0;
+    --sidebar-accent: 0.95 0.03 95;
+    --sidebar-accent-foreground: 0.25 0.02 95;
+    --sidebar-border: 0.92 0.01 95;
+    --sidebar-ring: 0.854 0.179 95.5;
+  }
+  .dark {
+    --background: 0.16 0 0;
+    --foreground: 0.97 0 0;
+    --card: 0.21 0 0;
+    --card-foreground: 0.97 0 0;
+    --popover: 0.21 0 0;
+    --popover-foreground: 0.97 0 0;
+    --primary: 0.854 0.179 95.5;
+    --primary-foreground: 0.18 0 0;
+    --secondary: 0.27 0.02 95;
+    --secondary-foreground: 0.97 0 0;
+    --muted: 0.27 0.02 95;
+    --muted-foreground: 0.7 0.02 95;
+    --accent: 0.32 0.04 95;
+    --accent-foreground: 0.97 0 0;
+    --destructive: 0.704 0.191 22.216;
+    --destructive-foreground: 0.97 0 0;
+    --border: 1 0 0 / 10%;
+    --input: 1 0 0 / 15%;
+    --ring: 0.854 0.179 95.5;
+    --chart-1: 0.854 0.179 95.5;
+    --chart-2: 0.7 0.18 260;
+    --chart-3: 0.65 0.18 145;
+    --chart-4: 0.7 0.22 25;
+    --chart-5: 0.6 0.18 320;
+    --sidebar: 0.21 0 0;
+    --sidebar-foreground: 0.97 0 0;
+    --sidebar-primary: 0.854 0.179 95.5;
+    --sidebar-primary-foreground: 0.97 0 0;
+    --sidebar-accent: 0.32 0.04 95;
+    --sidebar-accent-foreground: 0.97 0 0;
+    --sidebar-border: 1 0 0 / 10%;
+    --sidebar-ring: 0.854 0.179 95.5;
+  }
+  .dark {
+    --background: oklch(0.16 0 0);
+    --foreground: oklch(0.97 0 0);
+    --card: oklch(0.21 0 0);
+    --card-foreground: oklch(0.97 0 0);
+    --popover: oklch(0.21 0 0);
+    --popover-foreground: oklch(0.97 0 0);
+    --primary: oklch(0.854 0.179 95.5);
+    --primary-foreground: oklch(0.18 0 0);
+    --secondary: oklch(0.27 0.02 95);
+    --secondary-foreground: oklch(0.97 0 0);
+    --muted: oklch(0.27 0.02 95);
+    --muted-foreground: oklch(0.7 0.02 95);
+    --accent: oklch(0.32 0.04 95);
+    --accent-foreground: oklch(0.97 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.854 0.179 95.5);
+    --chart-1: oklch(0.854 0.179 95.5);
+    --chart-2: oklch(0.7 0.18 260);
+    --chart-3: oklch(0.65 0.18 145);
+    --chart-4: oklch(0.7 0.22 25);
+    --chart-5: oklch(0.6 0.18 320);
+    --sidebar: oklch(0.21 0 0);
+    --sidebar-foreground: oklch(0.97 0 0);
+    --sidebar-primary: oklch(0.854 0.179 95.5);
+    --sidebar-primary-foreground: oklch(0.18 0 0);
+    --sidebar-accent: oklch(0.32 0.04 95);
+    --sidebar-accent-foreground: oklch(0.97 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.854 0.179 95.5);
+  }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Preserve legacy helpers used by migrated components. */
+.text-primary-foreground {
+  @apply text-white;
 }

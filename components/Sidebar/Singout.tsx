@@ -2,22 +2,27 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  useDisclosure,
-} from "@nextui-org/react";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { FiLogOut } from "react-icons/fi";
 import { MenuItem } from "react-pro-sidebar";
 import Button from "../Button";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 
 export default function Singout() {
-  const router = useRouter();
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
   const { logout } = useAuth();
+
+  const onOpen = () => setIsOpen(true);
+  const onOpenChange = (open: boolean) => setIsOpen(open);
+  const onClose = () => setIsOpen(false);
 
   return (
     <>
@@ -29,36 +34,34 @@ export default function Singout() {
         Sair
       </MenuItem>
 
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader>Sair</ModalHeader>
-              <ModalBody>
-                <p>Tem certeza que deseja sair?</p>
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="default"
-                  variant="light"
-                  onPress={onClose}
-                  text="Cancelar"
-                />
-                <Button
-                  color="danger"
-                  onPress={() => {
-                    logout.mutateAsync().then(() => {
-                      router.push("/");
-                    });
-                    onClose();
-                  }}
-                  text="Sair"
-                />
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sair</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja sair?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              color="default"
+              variant="light"
+              onPress={onClose}
+              text="Cancelar"
+            />
+            <Button
+              color="danger"
+              onPress={() => {
+                logout.mutateAsync().then(() => {
+                  navigate({ to: "/" });
+                });
+                onClose();
+              }}
+              text="Sair"
+            />
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

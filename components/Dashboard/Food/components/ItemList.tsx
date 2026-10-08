@@ -4,7 +4,6 @@ import { FoodItem } from "@/types/api/food/FoodItem";
 import { FoodItemCategory } from "@/types/api/food/FoodItemCategory";
 import { currency } from "@/utils/text";
 import { useMutation } from "@tanstack/react-query";
-import Image from "next/image";
 import { FiPlus } from "react-icons/fi";
 
 type ItemListProps = {
@@ -36,7 +35,7 @@ export default function ItemList({ category, onClickItem }: ItemListProps) {
             onClick={() => onClickItem(category, item)}
             {...provided.dragHandleProps}
           >
-            <Image
+            <img
               src={item.image?.url || ""}
               alt="Imagem do item"
               className="rounded-md"
@@ -46,7 +45,7 @@ export default function ItemList({ category, onClickItem }: ItemListProps) {
             <div className="flex-1 flex flex-col justify-between py-1">
               <div className="">
                 <h4 className="text-lg">{item.title}</h4>
-                <p className="text-gray-400">{item.description}</p>
+                <p className="text-muted-foreground">{item.description}</p>
               </div>
               <p>{item.price_increase ? currency(item.price_increase) : ""}</p>
             </div>
@@ -55,7 +54,7 @@ export default function ItemList({ category, onClickItem }: ItemListProps) {
       />
       <div
         onClick={() => onClickItem(category)}
-        className="border rounded-md w-full h-12 flex gap-2 justify-center items-center text-gray-400 hover:bg-gray-50 cursor-pointer transition-colors"
+        className="border rounded-md w-full h-12 flex gap-2 justify-center items-center text-muted-foreground hover:bg-muted cursor-pointer transition-colors"
       >
         <FiPlus size={20} />
         <p>Adicionar item</p>

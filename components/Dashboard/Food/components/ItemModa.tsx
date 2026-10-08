@@ -4,6 +4,14 @@ import Input from "@/components/Input";
 import Select from "@/components/Select";
 import SelectItem from "@/components/SelectItem";
 import Textarea from "@/components/Textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import useFood from "@/hooks/queries/food/useFood";
 import useInfiniteFood from "@/hooks/queries/food/useInfiniteFood";
 import api from "@/services/api";
@@ -12,30 +20,22 @@ import { Food } from "@/types/api/Food";
 import { FoodItem } from "@/types/api/food/FoodItem";
 import Yup from "@/validators/Yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  Divider,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@nextui-org/react";
 import { useMutation } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams } from "@tanstack/react-router";
 import { UIEventHandler, useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 type FoodItemForm = {
   title: string;
   description: string;
-  price_increase: number | undefined;
+  price_increase?: number;
   image_id: string;
 };
 
-const schema = Yup.object().shape({
+const schema: Yup.ObjectSchema<FoodItemForm> = Yup.object().shape({
   title: Yup.string().required(),
   description: Yup.string().required(),
-  price_increase: Yup.number().optional().nullable(),
+  price_increase: Yup.number().optional(),
   image_id: Yup.string().required(),
 });
 
@@ -55,10 +55,10 @@ export default function ItemModal({
   const [currentImage, setCurrentImage] = useState<FileStorage | null>(
     item?.image || null
   );
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams({ strict: false }) as { id: string };
   const { refetch } = useFood(id);
 
-  const { control, handleSubmit, setValue, watch } = useForm<FoodItemForm>({
+  const { control, handleSubmit, setValue } = useForm<FoodItemForm>({
     resolver: yupResolver(schema),
     defaultValues: {
       title: item?.title || "",
@@ -110,16 +110,18 @@ export default function ItemModal({
   }, [open, item, setValue]);
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit(handleItemCategory)();
-      }}
-    >
-      <Modal isOpen={open} onClose={handleClose} size="xl">
-        <ModalContent>
-          <ModalHeader>Item</ModalHeader>
-          <ModalBody>
+    <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Item</DialogTitle>
+        </DialogHeader>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit(handleItemCategory)();
+          }}
+        >
+          <div className="flex flex-col gap-3 p-4">
             <FoodSelect
               handleSelect={(food) => {
                 setValue("title", food.name);
@@ -128,7 +130,7 @@ export default function ItemModal({
                 setCurrentImage(food.image || null);
               }}
             />
-            <Divider />
+            <Separator />
             <Controller
               name="title"
               control={control}
@@ -186,26 +188,24 @@ export default function ItemModal({
                 />
               )}
             />
-          </ModalBody>
-          <ModalFooter>
+          </div>
+          <DialogFooter>
             <div className="flex justify-between items-center w-full">
               <Button
                 text="Remover"
-                className="bg-danger text-white px-4 py-2 rounded-md"
-                onPress={handleDelete}
+                color="danger"
+                onClick={handleDelete}
               />
               <Button
                 text="Adicionar"
-                className="bg-primary text-white px-4 py-2 rounded-md"
                 type="submit"
-                onPress={() => handleSubmit(handleItemCategory)()}
-                isLoading={isPending}
+                disabled={isPending}
               />
             </div>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </form>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -221,7 +221,7 @@ const FoodSelect = ({
     [foods]
   );
 
-  const handleScroll: UIEventHandler<HTMLSelectElement> = (e) => {
+  const handleScroll: UIEventHandler<HTMLDivElement> = (e) => {
     if (
       e.currentTarget.scrollHeight - e.currentTarget.scrollTop ===
       e.currentTarget.clientHeight
@@ -232,7 +232,6 @@ const FoodSelect = ({
 
   const handleSelectCapture = (id: string) => {
     const food = foodsMap.find((food) => food.id === id);
-    console.log(food);
     if (food) {
       setSelected(food);
       handleSelect(food);
@@ -243,19 +242,9 @@ const FoodSelect = ({
     <Select
       data-test="select-food"
       className="w-full"
-      label="Produto copiado"
       placeholder="Selecione um produto para copiar"
-      variant="bordered"
-      classNames={{
-        trigger: "border-1 rounded-lg",
-        listboxWrapper: "border-1 rounded-lg",
-      }}
-      selectedKeys={[selected?.id || ""]}
-      onSelectionChange={(e) => {
-        handleSelectCapture(Array.from(e as Set<string>)[0]);
-      }}
-      isLoading={isFetching}
-      onScrollCapture={handleScroll}
+      value={selected?.id ?? ""}
+      onValueChange={handleSelectCapture}
     >
       {foodsMap?.map((food) => (
         <SelectItem key={food.id} value={food.id}>

@@ -1,4 +1,9 @@
-import { Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import BannerForm, { BannerFormRef } from "./BannerForm";
 import { useRef } from "react";
 import useBanners from "@/hooks/queries/banner/useBanners";
@@ -20,13 +25,13 @@ export default function CreateModal({ open, onClose }: CreateModalProps) {
   };
 
   return (
-    <Modal isOpen={open} onClose={onClose} size="4xl">
-      <ModalContent>
-        <ModalHeader>Adicionar Banner</ModalHeader>
-        <ModalBody>
-          <BannerForm ref={formRef} onSuccess={handleSuccess} />
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>Adicionar Banner</DialogTitle>
+        </DialogHeader>
+        <BannerForm ref={formRef} onSuccess={handleSuccess} />
+      </DialogContent>
+    </Dialog>
   );
 }

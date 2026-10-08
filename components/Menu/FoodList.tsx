@@ -2,8 +2,7 @@
 
 import { Category } from "@/types/api/Category";
 import { Menu } from "@/types/api/Menu";
-import { Tab, Tabs } from "@nextui-org/react";
-import { Montserrat } from "next/font/google";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FoodCard from "../FoodCard";
 import { Food } from "@/types/api/Food";
 import { useState } from "react";
@@ -13,8 +12,6 @@ type FoodList = {
   menu: Menu;
   color: string;
 };
-
-const montserrat = Montserrat({ weight: "600", subsets: ["latin"] });
 
 export default function FoodList({ menu, color }: FoodList) {
   const [categories, setCategories] = useState<Category[]>(menu.categories);
@@ -35,39 +32,31 @@ export default function FoodList({ menu, color }: FoodList) {
     <>
       {menu.categories.length > 0 && (
         <Tabs
-          aria-label="Options"
+          defaultValue="ALL"
+          onValueChange={handleTabsChange}
           className="mt-2 w-full"
-          classNames={{
-            tabList:
-              "gap-6 w-full relative rounded-none p-0 border-b border-divider",
-            cursor: "w-full bg-primary",
-            tab: "max-w-fit px-0 h-12",
-            tabContent: "text-black " + montserrat.className,
-          }}
-          color="primary"
-          variant="underlined"
-          onSelectionChange={(index) => {
-            handleTabsChange(index.toString());
-          }}
         >
-          <Tab
-            key="ALL"
-            title={
+          <TabsList className="w-full justify-start gap-6 rounded-none border-b p-0 h-12">
+            <TabsTrigger
+              value="ALL"
+              className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary px-0"
+            >
               <div className="flex items-center gap-2">
                 <span>Todos</span>
               </div>
-            }
-          />
-          {menu.categories.map((category) => (
-            <Tab
-              key={category.id}
-              title={
+            </TabsTrigger>
+            {menu.categories.map((category) => (
+              <TabsTrigger
+                key={category.id}
+                value={category.id}
+                className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary px-0"
+              >
                 <div className="flex items-center gap-2">
                   <span>{category.name}</span>
                 </div>
-              }
-            />
-          ))}
+              </TabsTrigger>
+            ))}
+          </TabsList>
         </Tabs>
       )}
 
@@ -80,7 +69,7 @@ export default function FoodList({ menu, color }: FoodList) {
                 id={category.id}
                 className="flex flex-col gap-4 mt-4"
               >
-                <h2 className={montserrat.className}>{category.name}</h2>
+                <h2 className="font-heading font-semibold">{category.name}</h2>
                 <ul className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {category.foods.map((product: Food) => (
                     <FoodCard
@@ -97,9 +86,9 @@ export default function FoodList({ menu, color }: FoodList) {
         )}
       </div>
 
-      <FoodModal 
-        food={foodOpen} 
-        onClose={() => setFoodOpen(undefined)} 
+      <FoodModal
+        food={foodOpen}
+        onClose={() => setFoodOpen(undefined)}
         businessHours={menu.company.business_hours}
       />
     </>

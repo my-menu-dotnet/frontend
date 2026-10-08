@@ -1,4 +1,4 @@
-import { usePathname } from "next/navigation";
+import { useLocation } from "@tanstack/react-router";
 import { SubMenu } from "react-pro-sidebar";
 
 type SubItemProps = {
@@ -9,14 +9,14 @@ type SubItemProps = {
 };
 
 const SubItem = ({ title, icon, url, children }: SubItemProps) => {
-  const pathName = usePathname();
+  const { pathname } = useLocation();
 
   return (
     <SubMenu
       label={title}
       icon={icon}
       className="text-gray-400"
-      defaultOpen={pathName.startsWith("/dashboard" + url)}
+      defaultOpen={pathname.startsWith("/dashboard" + url)}
     >
       {children}
     </SubMenu>
